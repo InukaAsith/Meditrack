@@ -1,0 +1,560 @@
+USE meditrack;
+INSERT INTO role (role_name, description)
+VALUES ('Patient', 'App-facing patient/guest account'),
+    ('Doctor', 'Consults patients, writes prescriptions'),
+    ('Receptionist', 'Front-desk booking, check-in, billing'),
+    ('Supporting Staff', 'Live queue and vitals, no billing/prescriptions'),
+    ('Pharmacist', 'Dispensing and pharmacy inventory'),
+    ('Manager', 'Analytics, approvals, financial reports'),
+    ('Admin', 'System administration and audit');
+INSERT INTO staff (
+        employee_code,
+        full_name,
+        work_email,
+        role_id,
+        password_hash,
+        must_change_password,
+        phone
+    )
+VALUES (
+        'EMP-001',
+        'Omindu Gunathilaka',
+        'omindu@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Doctor'),
+        '$2y$12$RDDfJMLRDeQEyBj.mShgdeHkvcARMCFf3vPb5Ggi5Xt6IJLY25fRG',
+        0,
+        '+94771000001'
+    ),
+    (
+        'EMP-002',
+        'Inuka Asith',
+        'inuka@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Receptionist'),
+        '$2y$12$61WFoQ1QSsM8AH9j.gxGKeefHP6vKnTtp1nOzh8L1KumTi/Y92gHm',
+        0,
+        '+94771000002'
+    ),
+    (
+        'EMP-003',
+        'Gavishka Sandamal',
+        'gavishka@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Supporting Staff'),
+        '$2y$12$1KWtJBv03MrcoUaQPV6MseSGwKlxvWyVnnndjK9xj796y3fN301PG',
+        0,
+        '+94771000003'
+    ),
+    (
+        'EMP-004',
+        'Sandanu Dulmeth',
+        'sandanu@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Pharmacist'),
+        '$2y$12$Fyvbfn6CVoCN9Vp8AoQFee96csyvN9cg0ytRYMnOwWAbGzz3Ib0wi',
+        0,
+        '+94771000004'
+    ),
+    (
+        'EMP-005',
+        'Sadeesha Savindya',
+        'sadeesha@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Manager'),
+        '$2y$12$vNL2Z5x6caaHTJw/V8aV3u1EKcdAFeIIYN0cyJ81gXAJ0./565j9G',
+        0,
+        '+94771000005'
+    ),
+    (
+        'EMP-006',
+        'Nimsith Athuraliya',
+        'nimsith@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Admin'),
+        '$2y$12$q5agJTYA3da3aMvrzMUtDebMVrbPcLZ/SJyzf2WsJmX.OMqtLAmAe',
+        0,
+        '+94771000006'
+    ),
+    (
+        'EMP-007',
+        'Chandima Jayamanna',
+        'chandima@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Doctor'),
+        '$2y$12$o2TjlUtvHHCiOXaEdx.cEeIY2dNEtuySQhAzc2bNFtR8Fn5XHI7jy',
+        0,
+        '+94771000007'
+    ),
+    (
+        'EMP-008',
+        'Anindu Pathirana',
+        'anindu@meditrack.lk',
+        (SELECT role_id FROM role WHERE role_name = 'Doctor'),
+        '$2y$12$HUIuP3knL5NSOf6FgsAiseMxZHEpldGodZVy71KWCcCOrjbvafCUW',
+        0,
+        '+94771000008'
+    );
+INSERT INTO patient (
+        patient_code,
+        nic,
+        full_name,
+        date_of_birth,
+        gender,
+        blood_type,
+        mobile,
+        email,
+        address,
+        password_hash,
+        must_change_password,
+        pdpa_consent,
+        registered_by
+    )
+VALUES (
+        'PT-0001',
+        '831092811V',
+        'K. Ashan Charuka',
+        '1983-04-19',
+        'male',
+        'A+',
+        '0712345601',
+        'ashan@meditrack.lk',
+        '8 Lake View, Malabe',
+        '$2y$12$M3AT3dGmRAVPdjLs9/BfVu22UWgfKsxZQgI9BkVS7X.q4Kgy0uzfy',
+        0,
+        1,
+        (SELECT staff_id FROM staff WHERE employee_code = 'EMP-002')
+    ),
+    (
+        'PT-0002',
+        '926781002V',
+        'G.G. Mithun Majika',
+        '1992-06-26',
+        'male',
+        NULL,
+        '0763345120',
+        'mithun@meditrack.lk',
+        NULL,
+        '$2y$12$hd.gTY7ZV0eBh/AT3VEvz.wnHiDS3mUCVAs0pQ1ina9t8TWRsvQdi',
+        0,
+        1,
+        (SELECT staff_id FROM staff WHERE employee_code = 'EMP-002')
+    );
+INSERT INTO patient_allergy (
+        patient_id,
+        allergen_name,
+        added_by_role,
+        added_by_staff_id
+    )
+VALUES (
+        (SELECT patient_id FROM patient WHERE patient_code = 'PT-0001'),
+        'Penicillin',
+        'receptionist',
+        (SELECT staff_id FROM staff WHERE employee_code = 'EMP-002')
+    ),
+    (
+        (SELECT patient_id FROM patient WHERE patient_code = 'PT-0001'),
+        'Ibuprofen',
+        'receptionist',
+        (SELECT staff_id FROM staff WHERE employee_code = 'EMP-002')
+    );
+INSERT INTO specialty (name)
+VALUES ('General Medicine'),
+    ('Cardiology'),
+    ('Pediatrics'),
+    ('ENT'),
+    ('Dermatology');
+SET @omindu = (SELECT staff_id FROM staff WHERE employee_code = 'EMP-001');
+SET @chandima = (SELECT staff_id FROM staff WHERE employee_code = 'EMP-007');
+SET @anindu = (SELECT staff_id FROM staff WHERE employee_code = 'EMP-008');
+INSERT INTO doctor (staff_id, slmc_number, specialty_id, consultation_fee)
+VALUES (
+        @omindu,
+        '45231',
+        (SELECT specialty_id FROM specialty WHERE name = 'General Medicine'),
+        2500.00
+    ),
+    (
+        @chandima,
+        '38117',
+        (SELECT specialty_id FROM specialty WHERE name = 'Cardiology'),
+        3500.00
+    ),
+    (
+        @anindu,
+        '51904',
+        (SELECT specialty_id FROM specialty WHERE name = 'Pediatrics'),
+        3000.00
+    );
+INSERT INTO doctor_leave (doctor_id, start_date, end_date, reason, created_by)
+VALUES (@omindu, '2026-07-16', '2026-07-16', 'Medical conference in Kandy', @omindu);
+INSERT INTO doctor_regular_schedule (doctor_id, day_of_week, start_time, end_time, capacity)
+VALUES (@omindu, 1, '09:00', '13:00', 16),
+    (@omindu, 2, '09:00', '13:00', 16),
+    (@omindu, 3, '09:00', '13:00', 16),
+    (@omindu, 3, '17:00', '19:00', 8),
+    (@omindu, 4, '09:00', '13:00', 16),
+    (@omindu, 5, '09:00', '13:00', 16),
+    (@omindu, 6, '09:00', '12:00', 12),
+    (@chandima, 1, '16:00', '20:00', 16),
+    (@chandima, 3, '16:00', '20:00', 16),
+    (@chandima, 5, '16:00', '20:00', 16),
+    (@anindu, 2, '08:30', '12:30', 16),
+    (@anindu, 4, '08:30', '12:30', 16),
+    (@anindu, 6, '08:30', '11:30', 12);
+INSERT INTO doctor_availability (doctor_id, session_date, source)
+VALUES (@omindu, '2026-09-25', 'manual');
+SET @changedDay = LAST_INSERT_ID();
+INSERT INTO availability_slot (availability_id, start_time, end_time, capacity)
+VALUES (@changedDay, '09:00', '13:00', 16);
+INSERT INTO schedule_break (availability_id, from_time, to_time, label)
+VALUES (@changedDay, '11:00', '11:15', 'Tea break'),
+    (@changedDay, '12:00', '12:30', 'Lunch');
+SET @ashan = (SELECT patient_id FROM patient WHERE patient_code = 'PT-0001');
+SET @mithun = (SELECT patient_id FROM patient WHERE patient_code = 'PT-0002');
+INSERT INTO appointment (
+        appointment_code,
+        doctor_id,
+        booking_for,
+        patient_id,
+        booking_patient_id,
+        subject_full_name,
+        subject_mobile,
+        appointment_date,
+        slot_time,
+        visit_type,
+        booking_channel,
+        status,
+        fee_amount,
+        payment_timing
+    )
+VALUES ('APT-1001', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-22', '09:00', 'follow_up', 'patient_web', 'completed', 2500.00, 'online'),
+    ('APT-1002', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-22', '09:15', 'new', 'patient_web', 'completed', 2500.00, 'at_counter'),
+    ('APT-1003', @omindu, 'guest', NULL, NULL, 'Nimali Perera', '+94771234501', '2026-09-22', '09:30', 'new', 'guest_web', 'no_show', 2500.00, 'online'),
+    ('APT-1004', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-24', '09:00', 'new', 'patient_web', 'completed', 2500.00, 'at_counter'),
+    ('APT-1005', @omindu, 'guest', NULL, NULL, 'Ruwan Silva', '+94771234502', '2026-09-24', '10:00', 'new', 'reception', 'completed', 2500.00, 'at_counter'),
+    ('APT-1006', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-25', '09:00', 'follow_up', 'patient_web', 'confirmed', 2500.00, 'online'),
+    ('APT-1007', @omindu, 'someone_else', NULL, @ashan, 'Dilini Fernando', '+94771234503', '2026-09-25', '09:15', 'new', 'patient_web', 'confirmed', 2500.00, 'online'),
+    ('APT-1008', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-25', '09:30', 'follow_up', 'patient_web', 'confirmed', 2500.00, 'at_counter'),
+    ('APT-1009', @omindu, 'guest', NULL, NULL, 'Chamath Dissanayake', '+94771234509', '2026-09-25', '10:30', 'new', 'reception', 'confirmed', 2500.00, 'at_counter'),
+    ('APT-1010', @omindu, 'guest', NULL, NULL, 'Kasun Jayawardena', '+94771234504', '2026-09-25', '12:30', 'new', 'reception', 'confirmed', 2500.00, 'at_counter'),
+    ('APT-1011', @omindu, 'guest', NULL, NULL, 'Amaya Senanayake', '+94771234505', '2026-09-25', '11:30', 'new', 'guest_web', 'cancelled', 2500.00, 'online'),
+    ('APT-1012', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-26', '09:00', 'follow_up', 'patient_web', 'confirmed', 2500.00, 'online'),
+    ('APT-1013', @omindu, 'guest', NULL, NULL, 'Sachini Wijesinghe', '+94771234506', '2026-09-26', '09:30', 'new', 'guest_web', 'confirmed', 2500.00, 'online'),
+    ('APT-1014', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-29', '09:15', 'new', 'patient_web', 'confirmed', 2500.00, 'at_counter'),
+    ('APT-1015', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-29', '11:00', 'follow_up', 'patient_web', 'confirmed', 2500.00, 'online'),
+    ('APT-1016', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-30', '17:00', 'new', 'patient_web', 'confirmed', 2500.00, 'at_counter'),
+    ('APT-1017', @omindu, 'guest', NULL, NULL, 'Tharindu Bandara', '+94771234507', '2026-09-30', '17:30', 'new', 'reception', 'confirmed', 2500.00, 'at_counter'),
+    ('APT-1018', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-10-02', '09:00', 'new', 'patient_web', 'confirmed', 2500.00, 'online'),
+    ('APT-1019', @omindu, 'guest', NULL, NULL, 'Hasini Rathnayake', '+94771234508', '2026-10-06', '10:15', 'new', 'guest_web', 'confirmed', 2500.00, 'online');
+
+INSERT INTO supplier (name, contact)
+VALUES (
+        'MedLanka Pvt Ltd',
+        '+94 11 234 5678'
+    ),
+    (
+        'Ceyoka Health',
+        '+94 11 471 2000'
+    ),
+    (
+        'GlobalPharm Logistics',
+        '+94 11 588 9100'
+    ),
+    (
+        'State Pharmaceuticals Corporation',
+        '+94 11 232 0356'
+    ) ON DUPLICATE KEY
+UPDATE contact =
+VALUES(contact);
+
+INSERT INTO medicine (
+        commercial_name,
+        generic_name,
+        unit_form,
+        manufacturer,
+        storage_limits,
+        unit_price,
+        reorder_threshold,
+        requires_prescription,
+        is_available
+    )
+VALUES (
+        'Amoxicillin 500 mg',
+        'Amoxicillin',
+        'capsule',
+        'MedLanka Pharma',
+        'Below 25°C · dry',
+        22.00,
+        40,
+        1,
+        1
+    ),
+    (
+        'Paracetamol 500 mg',
+        'Paracetamol',
+        'tablet',
+        'GlaxoSmithKline LK',
+        'Store in cool dry place',
+        8.00,
+        300,
+        0,
+        1
+    ),
+    (
+        'Cetirizine 10 mg',
+        'Cetirizine HCl',
+        'tablet',
+        'Ceyoka Labs',
+        'Below 30°C',
+        15.00,
+        150,
+        0,
+        1
+    ),
+    (
+        'Salbutamol inhaler',
+        'Salbutamol',
+        'inhaler',
+        'Cipla Respiratory',
+        'Protect from direct sunlight',
+        850.00,
+        25,
+        1,
+        0
+    ),
+    (
+        'Losartan 50 mg',
+        'Losartan K',
+        'tablet',
+        'Torrent Pharma',
+        'Below 25°C',
+        22.00,
+        200,
+        1,
+        1
+    ),
+    (
+        'Amox-Clav 625 mg',
+        'Co-amoxiclav',
+        'tablet',
+        'Augmentin GSK',
+        'Keep in moisture-proof container',
+        42.00,
+        80,
+        1,
+        1
+    ),
+    (
+        'Metformin 500 mg',
+        'Metformin HCl',
+        'tablet',
+        'Sun Pharma LK',
+        'Below 30°C',
+        12.00,
+        250,
+        1,
+        1
+    ),
+    (
+        'Omeprazole 20 mg',
+        'Omeprazole',
+        'capsule',
+        'AstraZeneca LK',
+        'Below 25°C · keep dry',
+        18.00,
+        100,
+        0,
+        1
+    ),
+    (
+        'Atorvastatin 20 mg',
+        'Atorvastatin',
+        'tablet',
+        'Pfizer Lanka',
+        'Below 25°C',
+        35.00,
+        120,
+        1,
+        1
+    ) ON DUPLICATE KEY
+UPDATE generic_name =
+VALUES(generic_name),
+    unit_price =
+VALUES(unit_price),
+    reorder_threshold =
+VALUES(reorder_threshold),
+    requires_prescription =
+VALUES(requires_prescription),
+    is_available =
+VALUES(is_available);
+
+SET @pharmacist_id = (
+        SELECT staff_id
+        FROM staff
+        WHERE employee_code = 'EMP-004'
+        LIMIT 1
+    );
+SET @sup_medlanka = (
+        SELECT supplier_id
+        FROM supplier
+        WHERE name = 'MedLanka Pvt Ltd'
+        LIMIT 1
+    );
+SET @sup_ceyoka = (
+        SELECT supplier_id
+        FROM supplier
+        WHERE name = 'Ceyoka Health'
+        LIMIT 1
+    );
+SET @sup_global = (
+        SELECT supplier_id
+        FROM supplier
+        WHERE name = 'GlobalPharm Logistics'
+        LIMIT 1
+    );
+SET @sup_spc = (
+        SELECT supplier_id
+        FROM supplier
+        WHERE name = 'State Pharmaceuticals Corporation'
+        LIMIT 1
+    );
+
+INSERT INTO medicine_batch (
+        batch_code,
+        medicine_id,
+        supplier_id,
+        supplier_invoice_ref,
+        quantity_received,
+        quantity_on_hand,
+        cost_price_total,
+        expiry_date,
+        status,
+        registered_by
+    )
+VALUES (
+        'BT-2214',
+        (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Amoxicillin 500 mg'
+            LIMIT 1
+        ), @sup_medlanka, 'ML-2026-1102', 100, 14, 1500.00, '2026-08-02', 'active', @pharmacist_id
+    ), (
+        'BT-2190', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Paracetamol 500 mg'
+            LIMIT 1
+        ), @sup_ceyoka, 'CY-2026-3401', 800, 640, 3840.00, '2027-03-11', 'active', @pharmacist_id
+    ), (
+        'BT-2205', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Paracetamol 500 mg'
+            LIMIT 1
+        ), @sup_ceyoka, 'CY-2026-3890', 600, 600, 3600.00, '2027-06-08', 'active', @pharmacist_id
+    ), (
+        'BT-2201', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Cetirizine 10 mg'
+            LIMIT 1
+        ), @sup_medlanka, 'ML-2026-2210', 300, 120, 1200.00, '2026-10-15', 'active', @pharmacist_id
+    ), (
+        'BT-2229', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Cetirizine 10 mg'
+            LIMIT 1
+        ), @sup_medlanka, 'ML-2026-2845', 250, 200, 2000.00, '2027-04-14', 'active', @pharmacist_id
+    ), (
+        'BT-2168', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Salbutamol inhaler'
+            LIMIT 1
+        ), @sup_global, 'GP-2026-0914', 50, 0, 30000.00, '2027-01-15', 'damaged', @pharmacist_id
+    ), (
+        'BT-2222', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Losartan 50 mg'
+            LIMIT 1
+        ), @sup_ceyoka, 'CY-2026-4412', 1000, 860, 12900.00, '2027-02-22', 'active', @pharmacist_id
+    ), (
+        'BT-2216', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Amox-Clav 625 mg'
+            LIMIT 1
+        ), @sup_medlanka, 'ML-2026-3108', 150, 96, 3072.00, '2026-09-30', 'active', @pharmacist_id
+    ), (
+        'BT-2230', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Metformin 500 mg'
+            LIMIT 1
+        ), @sup_spc, 'SPC-2026-0041', 600, 500, 4500.00, '2027-11-20', 'active', @pharmacist_id
+    ), (
+        'BT-2225', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Omeprazole 20 mg'
+            LIMIT 1
+        ), @sup_ceyoka, 'CY-2026-4019', 200, 75, 900.00, '2027-08-10', 'active', @pharmacist_id
+    ), (
+        'BT-2233', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Atorvastatin 20 mg'
+            LIMIT 1
+        ), @sup_global, 'GP-2026-1188', 400, 310, 8060.00, '2027-05-18', 'active', @pharmacist_id
+    ) ON DUPLICATE KEY
+UPDATE quantity_on_hand =
+VALUES(quantity_on_hand),
+    status =
+VALUES(status);
+
+INSERT INTO stock_adjustment (
+        stock_adjustment_id,
+        batch_id,
+        quantity_delta,
+        reason,
+        note,
+        adjusted_by
+    )
+VALUES (
+        1,
+        (
+            SELECT batch_id
+            FROM medicine_batch
+            WHERE batch_code = 'BT-2214'
+            LIMIT 1
+        ), -6, 'damaged', 'Reason: Damaged items', @pharmacist_id
+    ), (
+        2, (
+            SELECT batch_id
+            FROM medicine_batch
+            WHERE batch_code = 'BT-2190'
+            LIMIT 1
+        ), 640, 'baseline_intake', 'Reason: Baseline intake', @pharmacist_id
+    ), (
+        3, (
+            SELECT batch_id
+            FROM medicine_batch
+            WHERE batch_code = 'BT-2168'
+            LIMIT 1
+        ), -50, 'audit_correction', 'Reason: Audit correction', @pharmacist_id
+    ) ON DUPLICATE KEY
+UPDATE quantity_delta =
+VALUES(quantity_delta),
+    reason =
+VALUES(reason),
+    note =
+VALUES(note);
+
+INSERT INTO audit_log (actor_type, actor_id, action, entity_name, entity_pk, changed_fields, created_at)
+VALUES
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-006'), 'update', 'clinic_settings', '1', 'grace_window_min', '2026-09-26 06:20:11'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-006'), 'update', 'staff', '5', 'role_id', '2026-09-26 06:01:44'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-004'), 'update', 'medicine', '1', 'unit_price', '2026-09-26 05:52:03'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-002'), 'update', 'invoice', 'INV-0228', 'status, void_reason', '2026-09-26 05:35:22'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-006'), 'create', 'staff', '3', NULL, '2026-09-26 05:20:05'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-001'), 'update', 'consultation', 'CN-8841', 'notes, diagnosis', '2026-09-26 05:14:07'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-001'), 'view', 'patient', '1', NULL, '2026-09-26 05:12:55'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-006'), 'update', 'staff', '2', 'status', '2026-09-25 16:40:00'),
+    ('staff', (SELECT staff_id FROM staff WHERE employee_code = 'EMP-006'), 'update', 'message_template', 'Booking confirmed', 'message_text', '2026-09-25 14:11:00');
