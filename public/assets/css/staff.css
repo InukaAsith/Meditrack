@@ -1,0 +1,223 @@
+.staff-login {
+  --clinic-brand: #123A82;
+  --clinic-ink: #14213A;
+  --clinic-line: #E4E8EF;
+  --clinic-bg: #F5F7FB;
+  --clinic-radius: 20px;
+  --clinic-radius-sm: 13px;
+  --clinic-shadow: 0 1px 2px rgba(20, 33, 58, .04), 0 14px 34px -22px rgba(20, 33, 58, .32);
+
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: var(--clinic-bg);
+}
+
+.staff-login__hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+  padding: var(--sp-12) var(--sp-11);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-8);
+}
+
+.staff-login__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.staff-login__hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(150deg, rgba(18, 58, 130, .93) 0%, rgba(18, 58, 130, .86) 45%, rgba(9, 30, 70, .93) 100%);
+}
+
+.staff-login__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+.staff-login__mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: rgba(255, 255, 255, .12);
+  flex-shrink: 0;
+}
+
+.staff-login__brand-name {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+}
+
+.staff-login__brand-sub {
+  font-size: var(--fs-sm);
+  color: rgba(255,255,255,.8);
+}
+
+.staff-login__headline {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -.025em;
+  max-width: 16ch;
+}
+
+.staff-login__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.staff-login__point {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-5) var(--sp-6);
+  border-radius: var(--clinic-radius-sm);
+  background: rgba(255, 255, 255, .10);
+  border: 1px solid rgba(255, 255, 255, .14);
+  font-size: var(--fs-lg);
+  color: rgba(255, 255, 255, .95);
+}
+
+.staff-login__pdot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.staff-login__pdot--green {
+  background: #34D399;
+}
+
+.staff-login__pdot--blue {
+  background: #93C5FD;
+}
+
+.staff-login__pdot--amber {
+  background: #FCD34D;
+}
+
+.staff-login__form-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-10);
+}
+
+.staff-login__card {
+  width: 100%;
+  max-width: 430px;
+  background: #fff;
+  border: 1px solid var(--clinic-line);
+  border-radius: var(--clinic-radius);
+  box-shadow: var(--clinic-shadow);
+  padding: var(--sp-11) var(--sp-10);
+}
+
+.staff-login__logo {
+  display: block;
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto var(--sp-9);
+}
+
+.staff-login__eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.staff-login__title {
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--clinic-ink);
+  margin: var(--sp-3) 0 var(--sp-8);
+}
+
+.staff-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.staff-login__pass {
+  position: relative;
+}
+
+.staff-login__pass .field__input {
+  width: 100%;
+  padding-right: 56px;
+}
+
+.staff-login__demo {
+  margin-top: var(--sp-7);
+  padding: var(--sp-6);
+  background: var(--surface-inset);
+  border-radius: var(--clinic-radius-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.staff-login__demo strong {
+  color: var(--text);
+}
+
+@media (max-width: 980px) {
+  .staff-login {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-login__hero {
+    display: none;
+  }
+
+  .staff-login__form-col {
+    padding: var(--sp-9) var(--sp-7);
+  }
+
+  .staff-login__card {
+    padding: var(--sp-9) var(--sp-8);
+  }
+}
+
+.staff-login__pass-toggle {
+  position: absolute;
+  right: var(--sp-5);
+  bottom: var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.staff-login__row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.staff-login__foot {
+  margin-top: var(--sp-7);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
