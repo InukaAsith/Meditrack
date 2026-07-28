@@ -18,4 +18,9 @@ class PatientController extends Controller
     {
         $this->view('patient/dashboard');
     }
+
+    public function book(): void
+    {
+        $this->view('patient/book', ['linkedDay' => trim((string) ($_GET['day'] ?? ''))] + BookingCatalogue::build());
+    }
 }
