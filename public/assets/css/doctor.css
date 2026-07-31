@@ -1,0 +1,10 @@
+@import './doctor/shell.css';
+@import './doctor/dashboard.css';
+@import './doctor/current-patient.css';
+@import './doctor/queue.css';
+@import './doctor/schedule.css';
+@import './doctor/patient-history.css';
+@import './doctor/prescriptions.css';
+@import './doctor/configure.css';
+@import './doctor/notifications.css';
+@import './doctor/profile.css';
