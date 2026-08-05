@@ -1,0 +1,5 @@
+@import './pharmacist/inventory.css';
+@import './pharmacist/dispense.css';
+@import './pharmacist/stock-alerts.css';
+@import './pharmacist/suppliers.css';
+@import './pharmacist/notifications.css';
