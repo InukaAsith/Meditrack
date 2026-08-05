@@ -19,6 +19,11 @@ class PatientController extends Controller
         $this->view('patient/dashboard');
     }
 
+    public function yourHealth(): void
+    {
+        $this->view('patient/your-health');
+    }
+
     public function book(): void
     {
         $this->view('patient/book', ['linkedDay' => trim((string) ($_GET['day'] ?? ''))] + BookingCatalogue::build());
@@ -32,5 +37,15 @@ class PatientController extends Controller
     public function liveQueue(): void
     {
         $this->view('patient/live-queue');
+    }
+
+    public function records(): void
+    {
+        $this->view('patient/records');
+    }
+
+    public function prescriptions(): void
+    {
+        $this->view('patient/prescriptions');
     }
 }
