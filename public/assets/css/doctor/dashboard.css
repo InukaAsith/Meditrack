@@ -1,0 +1,383 @@
+.message-board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.message-board__post {
+  display: flex;
+  gap: var(--sp-4);
+}
+
+.message-board__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-inset);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.message-board__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-board__body strong {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.message-board__body p {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.message-board__time {
+  font-size: var(--fs-xs);
+  color: var(--text-subtle);
+}
+
+.message-board__compose {
+  display: flex;
+  gap: var(--sp-4);
+  margin-top: var(--sp-3);
+}
+
+.message-board__compose input {
+  flex: 1;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+}
+
+.message-board__empty {
+  padding: var(--sp-6);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.consultation-hero {
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  padding: var(--sp-6) var(--sp-7);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 6px 16px -4px rgba(18, 58, 130, 0.05);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  transition: box-shadow 0.2s ease;
+}
+
+.consultation-hero:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 10px 24px -4px rgba(18, 58, 130, 0.08);
+}
+
+.consultation-hero__patient {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+.consultation-hero__avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--primary-tint);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  border: 1px solid rgba(18, 58, 130, 0.16);
+  flex-shrink: 0;
+}
+
+.consultation-hero__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.consultation-hero__name-group {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.consultation-hero__name {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.consultation-hero__meta {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-top: var(--sp-1);
+}
+
+.consultation-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.consultation-hero__allergies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.consultation-allergy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 3px var(--sp-4);
+  border-radius: 8px;
+  background: var(--clinic-rose-soft, #FBE6EC);
+  color: var(--clinic-rose, #B33A56);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  border: 1px solid rgba(179, 58, 86, 0.18);
+}
+
+.consultation-allergy-chip--moderate {
+  background: var(--clinic-sun-soft, #FCEFD6);
+  color: var(--clinic-sun, #9A5B08);
+  border: 1px solid rgba(154, 91, 8, 0.18);
+}
+
+.consultation-hero__vitals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.consultation-hero__vital-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 3px var(--sp-3);
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+
+.consultation-hero__vital-pill .vital-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.consultation-hero__vital-pill .vital-val {
+  font-weight: 600;
+}
+
+.consultation-hero__vital-pill .vital-val--warning {
+  color: var(--clinic-sun, #9A5B08);
+}
+
+.consultation-hero__actions {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.consultation-hero__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.consultation-month-preview {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: var(--sp-7);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .consultation-month-preview {
+    grid-template-columns: 1fr;
+  }
+}
+
+.consultation-month-sessions {
+  border-left: 1px solid var(--border);
+  padding-left: var(--sp-7);
+}
+
+@media (max-width: 900px) {
+  .consultation-month-sessions {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    padding-top: var(--sp-6);
+  }
+}
+
+.consultation-session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5) 0;
+  border-top: 1px solid var(--border);
+}
+
+.consultation-session-row__label {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.consultation-session-row__hours {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.consultation-current-card {
+  padding: var(--sp-7);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: none;
+  margin-bottom: var(--sp-7);
+}
+
+.consultation-current-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+
+.consultation-current-card__patient {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+.consultation-current-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-tint);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  flex-shrink: 0;
+}
+
+.consultation-current-card__name {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.consultation-current-card__code {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.consultation-current-card__timer {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.consultation-current-card__timer--over {
+  color: var(--danger);
+}
+
+.consultation-current-card__details {
+  display: flex;
+  gap: var(--sp-7);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.consultation-current-card__detail strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.consultation-current-card__actions {
+  display: flex;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
+}
+
+.consultation-upnext {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.consultation-upnext__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.consultation-upnext__row:last-child {
+  border-bottom: none;
+}
+
+.consultation-upnext__pos {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-xs);
+  background: var(--surface-inset);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.consultation-upnext__name {
+  flex: 1;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.consultation-upnext__eta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text);
+  min-width: 40px;
+  text-align: right;
+}
