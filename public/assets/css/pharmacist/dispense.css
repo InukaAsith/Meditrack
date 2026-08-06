@@ -1,0 +1,100 @@
+.dispense-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-find-subhead .btn {
+  margin-left: auto;
+}
+
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.qty-stepper__button {
+  width: 30px;
+  height: 30px;
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.qty-stepper__button:hover {
+  color: var(--primary);
+}
+
+.qty-stepper__value {
+  min-width: 36px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.dispense-add {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  margin-top: var(--sp-7);
+}
+
+.dispense-add__search {
+  flex: 1;
+  position: relative;
+}
+
+.dispense-add__results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: var(--sp-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+}
+
+.dispense-add__result {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  width: 100%;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: 6px;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dispense-add__result:hover {
+  background: var(--surface-soft);
+}
+
+.dispense-photo {
+  height: 260px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface-inset);
+  display: grid;
+  place-items: center;
+}
+
+.dispense-photo__page {
+  width: 150px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  transition: transform .2s ease;
+}
