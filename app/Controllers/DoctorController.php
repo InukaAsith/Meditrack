@@ -67,6 +67,11 @@ class DoctorController extends Controller
         ]);
     }
 
+    public function queue(): void
+    {
+        $this->view('doctor/queue');
+    }
+
     private function getDoctorId(): int
     {
         $staffId = current_staff_id();

@@ -1,0 +1,223 @@
+.consultation-queue-subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  padding: 0 var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.consultation-queue-subhead__title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.consultation-queue-subhead__hint {
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+}
+
+.consultation-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.consultation-queue-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-5);
+  flex-wrap: wrap;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.consultation-queue-row:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+}
+
+.consultation-queue-row__handle {
+  color: var(--border-strong);
+  font-size: var(--fs-sm);
+  cursor: grab;
+  user-select: none;
+  letter-spacing: 1px;
+}
+
+.consultation-queue-row__num {
+  width: 24px;
+  height: 24px;
+  background: var(--surface-inset);
+  border-radius: var(--r-xs);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.consultation-queue-row__identity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.consultation-queue-row__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.consultation-queue-row__meta {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.consultation-queue-row__eta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text);
+  min-width: 50px;
+  text-align: right;
+}
+
+.consultation-qpill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px var(--sp-5);
+  border-radius: 8px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.consultation-qpill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.consultation-qpill--next {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.consultation-qpill--next .consultation-qpill__dot {
+  background: var(--primary);
+}
+
+.consultation-qpill--ready {
+  background: var(--clinic-teal-soft, #DCF3F2);
+  color: var(--clinic-teal, #0E7C78);
+}
+
+.consultation-qpill--ready .consultation-qpill__dot {
+  background: var(--clinic-teal, #0E7C78);
+}
+
+.consultation-qpill--not-arrived {
+  background: var(--surface-inset);
+  color: var(--text-muted);
+}
+
+.consultation-qpill--not-arrived .consultation-qpill__dot {
+  background: var(--text-subtle);
+}
+
+.consultation-qpill--checked-in {
+  background: var(--clinic-mint-soft, #D9F5E4);
+  color: var(--clinic-mint, #0E7A5A);
+}
+
+.consultation-qpill--checked-in .consultation-qpill__dot {
+  background: var(--clinic-mint, #0E7A5A);
+}
+
+.consultation-queue-row__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px dashed var(--border);
+  flex-wrap: wrap;
+}
+
+.consultation-qact {
+  border: none;
+  padding: 4px 10px;
+  border-radius: var(--r-xs);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .12s ease;
+}
+
+.consultation-qact:hover {
+  filter: brightness(0.94);
+}
+
+.consultation-qact--call {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.consultation-qact--skip {
+  background: var(--surface-inset);
+  color: var(--text-muted);
+}
+
+.consultation-qact--move {
+  background: var(--surface-inset);
+  color: var(--text-muted);
+  min-width: 30px;
+}
+
+.consultation-qact--flag {
+  background: #FCE9EA;
+  color: #C03036;
+}
+
+.consultation-glance {
+  display: flex;
+  flex-direction: column;
+}
+
+.consultation-glance__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--surface-inset);
+  font-size: var(--fs-sm);
+}
+
+.consultation-glance__row:last-child {
+  border-bottom: none;
+}
+
+.consultation-glance__row strong {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: var(--fs-md);
+}
+
+.consultation-glance__danger {
+  color: var(--danger);
+}
+
+.consultation-glance__info {
+  color: var(--info);
+}
