@@ -48,4 +48,24 @@ class PatientController extends Controller
     {
         $this->view('patient/prescriptions');
     }
+
+    public function pharmacyChoose(): void
+    {
+        $this->view('patient/pharmacy-choose');
+    }
+
+    public function pharmacyOrder(): void
+    {
+        $this->view('patient/pharmacy-order');
+    }
+
+    public function pharmacyOtc(): void
+    {
+        $this->view('patient/pharmacy-otc');
+    }
+
+    public function pharmacyPhoto(): void
+    {
+        $this->view('patient/pharmacy-photo');
+    }
 }
