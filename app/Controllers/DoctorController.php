@@ -67,6 +67,11 @@ class DoctorController extends Controller
         ]);
     }
 
+    public function currentPatient(): void
+    {
+        $this->view('doctor/current-patient');
+    }
+
     public function queue(): void
     {
         $this->view('doctor/queue');
