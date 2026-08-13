@@ -24,6 +24,11 @@ class PharmacistController extends Controller
         $this->view('pharmacist/dispense');
     }
 
+    public function prepareQueue(): void
+    {
+        $this->view('pharmacist/prepare-queue');
+    }
+
     private function readRequestData(): array
     {
         $input = $_POST;
