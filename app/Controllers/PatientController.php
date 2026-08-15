@@ -39,6 +39,11 @@ class PatientController extends Controller
         $this->view('patient/live-queue');
     }
 
+    public function more(): void
+    {
+        $this->view('patient/more');
+    }
+
     public function records(): void
     {
         $this->view('patient/records');
@@ -67,5 +72,20 @@ class PatientController extends Controller
     public function pharmacyPhoto(): void
     {
         $this->view('patient/pharmacy-photo');
+    }
+
+    public function billing(): void
+    {
+        $this->view('patient/billing');
+    }
+
+    public function notifications(): void
+    {
+        $this->view('patient/notifications');
+    }
+
+    public function profile(): void
+    {
+        $this->view('patient/profile');
     }
 }
