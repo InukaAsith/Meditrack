@@ -1,0 +1,59 @@
+.inventory-sort {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.inventory-sort:hover {
+  color: var(--primary);
+}
+
+.staff-app .data-table td.inventory-settings {
+  padding: var(--sp-8);
+  background: var(--surface-soft);
+}
+
+.inventory-settings__grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--sp-10);
+  align-items: start;
+}
+
+.inventory-settings__switches {
+  display: flex;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+  margin-top: var(--sp-6);
+}
+
+.inventory-settings__adjust {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--sp-3);
+}
+
+.inventory-settings__adjust .field__input {
+  width: auto;
+  min-width: 110px;
+}
+
+.inventory-settings .morning-row {
+  flex-wrap: wrap;
+}
+
+.inventory-settings__confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+}
+
+@media (max-width: 1024px) {
+  .inventory-settings__grid {
+    grid-template-columns: 1fr;
+  }
+}
