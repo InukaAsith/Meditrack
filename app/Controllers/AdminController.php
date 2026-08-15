@@ -145,6 +145,187 @@ class AdminController extends Controller
         ]);
     }
 
+    public function staffEdit(string $id = ''): void
+    {
+        $staff = $this->findStaffOr404($id);
+        $staffId = (int) $staff['staff_id'];
+
+        $values = [
+            'full_name' => $staff['full_name'],
+            'work_email' => $staff['work_email'],
+            'phone' => $staff['phone'] ?? '',
+            'role_name' => $staff['role_name'],
+        ];
+        $doctor = Doctor::findByStaffId($staffId);
+        $values['slmc_number'] = $doctor['slmc_number'] ?? '';
+        $values['specialty_id'] = (string) ($doctor['specialty_id'] ?? '');
+        $values['consultation_fee'] = (string) ($doctor['consultation_fee'] ?? '');
+        $values['followup_fee'] = (string) ($doctor['followup_fee'] ?? '');
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->checkCsrf('/staff/admin/staff-edit/' . $staffId);
+
+            $values['full_name'] = trim((string) ($_POST['full_name'] ?? ''));
+            $values['work_email'] = trim((string) ($_POST['work_email'] ?? ''));
+            $values['phone'] = trim((string) ($_POST['phone'] ?? ''));
+            $values = $this->readDoctorFields($values);
+
+            $errors = $this->validateStaff($values, false);
+            if ($values['role_name'] === 'Doctor') {
+                $errors += $this->validateDoctor($values, $staffId);
+            }
+
+            if (!$errors && Staff::emailTaken($values['work_email'], $staffId)) {
+                $errors['work_email'] = 'Another staff member already uses this email.';
+            }
+
+            if (!$errors) {
+                $changed = [];
+                if ($values['full_name'] !== $staff['full_name']) $changed[] = 'full_name';
+                if ($values['work_email'] !== $staff['work_email']) $changed[] = 'work_email';
+                if ($values['phone'] !== ($staff['phone'] ?? '')) $changed[] = 'phone';
+
+                db()->beginTransaction();
+                Staff::updateDetails($staffId, [
+                    'full_name' => $values['full_name'],
+                    'work_email' => $values['work_email'],
+                    'phone' => $values['phone'] === '' ? null : $values['phone'],
+                ]);
+                if ($values['role_name'] === 'Doctor') {
+                    Doctor::saveProfile($staffId, $this->doctorData($values));
+                }
+                db()->commit();
+
+                if ($changed) {
+                    AuditLog::record('staff', current_staff_id() ?? $staffId, 'update', 'staff', (string) $staffId, implode(', ', $changed));
+                }
+                $doctorChanged = $this->changedDoctorFields($doctor, $values);
+                if ($doctorChanged) {
+                    AuditLog::record('staff', current_staff_id() ?? $staffId, 'update', 'doctor', (string) $staffId, implode(', ', $doctorChanged));
+                }
+
+                flash_success('Changes saved.');
+                $this->redirect('/staff/admin/staff-edit/' . $staffId);
+            }
+        }
+
+        $this->view('admin/staff-edit', [
+            'staff' => $staff,
+            'specialties' => Doctor::allSpecialties(),
+            'values' => $values,
+            'errors' => $errors,
+            'success' => get_flash_success(),
+            'error' => get_flash_error(),
+        ]);
+    }
+
+    public function staffPhoto(string $id = ''): void
+    {
+        $staff = $this->findStaffForPost($id);
+        $staffId = (int) $staff['staff_id'];
+        $editPage = '/staff/admin/staff-edit/' . $staffId;
+
+        $file = $_FILES['photo'] ?? null;
+        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
+            flash_error('Pick a photo to upload.');
+            $this->redirect($editPage);
+        }
+
+        $res = $this->saveUploadedPhoto($file);
+        if (isset($res['error'])) {
+            flash_error($res['error']);
+            $this->redirect($editPage);
+        }
+
+        $this->deletePhotoFile($staff['photo_uri']);
+        Staff::setPhoto($staffId, $res['path']);
+        AuditLog::record('staff', current_staff_id() ?? $staffId, 'update', 'staff', (string) $staffId, 'photo_uri');
+
+        flash_success('Photo updated.');
+        $this->redirect($editPage);
+    }
+
+    public function staffPhotoDelete(string $id = ''): void
+    {
+        $staff = $this->findStaffForPost($id);
+        $staffId = (int) $staff['staff_id'];
+
+        $this->deletePhotoFile($staff['photo_uri']);
+        Staff::setPhoto($staffId, null);
+        AuditLog::record('staff', current_staff_id() ?? $staffId, 'delete', 'staff_photo', (string) $staffId);
+
+        flash_success('Photo removed.');
+        $this->redirect('/staff/admin/staff-edit/' . $staffId);
+    }
+
+    public function staffDeactivate(string $id = ''): void
+    {
+        $staff = $this->findStaffForPost($id);
+        $staffId = (int) $staff['staff_id'];
+
+        if ($staffId === current_staff_id()) {
+            flash_error("You can't turn off your own account.");
+            $this->redirect('/staff/admin/staff-edit/' . $staffId);
+        }
+
+        Staff::setStatus($staffId, 'deactivated');
+        AuditLog::record('staff', current_staff_id() ?? $staffId, 'deactivate', 'staff', (string) $staffId);
+
+        flash_success('Account turned off.');
+        $this->redirect('/staff/admin/staff-edit/' . $staffId);
+    }
+
+    public function staffReactivate(string $id = ''): void
+    {
+        $staff = $this->findStaffForPost($id);
+        $staffId = (int) $staff['staff_id'];
+
+        Staff::setStatus($staffId, 'active');
+        AuditLog::record('staff', current_staff_id() ?? $staffId, 'reactivate', 'staff', (string) $staffId);
+
+        flash_success('Account turned back on.');
+        $this->redirect('/staff/admin/staff-edit/' . $staffId);
+    }
+
+    public function staffResetPassword(string $id = ''): void
+    {
+        $staff = $this->findStaffForPost($id);
+        $staffId = (int) $staff['staff_id'];
+
+        $tempPassword = 'Passw0rd!';
+        $passwordHash = password_hash($tempPassword, PASSWORD_BCRYPT);
+        Staff::resetPassword($staffId, $passwordHash);
+        AuditLog::record('staff', current_staff_id() ?? $staffId, 'reset_password', 'staff', (string) $staffId);
+
+        flash_success("Password reset to {$tempPassword}.");
+        $this->redirect('/staff/admin/staff-edit/' . $staffId);
+    }
+
+    private function findStaffOr404(string $id): array
+    {
+        if (!ctype_digit($id)) {
+            $this->notFound();
+        }
+        $staff = Staff::find((int) $id);
+        if ($staff === false) {
+            $this->notFound();
+        }
+
+        return $staff;
+    }
+
+    private function findStaffForPost(string $id): array
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->notFound();
+        }
+        $staff = $this->findStaffOr404($id);
+        $this->checkCsrf('/staff/admin/staff-edit/' . $staff['staff_id']);
+
+        return $staff;
+    }
+
     private function checkCsrf(string $backTo): void
     {
         if (!csrf_check()) {
@@ -231,6 +412,26 @@ class AdminController extends Controller
         ];
     }
 
+    private function changedDoctorFields(?array $doctor, array $values): array
+    {
+        if ($values['role_name'] !== 'Doctor') {
+            return [];
+        }
+        if ($doctor === null) {
+            return ['slmc_number', 'specialty_id', 'consultation_fee', 'followup_fee'];
+        }
+
+        $changed = [];
+        if ($values['slmc_number'] !== $doctor['slmc_number']) $changed[] = 'slmc_number';
+        if ((int) $values['specialty_id'] !== (int) $doctor['specialty_id']) $changed[] = 'specialty_id';
+        if ((float) $values['consultation_fee'] !== (float) $doctor['consultation_fee']) $changed[] = 'consultation_fee';
+        $oldFollowup = $doctor['followup_fee'] === null ? '' : (string) (float) $doctor['followup_fee'];
+        $newFollowup = $values['followup_fee'] === '' ? '' : (string) (float) $values['followup_fee'];
+        if ($newFollowup !== $oldFollowup) $changed[] = 'followup_fee';
+
+        return $changed;
+    }
+
     private function saveUploadedPhoto(array $file): array
     {
         if ($file['size'] > 2 * 1024 * 1024) {
@@ -251,6 +452,17 @@ class AdminController extends Controller
         move_uploaded_file($file['tmp_name'], $folder . $fileName);
 
         return ['path' => self::PHOTO_FOLDER . $fileName];
+    }
+
+    private function deletePhotoFile(?string $photoUri): void
+    {
+        if ($photoUri === null || !str_starts_with($photoUri, self::PHOTO_FOLDER)) {
+            return;
+        }
+        $file = dirname(__DIR__, 2) . '/public' . self::PHOTO_FOLDER . basename($photoUri);
+        if (is_file($file)) {
+            unlink($file);
+        }
     }
 
     private function roleTone(string $role): string
