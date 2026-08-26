@@ -477,4 +477,92 @@ class AdminController extends Controller
             default => 'blue',
         };
     }
+
+    public function auditTrail(): void
+    {
+        $changes = AuditLog::allRecordChanges();
+        $logins = AuditLog::allLoginHistory();
+
+        $allStaff = Staff::all();
+        $users = [];
+        foreach ($allStaff as $s) {
+            $users[] = (string) $s['full_name'];
+        }
+        foreach ($changes as $c) {
+            if (!empty($c['user'])) {
+                $users[] = (string) $c['user'];
+            }
+        }
+        $users = array_values(array_unique($users));
+        sort($users);
+
+        $roleRows = Staff::allRoles();
+        $roles = [];
+        foreach ($roleRows as $r) {
+            $roles[] = (string) $r['role_name'];
+        }
+
+        $records = [
+            'Staff',
+            'Clinic settings',
+            'Medicine',
+            'Invoice',
+            'Consultation',
+            'Message template',
+            'Doctor leave',
+            'Patient',
+        ];
+
+        $queueEvents = [
+            ['time' => 'Today 09:38:02', 'date' => date('Y-m-d'), 'event' => 'Wait time changed', 'tone' => 'info',    'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1421', 'detail' => 'Wait time 8 min longer', 'by' => 'system'],
+            ['time' => 'Today 09:32:18', 'date' => date('Y-m-d'), 'event' => 'Completed',         'tone' => 'success', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1411', 'detail' => 'Consultation completed', 'by' => 'Dr. Sample Doctor 1'],
+            ['time' => 'Today 09:15:44', 'date' => date('Y-m-d'), 'event' => 'Emergency',         'tone' => 'danger',  'doctor' => 'Dr. Sample Doctor 2', 'entry' => 'QE-1409', 'detail' => 'Emergency added to the front', 'by' => 'G. G. Mithun Majika'],
+            ['time' => 'Today 09:04:30', 'date' => date('Y-m-d'), 'event' => 'No-show',           'tone' => 'warning', 'doctor' => 'Dr. Sample Doctor 3', 'entry' => 'QE-1402', 'detail' => 'No-show, refund queued', 'by' => 'system'],
+            ['time' => 'Today 08:55:12', 'date' => date('Y-m-d'), 'event' => 'Checked in',        'tone' => 'success', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1398', 'detail' => 'Checked in', 'by' => 'Sandanu D.'],
+            ['time' => 'Today 08:50:07', 'date' => date('Y-m-d'), 'event' => 'Doctor late',       'tone' => 'warning', 'doctor' => 'Dr. Sample Doctor 2', 'entry' => '-',       'detail' => 'Doctor running 12 min late', 'by' => 'Dr. Sample Doctor 2'],
+            ['time' => 'Today 08:41:55', 'date' => date('Y-m-d'), 'event' => 'Confirmed',         'tone' => 'info',    'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1390', 'detail' => 'Patient confirmed attendance', 'by' => 'patient'],
+            ['time' => 'Today 08:33:20', 'date' => date('Y-m-d'), 'event' => 'Skipped',           'tone' => 'muted',   'doctor' => 'Dr. Sample Doctor 3', 'entry' => 'QE-1385', 'detail' => 'Skipped', 'by' => 'G. G. Mithun Majika'],
+            ['time' => 'Today 08:30:02', 'date' => date('Y-m-d'), 'event' => 'Called',            'tone' => 'primary', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1380', 'detail' => 'Called to room 2', 'by' => 'Dr. Sample Doctor 1'],
+        ];
+
+        $this->view('admin/audit-trail', [
+            'changes' => $changes,
+            'logins' => $logins,
+            'queueEvents' => $queueEvents,
+            'users' => $users,
+            'roles' => $roles,
+            'records' => $records,
+        ]);
+    }
+
+    public function auditExport(): void
+    {
+        $changes = AuditLog::allRecordChanges();
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="audit-trail-' . date('Y-m-d') . '.csv"');
+
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Time', 'Date', 'User', 'Role', 'Record', 'Record ID', 'Action', 'Changed Fields']);
+
+        foreach ($changes as $r) {
+            $fieldDesc = !empty($r['fields'])
+                ? implode(', ', $r['fields'])
+                : ($r['action'] === 'create' ? 'Created' : ($r['action'] === 'view' ? 'Opened' : ($r['action'] === 'delete' ? 'Removed' : '')));
+
+            fputcsv($out, [
+                $r['time'],
+                $r['date'],
+                $r['user'],
+                $r['role'],
+                $r['entity'],
+                $r['pk'],
+                ucfirst(str_replace('_', ' ', $r['action'])),
+                $fieldDesc,
+            ]);
+        }
+
+        fclose($out);
+        exit;
+    }
 }
