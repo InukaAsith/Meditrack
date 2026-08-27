@@ -1,0 +1,12 @@
+.supplier-form {
+  display: grid;
+  grid-template-columns: 2fr 2fr auto;
+  gap: var(--sp-6);
+  align-items: end;
+}
+
+@media (max-width: 800px) {
+  .supplier-form {
+    grid-template-columns: 1fr;
+  }
+}
