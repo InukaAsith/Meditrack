@@ -168,6 +168,47 @@ class DoctorController extends Controller
         return $days;
     }
 
+    private function cancelAppointmentsWithoutSession(int $doctorId): string
+    {
+        $upcoming = Appointment::upcomingForDoctor($doctorId);
+        if ($upcoming === []) {
+            return '';
+        }
+
+        $doctor = Doctor::findByStaffId($doctorId);
+        $days = DoctorCalendar::days(
+            $doctorId,
+            (int) $doctor['uses_regular_schedule'] === 1,
+            new DateTimeImmutable($upcoming[0]['appointment_date']),
+            new DateTimeImmutable($upcoming[count($upcoming) - 1]['appointment_date']),
+        );
+
+        $cancelled = 0;
+        $refunds = 0;
+        foreach ($upcoming as $appointment) {
+            $day = $days[$appointment['appointment_date']];
+            if (DoctorCalendar::sessionIndexFor($day, $appointment['slot_time']) !== null) {
+                continue;
+            }
+
+            $refund = $appointment['payment_timing'] === 'online';
+            Appointment::cancelByDoctor((int) $appointment['appointment_id'], $refund);
+            AuditLog::record('staff', current_staff_id(), 'update', 'appointment', (string) $appointment['appointment_id'], 'status, refund_status');
+
+            $cancelled++;
+            if ($refund) {
+                $refunds++;
+            }
+        }
+
+        if ($cancelled === 0) {
+            return '';
+        }
+
+        return ' ' . $cancelled . ($cancelled === 1 ? ' appointment was' : ' appointments were') . ' cancelled'
+            . ($refunds > 0 ? ' and ' . $refunds . ($refunds === 1 ? ' refund' : ' refunds') . ' queued' : '') . '.';
+    }
+
     private function sessionRows(array $day, int $slotLength): array
     {
         $byTime = [];
@@ -269,6 +310,228 @@ class DoctorController extends Controller
     private function isTime(string $value): bool
     {
         return preg_match('/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $value) === 1;
+    }
+
+    public function availabilitySave(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/schedule');
+        }
+
+        $this->checkCsrf('/staff/doctor/schedule');
+        $doctorId = $this->getDoctorId();
+
+        $date = trim((string) ($_POST['date'] ?? ''));
+        $back = $this->scheduleUrl((string) ($_POST['view'] ?? 'month'), $date);
+
+        if (!$this->isDate($date)) {
+            flash_error('Pick a day first.');
+            $this->redirect('/staff/doctor/schedule');
+        }
+
+        $today = date('Y-m-d');
+        $actionType = trim((string) ($_POST['action_type'] ?? ''));
+
+        if ($actionType === 'add_break') {
+            if ($date < $today) {
+                flash_error('Breaks cannot be added to past dates.');
+                $this->redirect($back);
+            }
+            if ($date > $today) {
+                flash_error('Breaks can only be added for the current date.');
+                $this->redirect($back);
+            }
+        } else {
+            if ($date < $today) {
+                flash_error('Past days can\'t be changed.');
+                $this->redirect($back);
+            }
+            $minEditableDate = date('Y-m-d', strtotime('+7 days'));
+            if ($date < $minEditableDate) {
+                flash_error('Schedules cannot be changed less than 1 week in advance. This date is locked.');
+                $this->redirect($back);
+            }
+        }
+
+        $doctor = Doctor::findByStaffId($doctorId);
+        $slotLength = (int) ($doctor['slot_length_min'] ?? 15);
+        if ($slotLength < 5) {
+            $slotLength = 15;
+        }
+
+        $sessions = [];
+        foreach ([1, 2] as $number) {
+            $start = trim((string) ($_POST['start_' . $number] ?? ''));
+            $end = trim((string) ($_POST['end_' . $number] ?? ''));
+            $capacityRaw = trim((string) ($_POST['capacity_' . $number] ?? ''));
+
+            if ($start === '' && $end === '') {
+                continue;
+            }
+            if (!$this->isTime($start) || !$this->isTime($end) || $start >= $end) {
+                flash_error('Session ' . $number . ' needs a start time before its end time.');
+                $this->redirect($back);
+            }
+
+            $duration = $this->minutes($end) - $this->minutes($start);
+            if ($duration < $slotLength) {
+                flash_error('Session ' . $number . ' duration (' . $duration . ' min) must be at least one slot length (' . $slotLength . ' min).');
+                $this->redirect($back);
+            }
+
+            $maxSlots = intdiv($duration, $slotLength);
+            $capacity = $capacityRaw !== '' ? (int) $capacityRaw : $maxSlots;
+
+            if ($capacity < 1 || $capacity > $maxSlots) {
+                flash_error('Session ' . $number . ' capacity cannot exceed ' . $maxSlots . ' (based on ' . $slotLength . '-minute slots for a ' . $duration . '-minute session).');
+                $this->redirect($back);
+            }
+
+            $sessions[] = ['start_time' => $start, 'end_time' => $end, 'capacity' => $capacity];
+        }
+
+        if ($sessions === []) {
+            flash_error('Enter a start and end time for the session.');
+            $this->redirect($back);
+        }
+
+        if (count($sessions) === 2) {
+            if (
+                $sessions[0]['start_time'] < $sessions[1]['end_time']
+                && $sessions[1]['start_time'] < $sessions[0]['end_time']
+            ) {
+                flash_error('The second session overlaps with the first session. Please adjust the hours so they do not overlap.');
+                $this->redirect($back);
+            }
+            if ($sessions[0]['start_time'] === $sessions[1]['start_time']) {
+                flash_error('Both sessions cannot start at the same time.');
+                $this->redirect($back);
+            }
+            usort($sessions, fn($a, $b) => strcmp($a['start_time'], $b['start_time']));
+        }
+
+        $breaks = [];
+        if ($actionType === 'add_break') {
+            foreach ((array) ($_POST['breaks'] ?? []) as $break) {
+                if (!empty($break['remove'])) {
+                    continue;
+                }
+                $breaks[] = [
+                    'from_time' => trim((string) ($break['from'] ?? '')),
+                    'to_time'   => trim((string) ($break['to'] ?? '')),
+                    'label'     => trim((string) ($break['label'] ?? '')),
+                ];
+            }
+
+            $newFrom = trim((string) ($_POST['new_break_from'] ?? ''));
+            $newTo = trim((string) ($_POST['new_break_to'] ?? ''));
+            $newLabel = trim((string) ($_POST['new_break_label'] ?? ''));
+
+            $hasRemovedBreak = false;
+            foreach ((array) ($_POST['breaks'] ?? []) as $b) {
+                if (!empty($b['remove'])) {
+                    $hasRemovedBreak = true;
+                    break;
+                }
+            }
+
+            if ($newFrom === '' && $newTo === '') {
+                if (!$hasRemovedBreak) {
+                    flash_error('Please specify both a start time and an end time to add a break.');
+                    $this->redirect($back);
+                }
+            } else {
+                $breaks[] = [
+                    'from_time' => $newFrom,
+                    'to_time'   => $newTo,
+                    'label'     => $newLabel,
+                ];
+            }
+
+            $startTimes = [];
+            foreach ($breaks as $index => $break) {
+                if (
+                    !$this->isTime($break['from_time']) || !$this->isTime($break['to_time'])
+                    || $break['from_time'] >= $break['to_time']
+                ) {
+                    flash_error('A break needs a start time before its end time.');
+                    $this->redirect($back);
+                }
+                if (isset($startTimes[$break['from_time']])) {
+                    flash_error('Two breaks can\'t start at the same time.');
+                    $this->redirect($back);
+                }
+                $startTimes[$break['from_time']] = true;
+
+                $inSession = false;
+                foreach ($sessions as $session) {
+                    if ($break['from_time'] >= $session['start_time'] && $break['to_time'] <= $session['end_time']) {
+                        $inSession = true;
+                        break;
+                    }
+                }
+                if (!$inSession) {
+                    flash_error('Break (' . $break['from_time'] . '–' . $break['to_time'] . ') must fall within today\'s session hours.');
+                    $this->redirect($back);
+                }
+
+                $breaks[$index]['label'] = mb_substr($break['label'] !== '' ? $break['label'] : 'Break', 0, 60);
+            }
+
+            $breakCount = count($breaks);
+            for ($i = 0; $i < $breakCount; $i++) {
+                for ($j = $i + 1; $j < $breakCount; $j++) {
+                    if ($breaks[$i]['from_time'] < $breaks[$j]['to_time'] && $breaks[$j]['from_time'] < $breaks[$i]['to_time']) {
+                        flash_error('Breaks cannot overlap with each other.');
+                        $this->redirect($back);
+                    }
+                }
+            }
+            usort($breaks, fn($a, $b) => strcmp($a['from_time'], $b['from_time']));
+        }
+
+        $availabilityId = DoctorAvailability::saveDay($doctorId, $date, $sessions, $breaks);
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor_availability', (string) $availabilityId);
+
+        if ($actionType === 'add_break') {
+            flash_success('Updated breaks for today (' . date('j M Y', strtotime($date)) . ').');
+        } else {
+            flash_success('Saved schedule for ' . date('j M Y', strtotime($date)) . '.' . $this->cancelAppointmentsWithoutSession($doctorId));
+        }
+        $this->redirect($back);
+    }
+
+    public function availabilityReset(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/schedule');
+        }
+
+        $this->checkCsrf('/staff/doctor/schedule');
+        $doctorId = $this->getDoctorId();
+
+        $date = trim((string) ($_POST['date'] ?? ''));
+        $back = $this->scheduleUrl((string) ($_POST['view'] ?? 'month'), $date);
+
+        if (!$this->isDate($date) || $date < date('Y-m-d')) {
+            flash_error('Past days can\'t be changed.');
+            $this->redirect($back);
+        }
+
+        $minEditableDate = date('Y-m-d', strtotime('+7 days'));
+        if ($date < $minEditableDate) {
+            flash_error('Schedules cannot be changed less than 1 week in advance. This date is locked.');
+            $this->redirect($back);
+        }
+
+        DoctorAvailability::resetDay($doctorId, $date);
+        AuditLog::record('staff', current_staff_id(), 'delete', 'doctor_availability', $date);
+
+        $doctor = Doctor::findByStaffId($doctorId);
+        flash_success(date('j M Y', strtotime($date)) . ((int) $doctor['uses_regular_schedule'] === 1
+            ? ' uses your weekly schedule again.'
+            : ' is closed again.') . $this->cancelAppointmentsWithoutSession($doctorId));
+        $this->redirect($back);
     }
 
     private function scheduleUrl(string $view, string $date): string
