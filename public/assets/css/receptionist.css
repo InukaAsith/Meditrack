@@ -209,3 +209,218 @@
   flex-shrink: 0;
 }
 
+.edit-head__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary-tint);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  flex-shrink: 0;
+}
+
+.edit-head__avatar--photo {
+  object-fit: cover;
+}
+
+.id-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+
+.id-tags__note {
+  margin-left: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--text-subtle);
+}
+
+.id-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.id-tag__label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.id-tag--code {
+  border-color: transparent;
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.rec-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-8) var(--sp-9);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-7);
+  border-top: 1px solid var(--border);
+}
+
+.rec-fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+
+.rec-fact span {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.rec-fact b {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .rec-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.edit-head__meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.patient-photo {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+  margin-bottom: var(--sp-5);
+}
+
+.patient-photo__image,
+.patient-photo__initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px var(--border);
+}
+
+.patient-photo__image {
+  object-fit: cover;
+}
+
+.patient-photo__initials {
+  display: grid;
+  place-items: center;
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+}
+
+.patient-photo__actions {
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.patient-photo__button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease;
+}
+
+.patient-photo__button:hover {
+  transform: scale(1.08);
+  background: var(--primary-tint);
+}
+
+.patient-photo__button--danger {
+  color: var(--danger);
+}
+
+.patient-photo__button--danger:hover {
+  background: var(--danger-tint);
+}
+
+.patient-photo__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.allergy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  border-radius: var(--r-pill);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.allergy-chip button {
+  color: var(--danger);
+}
+
+form.allergy-chip {
+  margin: 0;
+}
+
+.allergy-chip button {
+  cursor: pointer;
+}
+
+.allergy-add-form {
+  display: flex;
+  gap: var(--sp-4);
+  max-width: 420px;
+}
+
+.danger-zone {
+  border: 1px solid var(--danger-tint);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.danger-zone__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-6) var(--sp-7);
+  color: var(--danger);
+  font-weight: 600;
+  font-size: var(--fs-md);
+  cursor: pointer;
+  list-style: none;
+}
+
