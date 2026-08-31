@@ -565,4 +565,24 @@ class AdminController extends Controller
         fclose($out);
         exit;
     }
+
+    public function configuration(): void
+    {
+        $this->view('admin/configuration');
+    }
+
+    public function templates(): void
+    {
+        $this->view('admin/templates');
+    }
+
+    public function profile(): void
+    {
+        $this->view('admin/profile', ['deviceTrusted' => current_device_is_trusted()]);
+    }
+
+    public function notifications(): void
+    {
+        $this->view('admin/notifications');
+    }
 }
