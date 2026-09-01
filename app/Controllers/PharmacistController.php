@@ -347,6 +347,31 @@ class PharmacistController extends Controller
         $this->suppliers();
     }
 
+    public function billingHistory(): void
+    {
+        $this->view('pharmacist/billing-history');
+    }
+
+    public function pharmacyAlerts(): void
+    {
+        $this->view('pharmacist/pharmacy-alerts');
+    }
+
+    public function stockAlerts(): void
+    {
+        $this->view('pharmacist/pharmacy-alerts');
+    }
+
+    public function notifications(): void
+    {
+        $this->view('pharmacist/notifications');
+    }
+
+    public function profile(): void
+    {
+        $this->view('pharmacist/profile', ['deviceTrusted' => current_device_is_trusted()]);
+    }
+
     private function readRequestData(): array
     {
         $input = $_POST;

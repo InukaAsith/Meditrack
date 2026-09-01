@@ -1,0 +1,8 @@
+.notification-list-card {
+  max-width: 760px;
+}
+
+.notif-centre__item--unread {
+  background: var(--primary-tint);
+  cursor: pointer;
+}
