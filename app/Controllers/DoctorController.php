@@ -546,6 +546,120 @@ class DoctorController extends Controller
         return '/staff/doctor/schedule?view=' . $view . '&date=' . $date;
     }
 
+    public function leaveCreate(): void
+    {
+        $back = (string) ($_POST['back'] ?? '/staff/doctor/schedule');
+        if (!str_starts_with($back, '/staff/doctor/')) {
+            $back = '/staff/doctor/schedule';
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect($back);
+        }
+
+        $this->checkCsrf($back);
+        $doctorId = $this->getDoctorId();
+
+        if ((int) Doctor::findByStaffId($doctorId)['uses_regular_schedule'] !== 1) {
+            flash_error('You don\'t have a weekly schedule, so there is no leave to mark. Days you don\'t open stay closed.');
+            $this->redirect($back);
+        }
+
+        $startDate = trim((string) ($_POST['start_date'] ?? ''));
+        $endDate = trim((string) ($_POST['end_date'] ?? ''));
+        $reason = trim((string) ($_POST['reason'] ?? ''));
+
+        if ($startDate === '' || $endDate === '') {
+            flash_error('Both start date and end date are required.');
+            $this->redirect($back);
+        }
+
+        if ($startDate > $endDate) {
+            flash_error('End date cannot be earlier than start date.');
+            $this->redirect($back);
+        }
+
+        $leaveId = DoctorLeave::create($doctorId, $startDate, $endDate, $reason, current_staff_id());
+        AuditLog::record('staff', current_staff_id(), 'create', 'doctor_leave', (string) $leaveId);
+
+        flash_success('Leave marked successfully for ' . $startDate . ($startDate !== $endDate ? ' to ' . $endDate : '') . '.'
+            . $this->cancelAppointmentsWithoutSession($doctorId));
+        $this->redirect($back);
+    }
+
+    public function leaveEdit(string $id = ''): void
+    {
+        $leaveId = (int) $id;
+        $doctorId = $this->getDoctorId();
+        $leave = DoctorLeave::find($leaveId);
+
+        if (!$leave || (int) $leave['doctor_id'] !== $doctorId) {
+            flash_error('Leave record not found.');
+            $this->redirect('/staff/doctor/schedule');
+        }
+
+        $errors = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->checkCsrf('/staff/doctor/leave-edit/' . $leaveId);
+
+            $startDate = trim((string) ($_POST['start_date'] ?? ''));
+            $endDate = trim((string) ($_POST['end_date'] ?? ''));
+            $reason = trim((string) ($_POST['reason'] ?? ''));
+
+            if ($startDate === '' || $endDate === '') {
+                $errors['dates'] = 'Both start date and end date are required.';
+            } elseif ($startDate > $endDate) {
+                $errors['dates'] = 'End date cannot be earlier than start date.';
+            }
+
+            if (!$errors) {
+                DoctorLeave::update($leaveId, $doctorId, $startDate, $endDate, $reason);
+                AuditLog::record('staff', current_staff_id(), 'update', 'doctor_leave', (string) $leaveId, 'start_date, end_date, reason');
+
+                flash_success('Leave record updated successfully.' . $this->cancelAppointmentsWithoutSession($doctorId));
+                $this->redirect('/staff/doctor/schedule');
+            }
+
+            $leave['start_date'] = $startDate;
+            $leave['end_date'] = $endDate;
+            $leave['reason'] = $reason;
+        }
+
+        $this->view('doctor/leave-edit', [
+            'leave'   => $leave,
+            'errors'  => $errors,
+            'success' => get_flash_success(),
+            'error'   => get_flash_error(),
+        ]);
+    }
+
+    public function leaveDelete(string $id = ''): void
+    {
+        $back = (string) ($_POST['back'] ?? '/staff/doctor/schedule');
+        if (!str_starts_with($back, '/staff/doctor/')) {
+            $back = '/staff/doctor/schedule';
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect($back);
+        }
+
+        $this->checkCsrf($back);
+        $leaveId = (int) $id;
+        $doctorId = $this->getDoctorId();
+
+        $leave = DoctorLeave::find($leaveId);
+        if ($leave && (int) $leave['doctor_id'] === $doctorId) {
+            DoctorLeave::delete($leaveId, $doctorId);
+            AuditLog::record('staff', current_staff_id(), 'delete', 'doctor_leave', (string) $leaveId);
+            flash_success('Leave record removed.');
+        } else {
+            flash_error('Leave record not found.');
+        }
+
+        $this->redirect($back);
+    }
+
     private function getDoctorId(): int
     {
         $staffId = current_staff_id();
