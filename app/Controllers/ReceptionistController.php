@@ -361,4 +361,14 @@ class ReceptionistController extends Controller
             unlink($file);
         }
     }
+
+    public function appointments(): void
+    {
+        $this->view('receptionist/appointments');
+    }
+
+    public function reschedule(): void
+    {
+        $this->view('receptionist/reschedule');
+    }
 }
