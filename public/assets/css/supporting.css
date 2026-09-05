@@ -1,0 +1,7 @@
+@import './supporting/shell.css';
+@import './supporting/dashboard.css';
+@import './supporting/live-queue.css';
+@import './supporting/doctor-schedule.css';
+@import './supporting/vitals-history.css';
+@import './supporting/alerts.css';
+@import './supporting/profile.css';
