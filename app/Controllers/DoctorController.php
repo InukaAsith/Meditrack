@@ -677,4 +677,19 @@ class DoctorController extends Controller
             $this->redirect($backTo);
         }
     }
+
+    public function patientHistory(): void
+    {
+        $this->view('doctor/patient-history');
+    }
+
+    public function patientDetail(): void
+    {
+        $this->view('doctor/patient-detail');
+    }
+
+    public function patientRecord(): void
+    {
+        $this->view('doctor/patient-record');
+    }
 }
