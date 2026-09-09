@@ -17,4 +17,9 @@ class SupportingController extends Controller
     {
         $this->view('supporting/dashboard');
     }
+
+    public function liveQueue(): void
+    {
+        $this->view('supporting/live-queue');
+    }
 }
