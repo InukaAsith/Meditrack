@@ -381,4 +381,14 @@ class ReceptionistController extends Controller
     {
         $this->view('receptionist/check-in');
     }
+
+    public function billing(): void
+    {
+        $this->view('receptionist/billing');
+    }
+
+    public function newInvoice(): void
+    {
+        $this->view('receptionist/new-invoice');
+    }
 }

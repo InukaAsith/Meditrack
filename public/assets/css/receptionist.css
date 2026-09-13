@@ -853,3 +853,212 @@ form.allergy-chip {
   font-family: var(--font-mono);
 }
 
+.pay-methods {
+  display: flex;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+
+.pay-method {
+  flex: 1;
+  padding: var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: var(--fs-md);
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.pay-method.is-active {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.btn--emergency {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn--emergency:hover {
+  filter: brightness(.92);
+}
+
+.walkin-fee {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-5) 0;
+  margin-top: var(--sp-6);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.walkin-fee__label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.walkin-fee__amount {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+.walkin-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+
+.walkin-pay__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-pill);
+  background: var(--success-tint);
+  color: var(--success);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.emergency-form__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-7);
+}
+
+.emergency-form__badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--danger-tint, #FCE9E9);
+  color: var(--danger);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-lg);
+  flex-shrink: 0;
+}
+
+.emergency-form__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.emergency-form__lead {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-6);
+}
+
+.emergency-form__lead strong {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.emergency-form__actions {
+  margin-top: var(--sp-6);
+}
+
+.emergency-tabs {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-2);
+  background: var(--surface-inset);
+  border-radius: var(--r-sm);
+  margin-bottom: var(--sp-6);
+}
+
+.emergency-tab {
+  flex: 1;
+  padding: var(--sp-4);
+  border-radius: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.emergency-tab.is-active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.emergency-pane {
+  margin-bottom: var(--sp-6);
+}
+
+.emergency-scan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+  text-align: center;
+  padding: var(--sp-8);
+  border: 2px dashed var(--c-line-300);
+  border-radius: var(--r-md);
+  background: var(--c-blue-50);
+}
+
+.emergency-scan__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-xl);
+}
+
+.emergency-scan__text {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.emergency-doc {
+  margin-bottom: var(--sp-7);
+}
+
+.doctor-status-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-7);
+  margin-bottom: var(--sp-6);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.doctor-status-card__top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+
+.doctor-status-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  flex-shrink: 0;
+}
+
+.doctor-status-card__name {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.doctor-status-card__meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
