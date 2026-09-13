@@ -1,0 +1,201 @@
+.consultation-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-7);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .consultation-config-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.consultation-config-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.consultation-config-card__head {
+  padding: var(--sp-6) var(--sp-7);
+}
+
+.consultation-config-card__head--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.consultation-config-card__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.consultation-config-card__sub {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--sp-1);
+}
+
+.consultation-config-card__body {
+  padding: 0 var(--sp-7) var(--sp-7);
+}
+
+.consultation-config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--surface-inset);
+}
+
+.consultation-config-row:last-child {
+  border-bottom: none;
+}
+
+.consultation-config-row__label {
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.consultation-config-row__hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.consultation-config-select {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-sm);
+  background: var(--surface);
+}
+
+.consultation-config-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-6);
+  font-size: var(--fs-xs);
+}
+
+.consultation-config-notice--amber {
+  background: var(--warning-tint);
+  border-bottom: 1px solid #F0D9A8;
+  color: #6E4A04;
+}
+
+.consultation-config-notice--amber strong {
+  font-weight: 700;
+}
+
+.consultation-sched-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.consultation-sched-table th {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.consultation-sched-table td {
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--surface-inset);
+}
+
+.consultation-sched-table tr:last-child td {
+  border-bottom: none;
+}
+
+.consultation-toggle {
+  appearance: none;
+  flex-shrink: 0;
+  margin: 0;
+  width: 34px;
+  height: 19px;
+  border-radius: var(--r-pill);
+  background: var(--c-line-300);
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.consultation-toggle.is-on,
+.consultation-toggle:checked {
+  background: var(--primary);
+}
+
+.consultation-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s;
+}
+
+.consultation-toggle.is-on::after,
+.consultation-toggle:checked::after {
+  transform: translateX(15px);
+}
+
+.consultation-config-input {
+  width: 90px;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.consultation-config-fee {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.consultation-sched-table input[type="time"] {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-sm);
+}
+
+.consultation-sched-table input[type="number"] {
+  width: 64px;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.consultation-sched-table__sep {
+  margin: 0 var(--sp-2);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.consultation-config-card--wide {
+  grid-column: 1 / -1;
+}

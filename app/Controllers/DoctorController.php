@@ -692,4 +692,241 @@ class DoctorController extends Controller
     {
         $this->view('doctor/patient-record');
     }
+
+    public function configure(): void
+    {
+        $doctorId = $this->getDoctorId();
+        $scheduleRequest = ApprovalRequest::waitingFor($doctorId, 'regular_schedule');
+
+        $week = [1 => [], 2 => [], 3 => [], 4 => [], 5 => [], 6 => [], 7 => []];
+        foreach (DoctorSchedule::blocks($doctorId, $scheduleRequest === null) as $block) {
+            $week[(int) $block['day_of_week']][] = $block;
+        }
+
+        $this->view('doctor/configure', [
+            'doctor'          => Doctor::findByStaffId($doctorId),
+            'feeRequest'      => ApprovalRequest::waitingFor($doctorId, 'fee_revision'),
+            'scheduleRequest' => $scheduleRequest,
+            'week'            => $week,
+            'success'         => get_flash_success(),
+            'error'           => get_flash_error(),
+        ]);
+    }
+
+    public function configureDefaults(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $this->checkCsrf('/staff/doctor/configure');
+        $doctorId = $this->getDoctorId();
+
+        $slotLength = (int) ($_POST['slot_length_min'] ?? 0);
+        $overtimeWarn = (int) ($_POST['overtime_warn_min'] ?? 0);
+        $defaultCapacity = (int) ($_POST['default_capacity'] ?? 0);
+
+        if (!in_array($slotLength, [10, 15, 20, 30], true) || !in_array($overtimeWarn, [20, 25, 30], true)) {
+            flash_error('Pick a slot length and overtime warning from the list.');
+            $this->redirect('/staff/doctor/configure');
+        }
+        if ($defaultCapacity < 1 || $defaultCapacity > 200) {
+            flash_error('Default capacity must be between 1 and 200.');
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        Doctor::updateDefaults($doctorId, $slotLength, $overtimeWarn, $defaultCapacity);
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor', (string) $doctorId, 'slot_length_min, overtime_warn_min, default_capacity');
+
+        $pdo = db();
+        $pdo->prepare('
+            UPDATE doctor_regular_schedule
+            SET capacity = FLOOR(TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60 / ?)
+            WHERE doctor_id = ?
+              AND capacity > FLOOR(TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60 / ?)
+        ')->execute([$slotLength, $doctorId, $slotLength]);
+
+        flash_success('Defaults saved.');
+        $this->redirect('/staff/doctor/configure');
+    }
+
+    public function configureFees(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $this->checkCsrf('/staff/doctor/configure');
+        $doctorId = $this->getDoctorId();
+
+        $consultation = trim((string) ($_POST['consultation_fee'] ?? ''));
+        $followup = trim((string) ($_POST['followup_fee'] ?? ''));
+
+        if (!is_numeric($consultation) || (float) $consultation <= 0 || (float) $consultation > 100000) {
+            flash_error('Enter a consultation fee between Rs. 1 and Rs. 100,000.');
+            $this->redirect('/staff/doctor/configure');
+        }
+        if ($followup !== '' && (!is_numeric($followup) || (float) $followup <= 0 || (float) $followup > 100000)) {
+            flash_error('Enter a follow-up fee between Rs. 1 and Rs. 100,000, or leave it empty.');
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $consultation = number_format((float) $consultation, 2, '.', '');
+        $followup = $followup === '' ? null : number_format((float) $followup, 2, '.', '');
+
+        $doctor = Doctor::findByStaffId($doctorId);
+        if (
+            $consultation === $doctor['consultation_fee'] && $followup === $doctor['followup_fee']
+            && ApprovalRequest::waitingFor($doctorId, 'fee_revision') === null
+        ) {
+            flash_error('These are already your fees.');
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            $requestId = ApprovalRequest::submit($doctorId, 'fee_revision', $consultation, $followup, 'Fee change');
+
+            Doctor::updateFees($doctorId, $consultation, $followup);
+            ApprovalRequest::decide($requestId, 'approved', null);
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+        AuditLog::record('staff', current_staff_id(), 'create', 'approval_request', (string) $requestId, 'proposed_consultation_fee, proposed_followup_fee');
+
+        flash_success('Fees saved.');
+        $this->redirect('/staff/doctor/configure');
+    }
+
+    public function configureSchedule(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $this->checkCsrf('/staff/doctor/configure');
+        $doctorId = $this->getDoctorId();
+        $doctor = Doctor::findByStaffId($doctorId);
+        $slotLength = (int) ($doctor['slot_length_min'] ?? 15);
+        if ($slotLength < 5) {
+            $slotLength = 15;
+        }
+
+        $dayNames = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
+        $posted = (array) ($_POST['days'] ?? []);
+        $blocks = [];
+
+        foreach ($dayNames as $dayNumber => $dayName) {
+            $day = (array) ($posted[$dayNumber] ?? []);
+            if (empty($day['active'])) {
+                continue;
+            }
+
+            $dayBlocks = [];
+            foreach ([1, 2] as $number) {
+                $start = trim((string) ($day['start_' . $number] ?? ''));
+                $end = trim((string) ($day['end_' . $number] ?? ''));
+                $capacityRaw = trim((string) ($day['capacity_' . $number] ?? ''));
+
+                if ($start === '' && $end === '') {
+                    continue;
+                }
+                if (!$this->isTime($start) || !$this->isTime($end) || $start >= $end) {
+                    flash_error($dayName . ': each session needs a start time before its end time.');
+                    $this->redirect('/staff/doctor/configure');
+                }
+
+                $duration = $this->minutes($end) - $this->minutes($start);
+                if ($duration < $slotLength) {
+                    flash_error($dayName . ' session ' . $number . ': duration (' . $duration . ' min) must be at least one slot length (' . $slotLength . ' min).');
+                    $this->redirect('/staff/doctor/configure');
+                }
+
+                $maxSlots = intdiv($duration, $slotLength);
+                $capacity = $capacityRaw !== '' ? (int) $capacityRaw : $maxSlots;
+
+                if ($capacity < 1 || $capacity > $maxSlots) {
+                    flash_error($dayName . ' session ' . $number . ': capacity cannot exceed ' . $maxSlots . ' (based on ' . $slotLength . '-minute slots for a ' . $duration . '-minute session).');
+                    $this->redirect('/staff/doctor/configure');
+                }
+
+                $dayBlocks[] = ['day_of_week' => $dayNumber, 'start_time' => $start, 'end_time' => $end, 'capacity' => $capacity];
+            }
+
+            if ($dayBlocks === []) {
+                flash_error($dayName . ' is switched on but has no hours.');
+                $this->redirect('/staff/doctor/configure');
+            }
+            if (
+                count($dayBlocks) === 2
+                && $dayBlocks[0]['start_time'] < $dayBlocks[1]['end_time']
+                && $dayBlocks[1]['start_time'] < $dayBlocks[0]['end_time']
+            ) {
+                flash_error($dayName . ': the two sessions overlap.');
+                $this->redirect('/staff/doctor/configure');
+            }
+
+            foreach ($dayBlocks as $block) {
+                $blocks[] = $block;
+            }
+        }
+
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            DoctorSchedule::saveWaiting($doctorId, $blocks);
+            $requestId = ApprovalRequest::submit($doctorId, 'regular_schedule', null, null, 'Weekly schedule change');
+
+            DoctorSchedule::approveWaiting($doctorId);
+            ApprovalRequest::decide($requestId, 'approved', null);
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+        AuditLog::record('staff', current_staff_id(), 'create', 'approval_request', (string) $requestId, 'doctor_regular_schedule');
+
+        flash_success('Schedule saved.' . $this->cancelAppointmentsWithoutSession($doctorId));
+        $this->redirect('/staff/doctor/configure');
+    }
+
+    public function configureRegularSchedule(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $this->checkCsrf('/staff/doctor/configure');
+        $doctorId = $this->getDoctorId();
+        $enabled = ($_POST['enabled'] ?? '') === '1';
+
+        Doctor::setUsesRegularSchedule($doctorId, $enabled);
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor', (string) $doctorId, 'uses_regular_schedule');
+
+        flash_success(($enabled
+            ? 'Weekly schedule turned on.'
+            : 'Weekly schedule turned off. Open the days you work on the My schedule page.')
+            . $this->cancelAppointmentsWithoutSession($doctorId));
+        $this->redirect('/staff/doctor/configure');
+    }
+
+    public function configureRoster(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/staff/doctor/configure');
+        }
+
+        $this->checkCsrf('/staff/doctor/configure');
+        $doctorId = $this->getDoctorId();
+
+        Doctor::setRosterEnabled($doctorId, ($_POST['enabled'] ?? '') === '1');
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor', (string) $doctorId, 'roster_api_enabled');
+
+        $this->redirect('/staff/doctor/configure');
+    }
 }
