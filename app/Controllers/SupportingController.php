@@ -22,4 +22,9 @@ class SupportingController extends Controller
     {
         $this->view('supporting/live-queue');
     }
+
+    public function doctorSchedule(): void
+    {
+        $this->view('supporting/doctor-schedule');
+    }
 }

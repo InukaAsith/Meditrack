@@ -1,0 +1,125 @@
+.week-day__open {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.week-day__bar {
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.week-day__bar span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--r-pill);
+}
+
+.week-day__sessions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+.week-day__pill {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-pill);
+  background: var(--primary-tint);
+  color: var(--primary);
+  text-align: center;
+}
+
+.cal-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin: var(--sp-6) 0;
+}
+
+.month-day-docs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.month-day-doc {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  text-align: left;
+  width: 100%;
+}
+
+.month-day-doc.is-active {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+}
+
+.month-day-doc__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.month-day-doc__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.month-day-doc__name {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.month-day-doc__meta {
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+}
+
+.month-day-doc__bar {
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.month-day-doc__bar span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--r-pill);
+}
+
+.month-day-doc__count {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+.appt-single__hint {
+  font-size: var(--fs-xs);
+  color: var(--text-subtle);
+}
+
+.month-day-doc--static {
+  cursor: default;
+  width: 100%;
+  text-align: left;
+}
