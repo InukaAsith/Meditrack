@@ -929,4 +929,19 @@ class DoctorController extends Controller
 
         $this->redirect('/staff/doctor/configure');
     }
+
+    public function prescriptions(): void
+    {
+        $this->view('doctor/prescriptions');
+    }
+
+    public function prescriptionView(): void
+    {
+        $this->view('doctor/prescription-view');
+    }
+
+    public function prescriptionEdit(): void
+    {
+        $this->view('doctor/prescription-edit');
+    }
 }

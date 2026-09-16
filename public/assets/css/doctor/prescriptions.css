@@ -1,0 +1,33 @@
+.consultation-rx-view {
+  max-width: 860px;
+}
+
+.consultation-rx-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  background: var(--surface-inset);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-7);
+}
+
+.consultation-rx-meta__label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.consultation-rx-meta__value {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  margin-top: var(--sp-1);
+}
+
+.consultation-rx-item-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--danger);
+  font-weight: 600;
+}
