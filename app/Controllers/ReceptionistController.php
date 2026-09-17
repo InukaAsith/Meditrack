@@ -382,6 +382,11 @@ class ReceptionistController extends Controller
         $this->view('receptionist/check-in');
     }
 
+    public function doctorStatus(): void
+    {
+        $this->view('receptionist/doctor-status');
+    }
+
     public function billing(): void
     {
         $this->view('receptionist/billing');
@@ -390,5 +395,15 @@ class ReceptionistController extends Controller
     public function newInvoice(): void
     {
         $this->view('receptionist/new-invoice');
+    }
+
+    public function notifications(): void
+    {
+        $this->view('receptionist/notifications');
+    }
+
+    public function profile(): void
+    {
+        $this->view('receptionist/profile', ['deviceTrusted' => current_device_is_trusted()]);
     }
 }

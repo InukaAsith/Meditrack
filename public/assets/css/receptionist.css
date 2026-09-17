@@ -1062,3 +1062,220 @@ form.allergy-chip {
   color: var(--text-muted);
 }
 
+.doctor-status-card__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-top: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.doctor-status-card__delay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+}
+
+.doctor-status-card__delay input {
+  width: 68px;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  text-align: center;
+}
+
+.doctor-status-card__announce {
+  flex: 1;
+  min-width: 220px;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  background: var(--surface);
+}
+
+.status-segment {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.status-segment__opt {
+  padding: var(--sp-4) var(--sp-6);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.status-segment__opt.is-active {
+  color: #fff;
+  border-color: transparent;
+}
+
+.status-segment__opt.is-active[data-state="arrived"] {
+  background: var(--success);
+}
+
+.status-segment__opt.is-active[data-state="running_late"] {
+  background: var(--warning);
+}
+
+.status-segment__opt.is-active[data-state="on_leave"] {
+  background: var(--danger);
+}
+
+.status-segment__opt.is-active[data-state="not_arrived"] {
+  background: var(--text-muted);
+}
+
+.drawer-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) 0;
+  font-size: var(--fs-sm);
+}
+
+.drawer-input {
+  width: 120px;
+  padding: var(--sp-3) var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-align: right;
+  background: var(--surface);
+}
+
+.drawer-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.drawer-balanced {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-5) var(--sp-6);
+  background: var(--success-tint);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--success);
+  margin-top: var(--sp-4);
+}
+
+.new-invoice-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+.new-invoice-results {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.new-invoice-res {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-5) var(--sp-6);
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+}
+
+.new-invoice-res:last-child {
+  border-bottom: none;
+}
+
+.new-invoice-res:hover {
+  background: var(--surface-inset);
+}
+
+.new-invoice-res.is-picked {
+  background: var(--primary-tint);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.new-invoice-res__pick {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.new-invoice-res.is-picked .new-invoice-res__pick::before {
+  content: "✓ ";
+}
+
+.new-invoice-guest-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.new-invoice-guest-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.new-invoice-guest {
+  margin-top: var(--sp-5);
+}
+
+.emergency-note {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--sp-4);
+}
+
+.emergency-note b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.new-invoice-cashnote {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--sp-5);
+}
+
+.book-summary__row--total {
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+
+.patient-find__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  padding: var(--sp-5) var(--sp-6);
+  background: var(--surface-inset);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .new-invoice-grid {
+    grid-template-columns: 1fr;
+  }
+}
