@@ -132,4 +132,24 @@ class ManagerController extends Controller
         flash_success($approved ? 'Approved. The change is live.' : 'Rejected.');
         $this->redirect('/staff/manager/approvals');
     }
+
+    public function drugPricing(): void
+    {
+        $this->view('manager/drug-pricing');
+    }
+
+    public function pharmacyAlerts(): void
+    {
+        $this->view('manager/pharmacy-alerts');
+    }
+
+    public function notifications(): void
+    {
+        $this->view('manager/notifications');
+    }
+
+    public function profile(): void
+    {
+        $this->view('manager/profile', ['deviceTrusted' => current_device_is_trusted()]);
+    }
 }
