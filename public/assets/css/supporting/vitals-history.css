@@ -1,0 +1,130 @@
+.supporting-vh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.supporting-vh-header__title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.supporting-vh-header__title {
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 600;
+  letter-spacing: -.025em;
+  color: #1A2333;
+  margin: 0;
+}
+
+.supporting-vh-header__badge {
+  background: #E2F5F4;
+  color: #0E7C78;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  padding: 3px var(--sp-5);
+  border-radius: 8px;
+}
+
+.supporting-vh-header__search {
+  position: relative;
+  width: 260px;
+}
+
+.supporting-vh-header__search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8A93A6;
+}
+
+.supporting-vh-header__search-input {
+  width: 100%;
+  height: 36px;
+  padding-left: 32px;
+  padding-right: 12px;
+  border: 1px solid #E4E8EF;
+  border-radius: 8px;
+  font-size: var(--fs-sm);
+  outline: none;
+}
+
+.supporting-vh-header__search-input:focus {
+  border-color: #1B54B8;
+}
+
+.supporting-vh-card {
+  background: #ffffff;
+  border: 1px solid #E4E8EF;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.supporting-vh-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.supporting-vh-table th {
+  background: var(--surface-soft, #F5F7FB);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text, #1A2333);
+  text-transform: none;
+  letter-spacing: 0;
+  padding: var(--sp-5) 1rem;
+  border-bottom: 1px solid #E4E8EF;
+}
+
+.supporting-vh-table td {
+  padding: var(--sp-6) 1rem;
+  font-size: var(--fs-sm);
+  color: #1A2333;
+  border-bottom: 1px solid #F0F2F7;
+}
+
+.supporting-vh-patient {
+  display: flex;
+  flex-direction: column;
+}
+
+.supporting-vh-patient__name {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.supporting-vh-patient__id {
+  font-size: var(--fs-xs);
+  color: #8A93A6;
+  font-family: var(--font-mono);
+}
+
+.supporting-vh-bmi {
+  font-weight: 700;
+}
+
+.supporting-vh-by {
+  font-size: var(--fs-xs);
+  color: #6B7280;
+}
+
+.supporting-vh-by__ready {
+  color: #0E7C78;
+  font-weight: 600;
+}
+
+.supporting-vh-footer-note {
+  padding: 0.85rem 1.25rem;
+  background: #F5F7FB;
+  font-size: var(--fs-sm);
+  color: #8A93A6;
+  border-top: 1px solid #E4E8EF;
+}
+
+.supporting-vh-row.is-selected {
+  background: #F0F4FF;
+}

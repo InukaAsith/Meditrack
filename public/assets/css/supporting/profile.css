@@ -1,0 +1,17 @@
+.audit-note {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-6);
+  background: var(--surface-inset);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin: var(--sp-7) 0;
+}
+
+.audit-note b {
+  color: var(--text);
+  font-weight: 700;
+}
+

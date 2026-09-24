@@ -27,4 +27,19 @@ class SupportingController extends Controller
     {
         $this->view('supporting/doctor-schedule');
     }
+
+    public function vitalsHistory(): void
+    {
+        $this->view('supporting/vitals-history');
+    }
+
+    public function alerts(): void
+    {
+        $this->view('supporting/alerts');
+    }
+
+    public function profile(): void
+    {
+        $this->view('supporting/profile', ['deviceTrusted' => current_device_is_trusted()]);
+    }
 }
