@@ -944,4 +944,14 @@ class DoctorController extends Controller
     {
         $this->view('doctor/prescription-edit');
     }
+
+    public function profile(): void
+    {
+        $this->view('doctor/profile', ['deviceTrusted' => current_device_is_trusted()]);
+    }
+
+    public function notifications(): void
+    {
+        $this->view('doctor/notifications');
+    }
 }
