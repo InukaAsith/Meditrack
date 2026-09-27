@@ -4,6 +4,29 @@ declare(strict_types=1);
 
 $title  = 'My schedule';
 $active = 'schedule';
+$view = $view ?? 'month';
+$date = $date ?? date('Y-m-d');
+$today = $today ?? date('Y-m-d');
+$previousDate = $previousDate ?? $date;
+$nextDate = $nextDate ?? $date;
+$dateLabel = $dateLabel ?? $date;
+$monthStart = $monthStart ?? new DateTimeImmutable($date);
+$weekStart = $weekStart ?? new DateTimeImmutable($date);
+$minEditableDate = $minEditableDate ?? $date;
+$days = $days ?? [];
+$selectedDay = $selectedDay ?? [
+  'date' => new DateTimeImmutable($date),
+  'on_leave' => false,
+  'sessions' => [],
+  'breaks' => [],
+  'changed' => false,
+  'appointments' => [],
+  'capacity' => 0,
+];
+$sessions = $sessions ?? [];
+$otherAppointments = $otherAppointments ?? [];
+$slotLength = $slotLength ?? 15;
+$usesWeekly = $usesWeekly ?? false;
 
 $visitStatusText = ['completed' => 'Seen', 'no_show' => 'No-show', 'pending' => 'Pending', 'rescheduled' => 'Rescheduled'];
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 $title  = 'Configure';
 $active = 'configure';
+$doctor = $doctor ?? [];
+$feeRequest = $feeRequest ?? null;
+$week = $week ?? [1 => [], 2 => [], 3 => [], 4 => [], 5 => [], 6 => [], 7 => []];
 
 $usesWeekly = (int) $doctor['uses_regular_schedule'] === 1;
 
