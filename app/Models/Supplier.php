@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 final class Supplier
 {
-    
     public static function all(): array
     {
         $stmt = db()->query('SELECT supplier_id, name, contact FROM supplier ORDER BY name ASC');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
     public static function allWithBatchCount(): array
     {
         $sql = 'SELECT s.supplier_id, s.name, s.contact, s.created_at, COUNT(b.batch_id) AS batch_count
@@ -23,7 +21,6 @@ final class Supplier
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
     public static function existsByName(string $name): bool
     {
         $stmt = db()->prepare('SELECT supplier_id FROM supplier WHERE name = ? LIMIT 1');
@@ -31,7 +28,6 @@ final class Supplier
         return $stmt->fetchColumn() !== false;
     }
 
-    
     public static function create(string $name, ?string $contact = null): int
     {
         $name = trim($name);
@@ -54,7 +50,6 @@ final class Supplier
         return (int) $pdo->lastInsertId();
     }
 
-    
     public static function findOrCreate(string $name, ?string $contact = null): int
     {
         $name = trim($name);

@@ -6,18 +6,23 @@ final class Medicine
 {
     public const ALLOWED_FORMS = ['tablet', 'capsule', 'syrup', 'inhaler', 'injection', 'drops', 'other'];
 
-    
     public static function getAllWithBatches(?string $search = null, ?string $statusFilter = null): array
     {
         $pdo = db();
 
-        $sql = 'SELECT m.* FROM medicine m';
+        $sql = 'SELECT DISTINCT m.* FROM medicine m
+                LEFT JOIN medicine_batch b ON m.medicine_id = b.medicine_id
+                LEFT JOIN supplier s ON b.supplier_id = s.supplier_id';
         $params = [];
 
         if ($search !== null && trim($search) !== '') {
-            $sql .= ' WHERE m.commercial_name LIKE ? OR m.generic_name LIKE ?';
-            $params[] = '%' . trim($search) . '%';
-            $params[] = '%' . trim($search) . '%';
+            $term = '%' . trim($search) . '%';
+            $sql .= ' WHERE m.commercial_name LIKE ?
+                         OR m.generic_name LIKE ?
+                         OR m.unit_form LIKE ?
+                         OR b.batch_code LIKE ?
+                         OR s.name LIKE ?';
+            $params = [$term, $term, $term, $term, $term];
         }
 
         $sql .= ' ORDER BY m.commercial_name ASC';
@@ -26,7 +31,6 @@ final class Medicine
         $stmt->execute($params);
         $medicines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        
         $batchStmt = $pdo->query(
             'SELECT b.*, s.name AS supplier_name
              FROM medicine_batch b
@@ -35,7 +39,6 @@ final class Medicine
         );
         $allBatches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        
         $batchesByMedicine = [];
         foreach ($allBatches as $batch) {
             $batchesByMedicine[(int)$batch['medicine_id']][] = $batch;
@@ -83,7 +86,6 @@ final class Medicine
                 ];
             }
 
-            
             if ($nearestExpiry === null) {
                 $formattedExpiry = '-';
                 $expiryTone = 'normal';
@@ -92,7 +94,6 @@ final class Medicine
                 $expiryTone = ($nearestExpiryDays !== null && $nearestExpiryDays <= 30) ? 'red' : 'normal';
             }
 
-            
             $reorder = (int)$med['reorder_threshold'];
             $isAvailable = (bool)$med['is_available'];
 
@@ -113,7 +114,6 @@ final class Medicine
                 $statusTone = 'success';
             }
 
-            
             if ($statusFilter !== null && $statusFilter !== 'all' && $statusFilter !== '') {
                 $matches = false;
                 $filterLower = strtolower($statusFilter);
@@ -162,7 +162,6 @@ final class Medicine
         return $items;
     }
 
-    
     public static function getCounts(): array
     {
         $all = self::getAllWithBatches();
@@ -188,7 +187,6 @@ final class Medicine
         return $counts;
     }
 
-    
     public static function findById(int $medicineId): ?array
     {
         $stmt = db()->prepare('SELECT * FROM medicine WHERE medicine_id = ? LIMIT 1');
@@ -198,7 +196,6 @@ final class Medicine
         return $row ?: null;
     }
 
-    
     public static function updateConfig(
         int $medicineId,
         int $reorderThreshold,
@@ -224,7 +221,6 @@ final class Medicine
         ]);
     }
 
-    
     public static function adjustStock(
         int $medicineId,
         ?int $batchId,
@@ -235,7 +231,6 @@ final class Medicine
     ): array {
         $pdo = db();
 
-        
         $allowedReasons = ['damaged', 'baseline_intake', 'audit_correction'];
         if (!in_array($reason, $allowedReasons, true)) {
             return [
@@ -263,7 +258,6 @@ final class Medicine
         $pdo->beginTransaction();
 
         try {
-            
             if ($batchId === null || $batchId <= 0) {
                 $bStmt = $pdo->prepare(
                     'SELECT batch_id, quantity_on_hand FROM medicine_batch
@@ -288,7 +282,6 @@ final class Medicine
                 $batchId = (int)$bRow['batch_id'];
                 $currentBatchQty = (int)$bRow['quantity_on_hand'];
             } else {
-                
                 $bStmt = $pdo->prepare('SELECT batch_id, medicine_id, quantity_on_hand, status FROM medicine_batch WHERE batch_id = ? LIMIT 1');
                 $bStmt->execute([$batchId]);
                 $bRow = $bStmt->fetch(PDO::FETCH_ASSOC);
@@ -332,7 +325,6 @@ final class Medicine
                 $currentBatchQty = (int)$bRow['quantity_on_hand'];
             }
 
-            
             if ($delta < 0 && abs($delta) > $currentBatchQty) {
                 $pdo->rollBack();
                 return [
@@ -348,11 +340,9 @@ final class Medicine
             $newBatchQty = max(0, $currentBatchQty + $delta);
             $actualDelta = $newBatchQty - $currentBatchQty;
 
-            
             $uStmt = $pdo->prepare('UPDATE medicine_batch SET quantity_on_hand = ? WHERE batch_id = ?');
             $uStmt->execute([$newBatchQty, $batchId]);
 
-            
             $adjStmt = $pdo->prepare(
                 'INSERT INTO stock_adjustment (batch_id, quantity_delta, reason, note, adjusted_by)
                  VALUES (?, ?, ?, ?, ?)'
@@ -361,7 +351,6 @@ final class Medicine
 
             $pdo->commit();
 
-            
             $totStmt = $pdo->prepare(
                 'SELECT SUM(quantity_on_hand) FROM medicine_batch
                  WHERE medicine_id = ? AND status != "damaged"'
@@ -401,7 +390,6 @@ final class Medicine
         }
     }
 
-    
     public static function registerBatch(
         string $commercialName,
         string $generic,
@@ -427,7 +415,6 @@ final class Medicine
         $pdo->beginTransaction();
 
         try {
-            
             $mStmt = $pdo->prepare('SELECT medicine_id, unit_price, reorder_threshold FROM medicine WHERE commercial_name = ? AND unit_form = ? LIMIT 1');
             $mStmt->execute([$commercialName, $unitForm]);
             $existingMed = $mStmt->fetch(PDO::FETCH_ASSOC);
@@ -465,7 +452,6 @@ final class Medicine
                 $medicineId = (int)$existingMed['medicine_id'];
             }
 
-            
             $insBatch = $pdo->prepare(
                 'INSERT INTO medicine_batch (batch_code, medicine_id, supplier_id, supplier_invoice_ref, quantity_received, quantity_on_hand, cost_price_total, expiry_date, registered_by)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -498,7 +484,6 @@ final class Medicine
         }
     }
 
-    
     public static function removeBatch(int $batchId, int $staffId): array
     {
         $pdo = db();
@@ -530,7 +515,6 @@ final class Medicine
 
             $pdo->commit();
 
-            
             $totStmt = $pdo->prepare(
                 'SELECT SUM(quantity_on_hand) FROM medicine_batch
                  WHERE medicine_id = ? AND status != "damaged"'

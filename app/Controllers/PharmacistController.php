@@ -4,37 +4,31 @@ declare(strict_types=1);
 
 class PharmacistController extends Controller
 {
-    
     public function __construct()
     {
         require_staff_login('pharmacist');
     }
 
-    
     public function index(): void
     {
         $this->dashboard();
     }
 
-    
     public function dashboard(): void
     {
         $this->view('pharmacist/dashboard');
     }
 
-    
     public function dispense(): void
     {
         $this->view('pharmacist/dispense');
     }
 
-    
     public function prepareQueue(): void
     {
         $this->view('pharmacist/prepare-queue');
     }
 
-    
     public function inventory(): void
     {
         $search = isset($_GET['q']) ? trim((string)$_GET['q']) : null;
@@ -53,7 +47,6 @@ class PharmacistController extends Controller
         ]);
     }
 
-    
     public function inventoryConfig(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -107,7 +100,6 @@ class PharmacistController extends Controller
             return;
         }
 
-        
         $changed = [];
         if ((int)$currentMed['reorder_threshold'] !== $threshold) {
             $changed[] = 'reorder_threshold';
@@ -137,6 +129,16 @@ class PharmacistController extends Controller
                 );
             }
 
+            $allMeds = Medicine::getAllWithBatches();
+            $counts = Medicine::getCounts();
+            $medData = null;
+            foreach ($allMeds as $m) {
+                if ((int)$m['medicine_id'] === $medicineId) {
+                    $medData = $m;
+                    break;
+                }
+            }
+
             $this->jsonResponse([
                 'ok' => true,
                 'message' => 'Settings saved.',
@@ -146,6 +148,10 @@ class PharmacistController extends Controller
                     'price' => $price,
                     'requires_rx' => $requiresRx,
                     'is_available' => $isAvailable,
+                    'total_stock' => $medData['stock'] ?? 0,
+                    'status' => $medData['status'] ?? 'In stock',
+                    'status_tone' => $medData['status_tone'] ?? 'success',
+                    'counts' => $counts,
                 ],
             ]);
         } else {
@@ -153,7 +159,6 @@ class PharmacistController extends Controller
         }
     }
 
-    
     public function inventoryAdjust(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -177,7 +182,6 @@ class PharmacistController extends Controller
         }
         $delta = (int)$qtyInput;
 
-        
         $rawReason = (string)($input['reason'] ?? '');
         $reason = $this->validateAdjustmentReason($rawReason);
         if ($reason === null) {
@@ -209,6 +213,7 @@ class PharmacistController extends Controller
                 'quantity_on_hand'
             );
 
+            $result['counts'] = Medicine::getCounts();
             $actualDelta = $result['actual_delta'] ?? $delta;
             $this->jsonResponse([
                 'ok' => true,
@@ -220,7 +225,6 @@ class PharmacistController extends Controller
         }
     }
 
-    
     public function inventoryBatchRemove(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -253,6 +257,7 @@ class PharmacistController extends Controller
                 'status, quantity_on_hand'
             );
 
+            $result['counts'] = Medicine::getCounts();
             $this->jsonResponse([
                 'ok' => true,
                 'message' => 'Batch removed.',
@@ -263,7 +268,6 @@ class PharmacistController extends Controller
         }
     }
 
-    
     public function registerBatch(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -281,7 +285,6 @@ class PharmacistController extends Controller
             $invoiceRef = trim((string)($_POST['invoice_ref'] ?? ''));
             $batchCode = strtoupper(trim((string)($_POST['batch_id'] ?? '')));
 
-            
             $qtyRaw = trim((string)($_POST['qty_received'] ?? ''));
             if ($qtyRaw === '' || !preg_match('/^\d+$/', $qtyRaw) || (int)$qtyRaw <= 0) {
                 flash_error('Please enter a valid positive quantity received (whole numbers only, e.g. 120).');
@@ -303,7 +306,6 @@ class PharmacistController extends Controller
                 $totalCost = (float)$costRaw;
             }
 
-            
             $expiryRaw = trim((string)($_POST['expiry_date'] ?? ''));
             if ($expiryRaw === '') {
                 flash_error('Please enter the batch expiry date.');
@@ -342,7 +344,6 @@ class PharmacistController extends Controller
                 return;
             }
 
-            
             if (!in_array($unitForm, Medicine::ALLOWED_FORMS, true)) {
                 flash_error('Please select a valid unit form (' . implode(', ', Medicine::ALLOWED_FORMS) . ').');
                 $_SESSION['old_batch_input'] = $_POST;
@@ -350,7 +351,6 @@ class PharmacistController extends Controller
                 return;
             }
 
-            
             $unitPriceRaw = trim((string)($_POST['unit_price'] ?? ''));
             $unitPrice = null;
             if ($unitPriceRaw !== '') {
@@ -375,7 +375,6 @@ class PharmacistController extends Controller
                 $reorderThreshold = (int)$reorderRaw;
             }
 
-            
             if ($commercialName === '') {
                 flash_error('Please enter the medicine brand name.');
                 $_SESSION['old_batch_input'] = $_POST;
@@ -400,7 +399,6 @@ class PharmacistController extends Controller
             $pdo = db();
             $staffId = current_staff_id() ?? 1;
 
-            
             $sStmt = $pdo->prepare('SELECT supplier_id FROM supplier WHERE name = ? OR supplier_id = ? LIMIT 1');
             $sStmt->execute([$supplierName, is_numeric($supplierName) ? (int)$supplierName : 0]);
             $supplierId = $sStmt->fetchColumn();
@@ -412,7 +410,6 @@ class PharmacistController extends Controller
                 return;
             }
 
-            
             $bCheck = $pdo->prepare('SELECT b.batch_code, m.commercial_name FROM medicine_batch b JOIN medicine m ON b.medicine_id = m.medicine_id WHERE b.batch_code = ? LIMIT 1');
             $bCheck->execute([$batchCode]);
             $existingBatch = $bCheck->fetch(PDO::FETCH_ASSOC);
@@ -423,7 +420,6 @@ class PharmacistController extends Controller
                 return;
             }
 
-            
             try {
                 $registered = Medicine::registerBatch(
                     $commercialName,
@@ -481,7 +477,6 @@ class PharmacistController extends Controller
         ]);
     }
 
-    
     public function suppliers(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -538,43 +533,35 @@ class PharmacistController extends Controller
         ]);
     }
 
-    
     public function registerSupplier(): void
     {
         $this->suppliers();
     }
 
-    
     public function billingHistory(): void
     {
         $this->view('pharmacist/billing-history');
     }
 
-    
     public function pharmacyAlerts(): void
     {
         $this->view('pharmacist/pharmacy-alerts');
     }
 
-    
     public function stockAlerts(): void
     {
         $this->view('pharmacist/pharmacy-alerts');
     }
 
-    
     public function notifications(): void
     {
         $this->view('pharmacist/notifications');
     }
 
-    
     public function profile(): void
     {
         $this->view('pharmacist/profile', ['deviceTrusted' => current_device_is_trusted()]);
     }
-
-    
 
     private function readRequestData(): array
     {
@@ -607,7 +594,6 @@ class PharmacistController extends Controller
 
     private function jsonResponse(array $payload, int $status = 200): void
     {
-        
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) || str_contains($accept, 'application/json');
 
