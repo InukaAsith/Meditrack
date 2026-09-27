@@ -43,7 +43,7 @@ require __DIR__ . '/header.php';
 
       <div class="field mb-6">
         <label class="field__label" for="leave-reason">Reason (optional)</label>
-        <input class="field__input" type="text" id="leave-reason" name="reason" value="<?= e($leave['reason'] ?? '') ?>" placeholder="e.g. Annual leave, Medical conference…">
+        <input class="field__input" type="text" id="leave-reason" name="reason" value="<?= e($leave['reason'] ?? '') ?>" maxlength="160" placeholder="e.g. Annual leave, Medical conference…">
       </div>
 
       <div class="row-actions" style="display:flex; justify-content:space-between; align-items:center;">

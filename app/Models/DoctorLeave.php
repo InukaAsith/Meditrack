@@ -32,6 +32,19 @@ final class DoctorLeave
         return $row !== false ? $row : null;
     }
 
+    public static function overlaps(int $doctorId, string $start, string $end, int $exceptLeaveId = 0): bool
+    {
+        $stmt = db()->prepare(
+            'SELECT 1 FROM doctor_leave
+             WHERE doctor_id = ? AND doctor_leave_id <> ?
+               AND start_date <= ? AND end_date >= ?
+             LIMIT 1',
+        );
+        $stmt->execute([$doctorId, $exceptLeaveId, $end, $start]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
     public static function belongsToDoctor(int $leaveId, int $doctorId): bool
     {
         $stmt = db()->prepare(

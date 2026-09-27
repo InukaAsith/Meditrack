@@ -270,33 +270,40 @@ require __DIR__ . '/header.php';
               <span class="badge badge--primary">Today</span>
             </div>
 
-            <?php if ($selectedDay['sessions'] !== []): ?>
-              <div style="font-size:var(--fs-xs);color:var(--text);display:flex;flex-direction:column;gap:var(--sp-2);margin-bottom:var(--sp-4);">
-                <?php foreach ($selectedDay['sessions'] as $s): ?>
-                  <div style="padding:var(--sp-2) var(--sp-3);background:var(--surface, #ffffff);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-weight:600;"><?= e(substr($s['start_time'], 0, 5)) ?> – <?= e(substr($s['end_time'], 0, 5)) ?></span>
-                    <span style="color:var(--text-muted);">(Capacity: <?= (int) $s['capacity'] ?>)</span>
+            <form method="post" action="/staff/doctor/availability-save" id="today-form">
+              <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+              <input type="hidden" name="date" value="<?= e($date) ?>">
+              <input type="hidden" name="view" value="<?= e($view) ?>">
+
+              <?php foreach ([1, 2] as $number):
+                $session = $selectedDay['sessions'][$number - 1] ?? null;
+                $sStart = $session ? substr($session['start_time'], 0, 5) : '';
+                $sEnd = $session ? substr($session['end_time'], 0, 5) : '';
+              ?>
+                <div class="consultation-avail__group mt-3">
+                  <div class="consultation-avail__label"><?= $number === 1 ? 'First session' : 'Second session (optional)' ?></div>
+                  <div class="consultation-avail__time-inputs">
+                    <input type="time" name="start_<?= $number ?>" value="<?= e($sStart) ?>" aria-label="Start time"<?= $number === 1 ? ' required' : '' ?>>
+                    <span class="consultation-avail__time-sep">to</span>
+                    <input type="time" name="end_<?= $number ?>" value="<?= e($sEnd) ?>" aria-label="End time"<?= $number === 1 ? ' required' : '' ?>>
                   </div>
-                <?php endforeach; ?>
-              </div>
-
-              <div style="border-top:1px solid var(--border);padding-top:var(--sp-4);margin-top:var(--sp-2);">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-2);">
-                  <span style="font-weight:700;font-size:var(--fs-xs);color:var(--text-strong);text-transform:uppercase;letter-spacing:0.04em;">Today's Breaks</span>
-                  <span class="badge badge--neutral"><?= count($selectedDay['breaks']) ?> scheduled</span>
+                  <div class="consultation-avail__row">
+                    <span class="consultation-avail__row-label">Patient capacity</span>
+                    <input class="consultation-avail__number" type="number" name="capacity_<?= $number ?>" min="1" max="200"
+                           value="<?= $session ? (int) $session['capacity'] : '' ?>">
+                  </div>
                 </div>
+              <?php endforeach; ?>
+              <p style="font-size:var(--fs-xs);color:var(--text-muted);margin:var(--sp-2) 0 0;">
+                Appointments later today that no longer fit these hours are cancelled when you save.
+              </p>
 
-                <form method="post" action="/staff/doctor/availability-save" id="today-break-form">
-                  <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                  <input type="hidden" name="date" value="<?= e($date) ?>">
-                  <input type="hidden" name="view" value="<?= e($view) ?>">
-                  <input type="hidden" name="action_type" value="add_break">
-
-                  <?php foreach ($selectedDay['sessions'] as $idx => $s): ?>
-                    <input type="hidden" name="start_<?= $idx + 1 ?>" value="<?= e(substr($s['start_time'], 0, 5)) ?>">
-                    <input type="hidden" name="end_<?= $idx + 1 ?>" value="<?= e(substr($s['end_time'], 0, 5)) ?>">
-                    <input type="hidden" name="capacity_<?= $idx + 1 ?>" value="<?= (int) $s['capacity'] ?>">
-                  <?php endforeach; ?>
+              <?php if ($selectedDay['sessions'] !== []): ?>
+                <div style="border-top:1px solid var(--border);padding-top:var(--sp-4);margin-top:var(--sp-4);">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-2);">
+                    <span style="font-weight:700;font-size:var(--fs-xs);color:var(--text-strong);text-transform:uppercase;letter-spacing:0.04em;">Today's Breaks</span>
+                    <span class="badge badge--neutral"><?= count($selectedDay['breaks']) ?> scheduled</span>
+                  </div>
 
                   <?php if (!empty($selectedDay['breaks'])): ?>
                     <div style="margin-bottom:var(--sp-3);">
@@ -328,16 +335,12 @@ require __DIR__ . '/header.php';
                       <input type="time" name="new_break_to" id="new_break_to" aria-label="Break end">
                     </div>
                     <input class="consultation-avail__text mt-2" type="text" name="new_break_label" id="new_break_label" maxlength="60" placeholder="Name, e.g. Lunch">
-
-                    <button class="btn btn--secondary btn--block mt-3" type="submit">
-                      + Add break
-                    </button>
                   </div>
-                </form>
-              </div>
-            <?php else: ?>
-              <p class="consultation-avail__note">Clinic is closed today. Breaks cannot be added without active sessions.</p>
-            <?php endif; ?>
+                </div>
+              <?php endif; ?>
+
+              <button class="btn btn--primary btn--block mt-4" type="submit">Save today</button>
+            </form>
           </div>
 
         <?php elseif ($date < $minEditableDate): ?>
@@ -376,7 +379,6 @@ require __DIR__ . '/header.php';
             <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="date" value="<?= e($date) ?>">
             <input type="hidden" name="view" value="<?= e($view) ?>">
-            <input type="hidden" name="action_type" value="save_hours">
 
             <div class="consultation-avail__section">
               <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:var(--sp-2);margin-bottom:var(--sp-3)">
@@ -445,10 +447,10 @@ require __DIR__ . '/header.php';
       <form method="post" action="/staff/doctor/leave-create">
         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
         <div class="consultation-leave-dates">
-          <input type="date" name="start_date" value="<?= e(max($date, $today)) ?>" required title="Start date">
-          <input type="date" name="end_date" value="<?= e(max($date, $today)) ?>" required title="End date">
+          <input type="date" name="start_date" value="<?= e(max($date, $today)) ?>" min="<?= e($today) ?>" required title="Start date">
+          <input type="date" name="end_date" value="<?= e(max($date, $today)) ?>" min="<?= e($today) ?>" required title="End date">
         </div>
-        <input type="text" name="reason" placeholder="Reason (optional)…" style="width:100%;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:var(--r-sm);font-size:var(--fs-sm);margin-bottom:var(--sp-5)">
+        <input type="text" name="reason" maxlength="160" placeholder="Reason (optional)…" style="width:100%;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:var(--r-sm);font-size:var(--fs-sm);margin-bottom:var(--sp-5)">
         <button class="btn btn--dark btn--block" type="submit">Mark leave</button>
       </form>
     </div>
@@ -660,28 +662,23 @@ require __DIR__ . '/header.php';
 })();
 
 (function() {
-  const breakForm = document.getElementById('today-break-form');
-  if (!breakForm) return;
+  const todayForm = document.getElementById('today-form');
+  if (!todayForm) return;
 
-  breakForm.addEventListener('submit', function(e) {
-    const from = document.getElementById('new_break_from')?.value.trim();
-    const to = document.getElementById('new_break_to')?.value.trim();
-    const hasRemove = Array.from(breakForm.querySelectorAll('input[type="checkbox"][name*="[remove]"]')).some(cb => cb.checked);
-
-    if (!from && !to && hasRemove) {
+  todayForm.addEventListener('submit', function(e) {
+    const from = document.getElementById('new_break_from')?.value.trim() ?? '';
+    const to = document.getElementById('new_break_to')?.value.trim() ?? '';
+    if (!from && !to) {
       return;
     }
-
     if (!from || !to) {
       e.preventDefault();
-      window.showAlertDialog({ title: 'Break Schedule', message: 'Please specify both a start time and an end time to add a break.' });
+      window.showAlertDialog({ title: 'Break Schedule', message: 'Give the break both a start time and an end time.' });
       return;
     }
-
     if (from >= to) {
       e.preventDefault();
       window.showAlertDialog({ title: 'Break Schedule', message: 'Break start time must be before end time.' });
-      return;
     }
   });
 })();

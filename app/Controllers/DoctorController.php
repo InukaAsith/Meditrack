@@ -307,6 +307,37 @@ class DoctorController extends Controller
         return $date !== false && $date->format('Y-m-d') === $value;
     }
 
+    private function leaveError(int $doctorId, string $start, string $end, string $reason, int $exceptLeaveId): ?string
+    {
+        if (!$this->isDate($start) || !$this->isDate($end)) {
+            return 'Pick a real start date and end date.';
+        }
+        if ($start > $end) {
+            return 'End date cannot be earlier than start date.';
+        }
+        $today = date('Y-m-d');
+        if ($start < $today) {
+            return 'Leave can\'t start in the past.';
+        }
+        $isTodayOnly = $start === $today && $end === $today;
+        if (!$isTodayOnly && $start < $this->firstUnlockedDate()) {
+            return 'Leave must be for today only, or start at least 1 week ahead. The days in between are locked.';
+        }
+        if (mb_strlen($reason) > 160) {
+            return 'Keep the reason under 160 characters.';
+        }
+        if (DoctorLeave::overlaps($doctorId, $start, $end, $exceptLeaveId)) {
+            return 'You already have leave on some of these days.';
+        }
+
+        return null;
+    }
+
+    private function firstUnlockedDate(): string
+    {
+        return date('Y-m-d', strtotime('+7 days'));
+    }
+
     private function isTime(string $value): bool
     {
         return preg_match('/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $value) === 1;
@@ -330,27 +361,14 @@ class DoctorController extends Controller
         }
 
         $today = date('Y-m-d');
-        $actionType = trim((string) ($_POST['action_type'] ?? ''));
-
-        if ($actionType === 'add_break') {
-            if ($date < $today) {
-                flash_error('Breaks cannot be added to past dates.');
-                $this->redirect($back);
-            }
-            if ($date > $today) {
-                flash_error('Breaks can only be added for the current date.');
-                $this->redirect($back);
-            }
-        } else {
-            if ($date < $today) {
-                flash_error('Past days can\'t be changed.');
-                $this->redirect($back);
-            }
-            $minEditableDate = date('Y-m-d', strtotime('+7 days'));
-            if ($date < $minEditableDate) {
-                flash_error('Schedules cannot be changed less than 1 week in advance. This date is locked.');
-                $this->redirect($back);
-            }
+        $isToday = $date === $today;
+        if ($date < $today) {
+            flash_error('Past days can\'t be changed.');
+            $this->redirect($back);
+        }
+        if (!$isToday && $date < $this->firstUnlockedDate()) {
+            flash_error('Schedules cannot be changed less than 1 week in advance. This date is locked.');
+            $this->redirect($back);
         }
 
         $doctor = Doctor::findByStaffId($doctorId);
@@ -411,7 +429,7 @@ class DoctorController extends Controller
         }
 
         $breaks = [];
-        if ($actionType === 'add_break') {
+        if ($isToday) {
             foreach ((array) ($_POST['breaks'] ?? []) as $break) {
                 if (!empty($break['remove'])) {
                     continue;
@@ -425,26 +443,11 @@ class DoctorController extends Controller
 
             $newFrom = trim((string) ($_POST['new_break_from'] ?? ''));
             $newTo = trim((string) ($_POST['new_break_to'] ?? ''));
-            $newLabel = trim((string) ($_POST['new_break_label'] ?? ''));
-
-            $hasRemovedBreak = false;
-            foreach ((array) ($_POST['breaks'] ?? []) as $b) {
-                if (!empty($b['remove'])) {
-                    $hasRemovedBreak = true;
-                    break;
-                }
-            }
-
-            if ($newFrom === '' && $newTo === '') {
-                if (!$hasRemovedBreak) {
-                    flash_error('Please specify both a start time and an end time to add a break.');
-                    $this->redirect($back);
-                }
-            } else {
+            if ($newFrom !== '' || $newTo !== '') {
                 $breaks[] = [
                     'from_time' => $newFrom,
                     'to_time'   => $newTo,
-                    'label'     => $newLabel,
+                    'label'     => trim((string) ($_POST['new_break_label'] ?? '')),
                 ];
             }
 
@@ -490,14 +493,10 @@ class DoctorController extends Controller
             usort($breaks, fn($a, $b) => strcmp($a['from_time'], $b['from_time']));
         }
 
-        $availabilityId = DoctorAvailability::saveDay($doctorId, $date, $sessions, $breaks);
-        AuditLog::record('staff', current_staff_id(), 'update', 'doctor_availability', (string) $availabilityId);
+        DoctorAvailability::saveDay($doctorId, $date, $sessions, $breaks);
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor_availability', $date, 'availability_slot, schedule_break');
 
-        if ($actionType === 'add_break') {
-            flash_success('Updated breaks for today (' . date('j M Y', strtotime($date)) . ').');
-        } else {
-            flash_success('Saved schedule for ' . date('j M Y', strtotime($date)) . '.' . $this->cancelAppointmentsWithoutSession($doctorId));
-        }
+        flash_success('Saved schedule for ' . date('j M Y', strtotime($date)) . '.' . $this->cancelAppointmentsWithoutSession($doctorId));
         $this->redirect($back);
     }
 
@@ -518,8 +517,7 @@ class DoctorController extends Controller
             $this->redirect($back);
         }
 
-        $minEditableDate = date('Y-m-d', strtotime('+7 days'));
-        if ($date < $minEditableDate) {
+        if ($date < $this->firstUnlockedDate()) {
             flash_error('Schedules cannot be changed less than 1 week in advance. This date is locked.');
             $this->redirect($back);
         }
@@ -569,13 +567,9 @@ class DoctorController extends Controller
         $endDate = trim((string) ($_POST['end_date'] ?? ''));
         $reason = trim((string) ($_POST['reason'] ?? ''));
 
-        if ($startDate === '' || $endDate === '') {
-            flash_error('Both start date and end date are required.');
-            $this->redirect($back);
-        }
-
-        if ($startDate > $endDate) {
-            flash_error('End date cannot be earlier than start date.');
+        $leaveError = $this->leaveError($doctorId, $startDate, $endDate, $reason, 0);
+        if ($leaveError !== null) {
+            flash_error($leaveError);
             $this->redirect($back);
         }
 
@@ -606,10 +600,9 @@ class DoctorController extends Controller
             $endDate = trim((string) ($_POST['end_date'] ?? ''));
             $reason = trim((string) ($_POST['reason'] ?? ''));
 
-            if ($startDate === '' || $endDate === '') {
-                $errors['dates'] = 'Both start date and end date are required.';
-            } elseif ($startDate > $endDate) {
-                $errors['dates'] = 'End date cannot be earlier than start date.';
+            $leaveError = $this->leaveError($doctorId, $startDate, $endDate, $reason, $leaveId);
+            if ($leaveError !== null) {
+                $errors['dates'] = $leaveError;
             }
 
             if (!$errors) {
@@ -797,6 +790,7 @@ class DoctorController extends Controller
             throw $e;
         }
         AuditLog::record('staff', current_staff_id(), 'create', 'approval_request', (string) $requestId, 'proposed_consultation_fee, proposed_followup_fee');
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor', (string) $doctorId, 'consultation_fee, followup_fee');
 
         flash_success('Fees saved.');
         $this->redirect('/staff/doctor/configure');
@@ -890,6 +884,7 @@ class DoctorController extends Controller
             throw $e;
         }
         AuditLog::record('staff', current_staff_id(), 'create', 'approval_request', (string) $requestId, 'doctor_regular_schedule');
+        AuditLog::record('staff', current_staff_id(), 'update', 'doctor_regular_schedule', (string) $doctorId, 'day_of_week, start_time, end_time, capacity');
 
         flash_success('Schedule saved.' . $this->cancelAppointmentsWithoutSession($doctorId));
         $this->redirect('/staff/doctor/configure');
