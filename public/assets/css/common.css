@@ -847,6 +847,11 @@ img.brand__mark {
   color: var(--danger);
 }
 
+.badge--purple {
+  background: var(--c-purple-50);
+  color: var(--c-purple-600);
+}
+
 .timeline {
   display: flex;
   flex-direction: column;

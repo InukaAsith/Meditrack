@@ -97,7 +97,6 @@ function switchTab(tab) {
   }
 }
 
-
 function ensureSystemModals() {
   if (document.getElementById("meditrack-confirm-modal")) return;
 
