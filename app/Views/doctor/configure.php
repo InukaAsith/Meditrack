@@ -367,7 +367,7 @@ require __DIR__ . '/header.php';
         const dayName = row.querySelector('td')?.textContent?.trim() || 'Day';
 
         if (checkRowOverlap(row)) {
-          alert(`${dayName}: The two sessions overlap.`);
+          window.showAlertDialog({ title: 'Schedule Conflict', message: `${dayName}: The two sessions overlap.` });
           hasError = true;
           return;
         }
@@ -381,19 +381,19 @@ require __DIR__ . '/header.php';
             const endMin = toMinutes(eInput.value.trim());
             if (s !== null && endMin !== null) {
               if (s >= endMin) {
-                alert(`${dayName} session ${sessionNum}: Start time must be before end time.`);
+                window.showAlertDialog({ title: 'Invalid Time', message: `${dayName} session ${sessionNum}: Start time must be before end time.` });
                 hasError = true;
                 return;
               }
               const maxSlots = Math.floor((endMin - s) / slotLength);
               if (maxSlots <= 0) {
-                alert(`${dayName} session ${sessionNum}: Duration must be at least ${slotLength} minutes.`);
+                window.showAlertDialog({ title: 'Invalid Duration', message: `${dayName} session ${sessionNum}: Duration must be at least ${slotLength} minutes.` });
                 hasError = true;
                 return;
               }
               const cap = parseInt(cInput.value, 10);
               if (!cap || cap < 1 || cap > maxSlots) {
-                alert(`${dayName} session ${sessionNum}: Capacity cannot exceed ${maxSlots} patients.`);
+                window.showAlertDialog({ title: 'Invalid Capacity', message: `${dayName} session ${sessionNum}: Capacity cannot exceed ${maxSlots} patients.` });
                 hasError = true;
                 return;
               }

@@ -1563,6 +1563,7 @@ input[type="date"].field__input::-webkit-calendar-picker-indicator {
   max-height: 90vh;
   overflow-y: auto;
   background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-lg);
 }

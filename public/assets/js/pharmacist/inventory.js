@@ -173,6 +173,7 @@ async function saveSettings(button) {
 
   if (!result.ok) {
     showSettingsError(settingsRow, result.error);
+    window.showAlertDialog({ title: "Save Settings Error", message: result.error });
     return;
   }
   showSettingsError(settingsRow, "");
@@ -199,6 +200,7 @@ async function applyAdjustment(button) {
   const quantity = parseInt(quantityInput.value, 10);
   if (!quantity) {
     showSettingsError(settingsRow, "Enter how many units to add or remove.");
+    window.showAlertDialog({ title: "Invalid Quantity", message: "Enter how many units to add or remove." });
     return;
   }
 
@@ -217,6 +219,7 @@ async function applyAdjustment(button) {
 
   if (!result.ok) {
     showSettingsError(settingsRow, result.error);
+    window.showAlertDialog({ title: "Save Settings Error", message: result.error });
     return;
   }
   showSettingsError(settingsRow, "");
@@ -232,39 +235,44 @@ async function applyAdjustment(button) {
 function setUpBatchRemove(batchRow) {
   const removeButton = batchRow.querySelector("[data-batch-remove]");
   if (!removeButton) return;
-  const confirmBox = batchRow.querySelector("[data-batch-confirm]");
-  const yesButton = batchRow.querySelector("[data-batch-remove-yes]");
+
+  const batchCode = batchRow.querySelector(".morning-row__name")?.textContent.trim() || "this batch";
+  const batchUnits = batchRow.querySelector("[data-batch-units]")?.textContent.trim() || "0";
+  const batchId = parseInt(batchRow.getAttribute("data-batch"), 10);
 
   removeButton.addEventListener("click", () => {
-    removeButton.hidden = true;
-    confirmBox.hidden = false;
-  });
+    window.showConfirmDialog({
+      title: "Remove Batch",
+      message: `Are you sure you want to remove batch <strong>${batchCode}</strong> (${batchUnits} units)? Remaining units will be marked as removed/damaged.`,
+      confirmText: "Remove Batch",
+      cancelText: "Keep Batch",
+      danger: true,
+      onConfirm: async () => {
+        const settingsRow = batchRow.closest("[data-settings-row]");
+        removeButton.disabled = true;
 
-  batchRow.querySelector("[data-batch-remove-no]").addEventListener("click", () => {
-    confirmBox.hidden = true;
-    removeButton.hidden = false;
-  });
+        const result = await postInventory("/staff/pharmacist/inventory-batch-remove", {
+          batch_id: batchId,
+        });
+        removeButton.disabled = false;
 
-  yesButton.addEventListener("click", async () => {
-    const settingsRow = batchRow.closest("[data-settings-row]");
+        if (!result.ok) {
+          showSettingsError(settingsRow, result.error);
+          window.showAlertDialog({
+            title: "Cannot Remove Batch",
+            message: result.error
+          });
+          return;
+        }
+        showSettingsError(settingsRow, "");
 
-    yesButton.disabled = true;
-    const result = await postInventory("/staff/pharmacist/inventory-batch-remove", {
-      batch_id: parseInt(yesButton.getAttribute("data-batch-remove-yes"), 10),
+        batchRow.querySelector("[data-batch-units]").textContent = "0";
+        batchRow.querySelector("[data-batch-actions]").hidden = true;
+        batchRow.querySelector("[data-batch-removed]").hidden = false;
+
+        const data = result.data;
+        updateMedicineRow(medicineRowFor(settingsRow), data.total_stock, data.status, data.status_tone);
+      }
     });
-    yesButton.disabled = false;
-
-    if (!result.ok) {
-      showSettingsError(settingsRow, result.error);
-      return;
-    }
-    showSettingsError(settingsRow, "");
-
-    batchRow.querySelector("[data-batch-units]").textContent = "0";
-    batchRow.querySelector("[data-batch-actions]").hidden = true;
-    batchRow.querySelector("[data-batch-removed]").hidden = false;
-
-    const data = result.data;
-    updateMedicineRow(medicineRowFor(settingsRow), data.total_stock, data.status, data.status_tone);
   });
 }

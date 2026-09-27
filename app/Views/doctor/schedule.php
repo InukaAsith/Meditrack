@@ -477,7 +477,7 @@ require __DIR__ . '/header.php';
                 <div style="display:flex;gap:var(--sp-3);align-items:center;margin-top:var(--sp-2);border-top:1px dashed var(--border);padding-top:var(--sp-2)">
                   <a class="link-act" href="/staff/doctor/leave-edit/<?= (int) $l['doctor_leave_id'] ?>">Edit</a>
                   <span style="color:var(--text-subtle)">·</span>
-                  <form method="post" action="/staff/doctor/leave-delete/<?= (int) $l['doctor_leave_id'] ?>" style="display:inline" onsubmit="return confirm('Cancel this leave period?');">
+                  <form method="post" action="/staff/doctor/leave-delete/<?= (int) $l['doctor_leave_id'] ?>" style="display:inline" data-confirm="Are you sure you want to cancel this leave period? Your schedule for this day will be restored." data-confirm-title="Cancel Leave Period" data-confirm-ok="Cancel Leave" data-confirm-danger="true">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <button type="submit" class="link-act link-act--danger" style="background:none;border:none;padding:0;cursor:pointer;font-size:inherit;font-family:inherit;">Cancel</button>
                   </form>
@@ -606,7 +606,7 @@ require __DIR__ . '/header.php';
   form.addEventListener('submit', function(e) {
     if (checkSessionOverlap()) {
       e.preventDefault();
-      alert('The second session cannot overlap with the first session.');
+      window.showAlertDialog({ title: 'Schedule Conflict', message: 'The second session cannot overlap with the first session.' });
       return;
     }
 
@@ -621,13 +621,13 @@ require __DIR__ . '/header.php';
           const maxSlots = Math.floor((eMin - s) / slotLength);
           if (maxSlots <= 0) {
             e.preventDefault();
-            alert(`Session ${num} duration must be at least ${slotLength} minutes.`);
+            window.showAlertDialog({ title: 'Invalid Session Duration', message: `Session ${num} duration must be at least ${slotLength} minutes.` });
             return;
           }
           const cap = parseInt(cInput.value, 10);
           if (!cap || cap < 1 || cap > maxSlots) {
             e.preventDefault();
-            alert(`Session ${num} capacity cannot exceed ${maxSlots} patients.`);
+            window.showAlertDialog({ title: 'Invalid Session Capacity', message: `Session ${num} capacity cannot exceed ${maxSlots} patients.` });
             return;
           }
         }
@@ -651,13 +651,13 @@ require __DIR__ . '/header.php';
 
     if (!from || !to) {
       e.preventDefault();
-      alert('Please specify both a start time and an end time to add a break.');
+      window.showAlertDialog({ title: 'Break Schedule', message: 'Please specify both a start time and an end time to add a break.' });
       return;
     }
 
     if (from >= to) {
       e.preventDefault();
-      alert('Break start time must be before end time.');
+      window.showAlertDialog({ title: 'Break Schedule', message: 'Break start time must be before end time.' });
       return;
     }
   });

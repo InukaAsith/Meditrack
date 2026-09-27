@@ -157,13 +157,6 @@ require __DIR__ . '/header.php';
                             </div>
                             <div data-batch-actions<?= $removed ? ' hidden' : '' ?>>
                               <button class="link-act link-act--danger" type="button" data-batch-remove>Remove</button>
-                              <div data-batch-confirm hidden>
-                                <div class="inventory-settings__confirm">
-                                  <span>Remove this batch?</span>
-                                  <button class="btn btn--danger btn--xs" type="button" data-batch-remove-yes="<?= e((string) $batch['id']) ?>">Remove</button>
-                                  <button class="btn btn--secondary btn--xs" type="button" data-batch-remove-no>Keep</button>
-                                </div>
-                              </div>
                             </div>
                           </div>
                         <?php endforeach; ?>
