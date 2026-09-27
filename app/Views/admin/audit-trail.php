@@ -5,57 +5,31 @@ declare(strict_types=1);
 $title = 'Audit Trail';
 $active = 'audit';
 
-$changes = $changes ?? AuditLog::allRecordChanges();
-$logins = $logins ?? AuditLog::allLoginHistory();
-$users = $users ?? [];
-$roles = $roles ?? Staff::allRoles();
-$records = $records ?? [
-  'Staff',
-  'Clinic settings',
-  'Medicine',
-  'Invoice',
-  'Consultation',
-  'Message template',
-  'Doctor leave',
-  'Patient',
-];
-
-if (empty($queueEvents)) {
-  $queueEvents = [
-    ['time' => 'Today 09:38:02', 'date' => date('Y-m-d'), 'event' => 'Wait time changed', 'tone' => 'info',    'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1421', 'detail' => 'Wait time 8 min longer', 'by' => 'system'],
-    ['time' => 'Today 09:32:18', 'date' => date('Y-m-d'), 'event' => 'Completed',         'tone' => 'success', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1411', 'detail' => 'Consultation completed', 'by' => 'Dr. Sample Doctor 1'],
-    ['time' => 'Today 09:15:44', 'date' => date('Y-m-d'), 'event' => 'Emergency',         'tone' => 'danger',  'doctor' => 'Dr. Sample Doctor 2', 'entry' => 'QE-1409', 'detail' => 'Emergency added to the front', 'by' => 'G. G. Mithun Majika'],
-    ['time' => 'Today 09:04:30', 'date' => date('Y-m-d'), 'event' => 'No-show',           'tone' => 'warning', 'doctor' => 'Dr. Sample Doctor 3', 'entry' => 'QE-1402', 'detail' => 'No-show, refund queued', 'by' => 'system'],
-    ['time' => 'Today 08:55:12', 'date' => date('Y-m-d'), 'event' => 'Checked in',        'tone' => 'success', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1398', 'detail' => 'Checked in', 'by' => 'Sandanu D.'],
-    ['time' => 'Today 08:50:07', 'date' => date('Y-m-d'), 'event' => 'Doctor late',       'tone' => 'warning', 'doctor' => 'Dr. Sample Doctor 2', 'entry' => '-',       'detail' => 'Doctor running 12 min late', 'by' => 'Dr. Sample Doctor 2'],
-    ['time' => 'Today 08:41:55', 'date' => date('Y-m-d'), 'event' => 'Confirmed',         'tone' => 'info',    'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1390', 'detail' => 'Patient confirmed attendance', 'by' => 'patient'],
-    ['time' => 'Today 08:33:20', 'date' => date('Y-m-d'), 'event' => 'Skipped',           'tone' => 'muted',   'doctor' => 'Dr. Sample Doctor 3', 'entry' => 'QE-1385', 'detail' => 'Skipped', 'by' => 'G. G. Mithun Majika'],
-    ['time' => 'Today 08:30:02', 'date' => date('Y-m-d'), 'event' => 'Called',            'tone' => 'primary', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1380', 'detail' => 'Called to room 2', 'by' => 'Dr. Sample Doctor 1'],
-  ];
-}
-
 $roleBadge = [
-  'Admin' => 'primary-strong',
-  'Doctor' => 'info',
+  'Admin' => 'danger',
+  'Manager' => 'purple',
+  'Doctor' => 'primary',
   'Receptionist' => 'info',
   'Supporting Staff' => 'warning',
   'Pharmacist' => 'success',
-  'Manager' => 'primary',
   'Patient' => 'muted',
 ];
 
 $actionBadge = [
   'create' => 'success',
-  'update' => 'info',
-  'update_config' => 'info',
+  'register' => 'success',
+  'register_batch' => 'success',
+  'reactivate' => 'success',
+  'update' => 'primary',
+  'update_config' => 'primary',
+  'stock_adjustment' => 'primary',
   'delete' => 'danger',
   'deactivate' => 'danger',
-  'reactivate' => 'success',
+  'remove_batch' => 'danger',
+  'trusted_device_removed' => 'danger',
   'reset_password' => 'warning',
   'password_change' => 'warning',
   'view' => 'muted',
-  'login' => 'info',
-  'logout' => 'muted',
 ];
 
 require __DIR__ . '/header.php';
@@ -163,7 +137,7 @@ require __DIR__ . '/header.php';
                   <td>
                     <div class="table-lead__text">
                       <strong><?= e($r['user']) ?></strong>
-                      <span><span class="badge badge--solid badge--<?= e($roleBadge[$r['role']] ?? 'muted') ?>"><?= e($r['role']) ?></span></span>
+                      <span><span class="badge badge--<?= e($roleBadge[$r['role']] ?? 'muted') ?>"><?= e($r['role']) ?></span></span>
                     </div>
                   </td>
                   <td>
@@ -172,7 +146,7 @@ require __DIR__ . '/header.php';
                       <span class="mono"><?= e($r['pk']) ?></span>
                     </div>
                   </td>
-                  <td><span class="badge badge--solid badge--<?= e($actionBadge[$r['action']] ?? 'info') ?>"><?= e(ucfirst(str_replace('_', ' ', $r['action']))) ?></span></td>
+                  <td><span class="badge badge--<?= e($actionBadge[$r['action']] ?? 'info') ?>"><?= e(ucfirst(str_replace('_', ' ', $r['action']))) ?></span></td>
                   <td>
                     <?php if (!empty($r['fields'])): ?>
                       <?php foreach ($r['fields'] as $f): ?><span class="field-chip"><?= e($f) ?></span> <?php endforeach; ?>
@@ -196,8 +170,8 @@ require __DIR__ . '/header.php';
                   </td>
                 </tr>
               <?php endforeach; ?>
-              <tr data-audit-empty hidden>
-                <td colspan="5" class="text-center text-muted" style="padding: 2.5rem 1rem;">No record changes match your search or filter.</td>
+              <tr data-audit-empty<?= $changes !== [] ? ' hidden' : '' ?>>
+                <td colspan="5" class="text-center text-muted" style="padding: 2.5rem 1rem;"><?= $changes === [] ? 'Nothing recorded yet.' : 'No record changes match your search or filter.' ?></td>
               </tr>
             </tbody>
           </table>
@@ -232,29 +206,29 @@ require __DIR__ . '/header.php';
                   <td>
                     <div class="table-lead__text">
                       <strong><?= e($r['user']) ?></strong>
-                      <span><span class="badge badge--solid badge--<?= e($roleBadge[$r['role']] ?? 'muted') ?>"><?= e($r['role']) ?></span></span>
+                      <span><span class="badge badge--<?= e($roleBadge[$r['role']] ?? 'muted') ?>"><?= e($r['role']) ?></span></span>
                     </div>
                   </td>
                   <td><span class="mono"><?= e($r['ip']) ?></span></td>
                   <td class="text-muted"><?= e($r['session']) ?></td>
                   <td>
                     <?php if (!empty($r['otp'])): ?>
-                      <span class="badge badge--solid badge--success"><?= icon('lock', 11) ?> Verified</span>
+                      <span class="badge badge--success"><?= icon('lock', 11) ?> Verified</span>
                     <?php else: ?>
                       <span class="badge badge--muted">Not used</span>
                     <?php endif; ?>
                   </td>
                   <td>
                     <?php if ($r['signed_out'] === null): ?>
-                      <span class="badge badge--solid badge--info">Active</span>
+                      <span class="badge badge--info">Active</span>
                     <?php else: ?>
                       <span class="text-muted"><?= e($r['signed_out']) ?></span>
                     <?php endif; ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
-              <tr data-audit-empty hidden>
-                <td colspan="6" class="text-center text-muted" style="padding: 2.5rem 1rem;">No sign-in events match your search or filter.</td>
+              <tr data-audit-empty<?= $logins !== [] ? ' hidden' : '' ?>>
+                <td colspan="6" class="text-center text-muted" style="padding: 2.5rem 1rem;"><?= $logins === [] ? 'Nothing recorded yet.' : 'No sign-in events match your search or filter.' ?></td>
               </tr>
             </tbody>
           </table>
@@ -284,7 +258,7 @@ require __DIR__ . '/header.php';
                     data-search="<?= e(strtolower($r['event'] . ' ' . $r['doctor'] . ' ' . $r['detail'] . ' ' . $r['by'])) ?>"
                     data-date="<?= e($r['date'] ?? '') ?>">
                   <td class="audit-time"><?= e($r['time']) ?></td>
-                  <td><span class="badge badge--solid badge--<?= e($r['tone']) ?>"><?= e($r['event']) ?></span></td>
+                  <td><span class="badge badge--<?= e($r['tone']) ?>"><?= e($r['event']) ?></span></td>
                   <td><?= e($r['doctor']) ?></td>
                   <td><span class="mono"><?= e($r['entry']) ?></span></td>
                   <td class="text-muted"><?= e($r['detail']) ?></td>
@@ -299,8 +273,8 @@ require __DIR__ . '/header.php';
                   </td>
                 </tr>
               <?php endforeach; ?>
-              <tr data-audit-empty hidden>
-                <td colspan="6" class="text-center text-muted" style="padding: 2.5rem 1rem;">No queue events match your search or filter.</td>
+              <tr data-audit-empty<?= $queueEvents !== [] ? ' hidden' : '' ?>>
+                <td colspan="6" class="text-center text-muted" style="padding: 2.5rem 1rem;">No queue events yet.</td>
               </tr>
             </tbody>
           </table>
