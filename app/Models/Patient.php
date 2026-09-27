@@ -156,11 +156,25 @@ final class Patient
             ->execute([$photoUri, $patientId]);
     }
 
-    public static function deletePersonalData(int $patientId): void
+    public static function deletePersonalData(int $patientId): array
     {
         $db = db();
         $db->beginTransaction();
         try {
+            $find = $db->prepare(
+                "SELECT appointment_id FROM appointment
+                 WHERE patient_id = ? AND appointment_date >= CURDATE()
+                   AND status IN ('pending', 'confirmed', 'rescheduled')",
+            );
+            $find->execute([$patientId]);
+            $appointmentIds = array_map('intval', $find->fetchAll(PDO::FETCH_COLUMN));
+
+            foreach ($appointmentIds as $appointmentId) {
+                $db->prepare('UPDATE appointment SET rescheduled_from_id = NULL WHERE rescheduled_from_id = ?')
+                    ->execute([$appointmentId]);
+                $db->prepare('DELETE FROM appointment WHERE appointment_id = ?')->execute([$appointmentId]);
+            }
+
             $db->prepare('DELETE FROM patient_allergy WHERE patient_id = ?')->execute([$patientId]);
             $db->prepare(
                 "UPDATE patient
@@ -174,5 +188,7 @@ final class Patient
             $db->rollBack();
             throw $error;
         }
+
+        return $appointmentIds;
     }
 }

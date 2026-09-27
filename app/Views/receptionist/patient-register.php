@@ -43,9 +43,9 @@ require __DIR__ . '/header.php';
           <?php if (isset($errors['date_of_birth'])): ?><span class="field__desc"><?= e($errors['date_of_birth']) ?></span><?php endif; ?>
         </label>
         <label class="field<?= isset($errors['gender']) ? ' field--error' : '' ?>">
-          <span class="field__label">Gender</span>
-          <select class="field__input" name="gender">
-            <option value="">Not set</option>
+          <span class="field__label">Gender *</span>
+          <select class="field__input" name="gender" required>
+            <option value="">Pick one</option>
             <option value="female"<?= $values['gender'] === 'female' ? ' selected' : '' ?>>Female</option>
             <option value="male"<?= $values['gender'] === 'male' ? ' selected' : '' ?>>Male</option>
           </select>

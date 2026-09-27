@@ -72,9 +72,9 @@ require __DIR__ . '/header.php';
             <?php if (isset($errors['date_of_birth'])): ?><span class="field__desc"><?= e($errors['date_of_birth']) ?></span><?php endif; ?>
           </label>
           <label class="field<?= isset($errors['gender']) ? ' field--error' : '' ?>">
-            <span class="field__label">Gender</span>
-            <select class="field__input" name="gender">
-              <option value="">Not set</option>
+            <span class="field__label">Gender *</span>
+            <select class="field__input" name="gender" required>
+              <option value="">Pick one</option>
               <option value="female" <?= $values['gender'] === 'female' ? ' selected' : '' ?>>Female</option>
               <option value="male" <?= $values['gender'] === 'male' ? ' selected' : '' ?>>Male</option>
             </select>
@@ -142,7 +142,7 @@ require __DIR__ . '/header.php';
     <summary class="danger-zone__summary" data-modal-confirm="patient-delete-form"><?= icon('trash', 14) ?> Delete patient</summary>
     <div class="danger-zone__body">
       <p>Delete <b><?= e($patient['full_name']) ?></b>? This can't be undone.</p>
-      <form id="patient-delete-form" method="post" action="/staff/receptionist/patient-delete/<?= e($id) ?>" data-confirm="Delete &lt;b&gt;<?= e($patient['full_name']) ?>&lt;/b&gt;? This can't be undone." data-confirm-title="Delete Patient" data-confirm-ok="Yes, delete patient" data-confirm-danger="true">
+      <form id="patient-delete-form" method="post" action="/staff/receptionist/patient-delete/<?= e($id) ?>" data-confirm="Delete &lt;b&gt;<?= e($patient['full_name']) ?>&lt;/b&gt;? Their upcoming appointments are removed too, with no refund. This can't be undone." data-confirm-title="Delete Patient" data-confirm-ok="Yes, delete patient" data-confirm-danger="true">
         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
         <button class="btn btn--danger" type="submit">Yes, delete patient</button>
       </form>

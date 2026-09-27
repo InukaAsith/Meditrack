@@ -82,10 +82,10 @@ $titles = ['signin' => 'Sign in', 'register' => 'Create account', 'forgot' => 'R
           <form class="auth-card__form" action="/register" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="form" value="register">
-            <label class="field"><span class="field__label">Full name (as on NIC)</span><input class="field__input" type="text" name="full_name" placeholder="e.g. Sandanu Dulmeth" required></label>
-            <label class="field"><span class="field__label">NIC number</span><input class="field__input" type="text" name="nic" placeholder="NIC" required></label>
+            <label class="field"><span class="field__label">Full name (as on NIC)</span><input class="field__input" type="text" name="full_name" placeholder="e.g. Sandanu Dulmeth" maxlength="120" required></label>
+            <label class="field"><span class="field__label">NIC number</span><input class="field__input" type="text" name="nic" placeholder="e.g. 200012345678 or 991234567V" maxlength="12" required></label>
             <label class="field"><span class="field__label">Mobile - queue SMS goes here</span><input class="field__input" type="text" name="mobile" placeholder="07XXXXXXXX" required></label>
-            <label class="field"><span class="field__label">Email</span><input class="field__input" type="email" name="email" placeholder="you@example.com" required></label>
+            <label class="field"><span class="field__label">Email</span><input class="field__input" type="email" name="email" placeholder="you@example.com" maxlength="150"></label>
             <label class="field"><span class="field__label">Date of birth</span><input class="field__input" type="date" name="date_of_birth" max="<?= e(date('Y-m-d')) ?>" required></label>
             <label class="field">
               <span class="field__label">Gender</span>

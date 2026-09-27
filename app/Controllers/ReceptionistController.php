@@ -228,11 +228,16 @@ class ReceptionistController extends Controller
         $patient = $this->findPatientForPost($id);
         $patientId = (int) $patient['patient_id'];
 
-        Patient::deletePersonalData($patientId);
+        $deletedAppointments = Patient::deletePersonalData($patientId);
         $this->deletePhotoFile($patient['photo_uri']);
         AuditLog::record('staff', current_staff_id(), 'delete', 'patient', (string) $patientId);
+        foreach ($deletedAppointments as $appointmentId) {
+            AuditLog::record('staff', current_staff_id(), 'delete', 'appointment', (string) $appointmentId);
+        }
 
-        flash_success($patient['full_name'] . ' was deleted.');
+        $count = count($deletedAppointments);
+        flash_success($patient['full_name'] . ' was deleted.'
+            . ($count > 0 ? ' ' . $count . ($count === 1 ? ' upcoming appointment was' : ' upcoming appointments were') . ' removed, with no refund.' : ''));
         $this->redirect('/staff/receptionist/patients');
     }
 
@@ -300,7 +305,7 @@ class ReceptionistController extends Controller
     {
         $errors = [];
 
-        if ($values['full_name'] === null || strlen($values['full_name']) > 120) {
+        if ($values['full_name'] === null || mb_strlen($values['full_name']) > 120) {
             $errors['full_name'] = 'Enter the full name (up to 120 characters).';
         }
 
@@ -315,7 +320,7 @@ class ReceptionistController extends Controller
             $errors['date_of_birth'] = 'That date of birth isn\'t possible.';
         }
 
-        if ($values['gender'] !== null && !in_array($values['gender'], ['male', 'female'], true)) {
+        if (!in_array($values['gender'], ['male', 'female'], true)) {
             $errors['gender'] = 'Pick male or female.';
         }
 
@@ -329,9 +334,11 @@ class ReceptionistController extends Controller
 
         if ($values['email'] !== null && filter_var($values['email'], FILTER_VALIDATE_EMAIL) === false) {
             $errors['email'] = 'That email address doesn\'t look right.';
+        } elseif ($values['email'] !== null && mb_strlen($values['email']) > 150) {
+            $errors['email'] = 'Keep the email under 150 characters.';
         }
 
-        if ($values['address'] !== null && strlen($values['address']) > 255) {
+        if ($values['address'] !== null && mb_strlen($values['address']) > 255) {
             $errors['address'] = 'Keep the address under 255 characters.';
         }
 
