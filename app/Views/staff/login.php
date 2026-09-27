@@ -10,6 +10,7 @@ declare(strict_types=1);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MediTrack - Staff sign in</title>
+  <link rel="icon" href="/assets/img/MediTrackLogo.png">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/common.css">
   <link rel="stylesheet" href="/assets/css/staff.css">
@@ -19,13 +20,13 @@ declare(strict_types=1);
   <div class="staff-login">
     <aside class="staff-login__hero">
       <img class="staff-login__photo" src="/assets/img/login.webp" alt="" fetchpriority="high" decoding="async">
-      <div class="staff-login__brand">
+      <a class="staff-login__brand" href="/">
         <img class="staff-login__mark" src="/assets/img/MediTrackLogo.png" alt="" width="46" height="46">
         <div>
           <div class="staff-login__brand-name">MediTrack</div>
           <div class="staff-login__brand-sub">HealthGate Medical · Athurugiriya</div>
         </div>
-      </div>
+      </a>
       <h1 class="staff-login__headline">Staff Login</h1>
 
     </aside>

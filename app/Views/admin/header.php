@@ -21,6 +21,7 @@ $hasUnread = true;
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MediTrack - <?= e($title) ?></title>
+  <link rel="icon" href="/assets/img/MediTrackLogo.png">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/common.css">
   <link rel="stylesheet" href="/assets/css/admin.css">
@@ -41,13 +42,13 @@ $hasUnread = true;
     ];
     ?>
     <nav class="sidebar staff-nav" aria-label="Primary">
-      <div class="staff-nav__brand">
+      <a class="staff-nav__brand" href="/">
         <img class="brand__mark" src="/assets/img/MediTrackLogo.png" alt="MediTrack" width="34" height="34">
         <div class="staff-nav__brand-text">
           <span class="staff-nav__brand-name">MediTrack</span>
           <span class="staff-nav__brand-sub">HealthGate Medical</span>
         </div>
-      </div>
+      </a>
 
       <div class="sidebar__links">
         <?php foreach ($navItems as $item): ?>

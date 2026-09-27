@@ -26,6 +26,7 @@ for ($i = 0; $i < 36; $i++) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MediTrack - Your appointment</title>
+  <link rel="icon" href="/assets/img/MediTrackLogo.png">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/common.css">
   <link rel="stylesheet" href="/assets/css/patient.css">

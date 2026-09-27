@@ -59,6 +59,7 @@ if ($active === 'billing') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MediTrack - <?= e($title) ?></title>
+  <link rel="icon" href="/assets/img/MediTrackLogo.png">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/common.css">
   <link rel="stylesheet" href="/assets/css/patient.css">
@@ -124,7 +125,7 @@ if ($active === 'billing') {
     <div class="app-main">
       <header class="app-topbar clinic-topbar">
         <div class="clinic-topbar__inner">
-          <a class="clinic-brand" href="/app/home">
+          <a class="clinic-brand" href="/">
             <img class="clinic-brand__mark" src="/assets/img/MediTrackLogo.png" alt="" width="32" height="32">
             <span class="clinic-brand__text">
               <span class="clinic-brand__name">MediTrack</span>
