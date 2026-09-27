@@ -319,10 +319,6 @@ class DoctorController extends Controller
         if ($start < $today) {
             return 'Leave can\'t start in the past.';
         }
-        $isTodayOnly = $start === $today && $end === $today;
-        if (!$isTodayOnly && $start < $this->firstUnlockedDate()) {
-            return 'Leave must be for today only, or start at least 1 week ahead. The days in between are locked.';
-        }
         if (mb_strlen($reason) > 160) {
             return 'Keep the reason under 160 characters.';
         }
