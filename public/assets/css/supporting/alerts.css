@@ -18,7 +18,7 @@
 
 .supporting-alerts-card {
   background: #ffffff;
-  border: 1px solid #E4E8EF;
+  border: 1px solid var(--border, #CBD5E1);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 1px solid #E4E8EF;
+  border: 1px solid var(--border, #CBD5E1);
   border-radius: 12px;
   padding: 0.75rem 1rem;
   gap: 1rem;
