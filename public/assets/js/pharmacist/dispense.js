@@ -107,10 +107,12 @@ function addMedicine(name) {
 
 function showMatchingResults(text) {
   const query = text.trim().toLowerCase();
+  const words = query.split(/\s+/).filter(Boolean);
   let matchCount = 0;
 
   document.querySelectorAll("[data-result]").forEach((result) => {
-    const matches = query !== "" && result.getAttribute("data-result").includes(query);
+    const resText = (result.getAttribute("data-result") || "").toLowerCase();
+    const matches = words.length > 0 && words.every((w) => resText.includes(w));
     result.hidden = !matches;
     if (matches) matchCount++;
   });

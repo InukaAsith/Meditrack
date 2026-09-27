@@ -8,7 +8,6 @@ $active = 'register-batch';
 $suppliers = $suppliers ?? Supplier::all();
 $medicines = $medicines ?? db()->query('SELECT medicine_id, commercial_name, generic_name, unit_form, manufacturer, storage_limits, unit_price, reorder_threshold FROM medicine ORDER BY commercial_name ASC')->fetchAll(PDO::FETCH_ASSOC);
 $existingBatches = $existingBatches ?? db()->query('SELECT batch_code FROM medicine_batch')->fetchAll(PDO::FETCH_COLUMN);
-
 $defaultSupplier = trim((string) ($_GET['supplier'] ?? ''));
 $old = $old ?? [];
 $selectedSupplier = trim((string) ($old['supplier'] ?? $defaultSupplier));
@@ -108,7 +107,6 @@ require __DIR__ . '/header.php';
         </label>
       </div>
 
-      
       <p class="form-error" id="batch-form-error" hidden>Please fill in: <span id="batch-form-missing"></span></p>
 
       <div class="form-actions">

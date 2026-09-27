@@ -9,10 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function filterInvoices(text) {
   const query = text.trim().toLowerCase();
+  const words = query.split(/\s+/).filter(Boolean);
   let shownCount = 0;
 
   document.querySelectorAll("tr[data-search]").forEach((row) => {
-    const matches = row.getAttribute("data-search").includes(query);
+    const searchAttr = row.getAttribute("data-search") || "";
+    const matches = words.length === 0 || words.every((w) => searchAttr.includes(w));
     row.hidden = !matches;
     if (matches) shownCount++;
   });

@@ -1,5 +1,3 @@
-
-
 const requiredBatchFields = [
   { name: "commercial_name", label: "Brand name" },
   { name: "generic", label: "Generic name" },

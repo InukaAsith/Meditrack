@@ -1,5 +1,3 @@
-
-
 let inventoryFilter = "all";
 let inventorySortKey = "";
 let inventorySortDirection = 1;
@@ -25,10 +23,12 @@ function rowStatusGroup(row) {
 
 function filterInventory() {
   const query = document.getElementById("inventory-search").value.trim().toLowerCase();
+  const words = query.split(/\s+/).filter(Boolean);
   let shownCount = 0;
 
   document.querySelectorAll("[data-medicine-row]").forEach((row) => {
-    const matchesText = row.getAttribute("data-search").includes(query);
+    const searchAttr = row.getAttribute("data-search") || "";
+    const matchesText = words.length === 0 || words.every((word) => searchAttr.includes(word));
     const matchesPill = inventoryFilter === "all" || rowStatusGroup(row) === inventoryFilter;
     row.hidden = !(matchesText && matchesPill);
 
@@ -37,6 +37,34 @@ function filterInventory() {
   });
 
   document.getElementById("inventory-empty").hidden = shownCount !== 0;
+}
+
+function updateStatusPillCounts(counts = null) {
+  if (!counts) {
+    const rows = document.querySelectorAll("[data-medicine-row]");
+    counts = {
+      all: rows.length,
+      low: 0,
+      expiring: 0,
+      out: 0,
+    };
+    rows.forEach((row) => {
+      const group = rowStatusGroup(row);
+      if (group === "low") counts.low++;
+      else if (group === "expiring") counts.expiring++;
+      else if (group === "out") counts.out++;
+    });
+  }
+
+  const allPill = document.querySelector('.staff-pill[data-filter="all"]');
+  const lowPill = document.querySelector('.staff-pill[data-filter="low"]');
+  const expiringPill = document.querySelector('.staff-pill[data-filter="expiring"]');
+  const outPill = document.querySelector('.staff-pill[data-filter="out"]');
+
+  if (allPill && counts.all !== undefined) allPill.textContent = `All (${counts.all})`;
+  if (lowPill && counts.low !== undefined) lowPill.textContent = `Low stock (${counts.low})`;
+  if (expiringPill && counts.expiring !== undefined) expiringPill.textContent = `Expiring soon (${counts.expiring})`;
+  if (outPill && counts.out !== undefined) outPill.textContent = `Out of stock (${counts.out})`;
 }
 
 function setUpStatusPills() {
@@ -116,6 +144,11 @@ function updateMedicineRow(row, totalStock, status, tone) {
   const badge = row.querySelector("[data-status-badge]");
   badge.className = "badge badge--" + tone;
   badge.textContent = status;
+
+  let search = row.getAttribute("data-search") || "";
+  search = search.replace(/\b(in stock|low stock|out of stock|marked out of stock|expired|expires in \d+ days)\b/gi, "");
+  search = (search + " " + status.toLowerCase()).replace(/\s+/g, " ").trim();
+  row.setAttribute("data-search", search);
 }
 
 async function postInventory(url, data) {
@@ -207,16 +240,24 @@ async function saveSettings(button) {
   showSettingsError(settingsRow, "");
   row.querySelector("[data-reorder-number]").textContent = threshold;
 
-  const stock = parseInt(row.getAttribute("data-stock"), 10);
-  if (markedOut) {
-    updateMedicineRow(row, stock, "Marked out of stock", "muted");
-  } else if (stock === 0) {
-    updateMedicineRow(row, stock, "Out of stock", "muted");
-  } else if (stock <= threshold) {
-    updateMedicineRow(row, stock, "Low stock", "danger");
+  const data = result.data;
+  if (data && data.status && data.status_tone) {
+    updateMedicineRow(row, data.total_stock, data.status, data.status_tone);
   } else {
-    updateMedicineRow(row, stock, "In stock", "success");
+    const stock = parseInt(row.getAttribute("data-stock"), 10);
+    if (markedOut) {
+      updateMedicineRow(row, stock, "Marked out of stock", "muted");
+    } else if (stock === 0) {
+      updateMedicineRow(row, stock, "Out of stock", "muted");
+    } else if (stock <= threshold) {
+      updateMedicineRow(row, stock, "Low stock", "danger");
+    } else {
+      updateMedicineRow(row, stock, "In stock", "success");
+    }
   }
+
+  updateStatusPillCounts(data ? data.counts : null);
+  filterInventory();
 }
 
 async function applyAdjustment(button) {
@@ -264,6 +305,9 @@ async function applyAdjustment(button) {
 
   const batchRow = settingsRow.querySelector('[data-batch="' + data.batch_id + '"]');
   if (batchRow) batchRow.querySelector("[data-batch-units]").textContent = data.new_batch_stock;
+
+  updateStatusPillCounts(data ? data.counts : null);
+  filterInventory();
 }
 
 function setUpBatchRemove(batchRow) {
@@ -306,6 +350,9 @@ function setUpBatchRemove(batchRow) {
 
         const data = result.data;
         updateMedicineRow(medicineRowFor(settingsRow), data.total_stock, data.status, data.status_tone);
+
+        updateStatusPillCounts(data ? data.counts : null);
+        filterInventory();
       }
     });
   });

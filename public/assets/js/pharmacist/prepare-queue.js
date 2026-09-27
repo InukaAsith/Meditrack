@@ -19,10 +19,12 @@ function takeOffList(row) {
 
 function filterQueue() {
   const query = document.getElementById("queue-search").value.trim().toLowerCase();
+  const words = query.split(/\s+/).filter(Boolean);
 
   document.querySelectorAll("[data-queue-row]").forEach((row) => {
     const matchesType = queueTypeFilter === "all" || row.getAttribute("data-type") === queueTypeFilter;
-    const matchesText = row.getAttribute("data-search").includes(query);
+    const searchAttr = row.getAttribute("data-search") || "";
+    const matchesText = words.length === 0 || words.every((w) => searchAttr.includes(w));
     row.hidden = !(matchesType && matchesText);
   });
 

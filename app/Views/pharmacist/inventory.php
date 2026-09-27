@@ -7,7 +7,6 @@ $active = 'inventory';
 
 require __DIR__ . '/header.php';
 ?>
-
 <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
 
 <div class="staff-head">
@@ -59,9 +58,17 @@ require __DIR__ . '/header.php';
           <tbody id="inventory-body">
             <?php foreach ($items as $item): ?>
               <?php $settings = $item['config']; ?>
-              
+              <?php
+                $allBatchCodes = array_column($settings['batches'], 'code');
+                $allBatchSuppliers = array_column($settings['batches'], 'supplier');
+                $searchTokens = array_filter(array_unique(array_merge(
+                    [$item['medicine'], $item['generic'], $item['form'], $item['batch'], $item['supplier'], $item['status']],
+                    $allBatchCodes,
+                    $allBatchSuppliers
+                )));
+              ?>
               <tr class="data-table__row" data-medicine-row="<?= e((string) $item['medicine_id']) ?>"
-                data-search="<?= e(strtolower($item['medicine'] . ' ' . $item['generic'] . ' ' . $item['batch'] . ' ' . $item['supplier'] . ' ' . implode(' ', array_column($settings['batches'], 'supplier')))) ?>"
+                data-search="<?= e(strtolower(implode(' ', $searchTokens))) ?>"
                 data-stock="<?= e((string) $item['stock']) ?>"
                 data-expiry="<?= e($item['expiry']) ?>">
                 <td>
@@ -79,7 +86,6 @@ require __DIR__ . '/header.php';
                 </td>
               </tr>
 
-              
               <tr data-settings-row="<?= e((string) $item['medicine_id']) ?>" hidden>
                 <td class="inventory-settings" colspan="9">
                   <div class="inventory-settings__grid">
@@ -128,7 +134,6 @@ require __DIR__ . '/header.php';
                         <button class="btn btn--secondary btn--sm" type="button" data-adjust-apply="<?= e((string) $item['medicine_id']) ?>">Apply</button>
                       </div>
 
-                      
                       <p class="form-error" data-settings-error hidden></p>
 
                       <div class="form-actions">
@@ -155,7 +160,6 @@ require __DIR__ . '/header.php';
                               </div>
                               <div class="morning-row__sub"><span data-batch-units><?= e((string) $batch['units']) ?></span> units, expires <?= e($batch['exp']) ?></div>
                             </div>
-                            
                             <div data-batch-removed<?= $removed ? '' : ' hidden' ?>>
                               <span class="badge badge--muted">Removed</span>
                             </div>
