@@ -22,11 +22,11 @@ require __DIR__ . '/header.php';
       <div class="staff-eyebrow">Medicine</div>
       <div class="form-2col">
         <label class="field">
-          <span class="field__label">Brand name *</span>
+          <span class="field__label">Brand name </span>
           <input class="field__input" name="commercial_name" placeholder="Amoxil 500">
         </label>
         <label class="field">
-          <span class="field__label">Generic name *</span>
+          <span class="field__label">Generic name </span>
           <input class="field__input" name="generic" placeholder="Amoxicillin">
         </label>
         <label class="field">
@@ -52,7 +52,7 @@ require __DIR__ . '/header.php';
       <div class="staff-eyebrow mt-8">Delivery</div>
       <div class="form-2col">
         <label class="field">
-          <span class="field__label">Supplier *</span>
+          <span class="field__label">Supplier </span>
           <input class="field__input" name="supplier" value="<?= e($defaultSupplier) ?>" list="supplier-options" autocomplete="off">
           <datalist id="supplier-options">
             <?php foreach ($suppliers as $supplier): ?>
@@ -61,19 +61,19 @@ require __DIR__ . '/header.php';
           </datalist>
         </label>
         <label class="field">
-          <span class="field__label">Supplier invoice number *</span>
+          <span class="field__label">Supplier invoice number </span>
           <input class="field__input" name="invoice_ref" placeholder="ML-88213">
         </label>
         <label class="field">
-          <span class="field__label">Batch number *</span>
+          <span class="field__label">Batch number </span>
           <input class="field__input" name="batch_id" placeholder="BT-2231">
         </label>
         <label class="field">
-          <span class="field__label">Expiry date *</span>
+          <span class="field__label">Expiry date </span>
           <input class="field__input" type="date" name="expiry_date" min="<?= e(date('Y-m-d')) ?>">
         </label>
         <label class="field">
-          <span class="field__label">Quantity received *</span>
+          <span class="field__label">Quantity received </span>
           <input class="field__input" type="number" name="qty_received" min="1" placeholder="120">
         </label>
         <label class="field">

@@ -27,12 +27,12 @@ require __DIR__ . '/header.php';
     <form class="supplier-form" method="post" action="/staff/pharmacist/suppliers">
       <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
       <label class="field">
-        <span class="field__label">Supplier name *</span>
+        <span class="field__label">Supplier name </span>
         <input class="field__input" name="name" placeholder="Hemas Pharmaceuticals Pvt Ltd" required>
       </label>
       <label class="field">
-        <span class="field__label">Phone or email</span>
-        <input class="field__input" name="contact" placeholder="+94 11 476 6666">
+        <span class="field__label">Phone </span>
+        <input class="field__input" type="tel" name="contact" placeholder="0114766666" pattern="0[0-9]{9}" maxlength="10" title="Phone number must start with 0 and contain exactly 10 digits" required>
       </label>
       <button class="btn btn--primary" type="submit"><?= icon('plus', 14) ?>Add supplier</button>
     </form>
@@ -50,7 +50,7 @@ require __DIR__ . '/header.php';
           <thead>
             <tr>
               <th>Supplier</th>
-              <th>Phone or email</th>
+              <th>Phone</th>
               <th>Batches delivered</th>
               <th>Added on</th>
               <th class="data-table__actions">Action</th>

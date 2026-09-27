@@ -306,9 +306,20 @@ class PharmacistController extends Controller
 
             $name = trim((string)($_POST['name'] ?? ''));
             $contact = trim((string)($_POST['contact'] ?? ''));
+            $phone = preg_replace('/[\s\-]/', '', $contact);
 
             if ($name === '') {
                 flash_error('Enter the supplier name.');
+                $this->redirect('/staff/pharmacist/suppliers');
+            }
+
+            if ($phone === '') {
+                flash_error('Enter the supplier phone number.');
+                $this->redirect('/staff/pharmacist/suppliers');
+            }
+
+            if (!preg_match('/^0[0-9]{9}$/', $phone)) {
+                flash_error('Phone number must start with 0 and contain exactly 10 digits (e.g. 0114766666).');
                 $this->redirect('/staff/pharmacist/suppliers');
             }
 
@@ -317,7 +328,7 @@ class PharmacistController extends Controller
                 $this->redirect('/staff/pharmacist/suppliers');
             }
 
-            $supplierId = Supplier::create($name, $contact);
+            $supplierId = Supplier::create($name, $phone);
             $staffId = current_staff_id() ?? 1;
 
             AuditLog::record(
@@ -326,7 +337,7 @@ class PharmacistController extends Controller
                 'create',
                 'supplier',
                 (string)$supplierId,
-                "name: {$name}, contact: {$contact}"
+                "name: {$name}, contact: {$phone}"
             );
 
             flash_success("{$name} added to suppliers.");

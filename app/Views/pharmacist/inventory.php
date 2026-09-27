@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 $title = 'Inventory';
 $active = 'inventory';
+$search = $search ?? '';
+$statusFilter = $statusFilter ?? 'all';
+$counts = $counts ?? ['all' => 0, 'low' => 0, 'expiring' => 0, 'out' => 0];
+$items = $items ?? [];
 
 require __DIR__ . '/header.php';
 ?>

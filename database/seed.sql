@@ -46,9 +46,9 @@ VALUES (
     (
         'EMP-004',
         'Sandanu Dulmeth',
-        'sandanu@meditrack.lk',
+        'sandhanu@meditrack.lk',
         (SELECT role_id FROM role WHERE role_name = 'Pharmacist'),
-        '$2y$12$Fyvbfn6CVoCN9Vp8AoQFee96csyvN9cg0ytRYMnOwWAbGzz3Ib0wi',
+        '$2y$12$bQs8r3rnKXyl.weAJFjxbebfMA3uu9zvgDEyaShwjkzIWGxWykMFu',
         0,
         '+94771000004'
     ),
@@ -244,19 +244,19 @@ VALUES ('APT-1001', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-22', '
 INSERT INTO supplier (name, contact)
 VALUES (
         'MedLanka Pvt Ltd',
-        '+94 11 234 5678'
+        '0112345678'
     ),
     (
         'Ceyoka Health',
-        '+94 11 471 2000'
+        '0114712000'
     ),
     (
         'GlobalPharm Logistics',
-        '+94 11 588 9100'
+        '0115889100'
     ),
     (
         'State Pharmaceuticals Corporation',
-        '+94 11 232 0356'
+        '0112320356'
     ) ON DUPLICATE KEY
 UPDATE contact =
 VALUES(contact);
@@ -273,17 +273,6 @@ INSERT INTO medicine (
         is_available
     )
 VALUES (
-        'Amoxicillin 500 mg',
-        'Amoxicillin',
-        'capsule',
-        'MedLanka Pharma',
-        'Below 25°C · dry',
-        22.00,
-        40,
-        1,
-        1
-    ),
-    (
         'Paracetamol 500 mg',
         'Paracetamol',
         'tablet',
@@ -295,6 +284,17 @@ VALUES (
         1
     ),
     (
+        'Amoxicillin 500 mg',
+        'Amoxicillin',
+        'capsule',
+        'MedLanka Pharma',
+        'Below 25°C · dry',
+        22.00,
+        40,
+        1,
+        1
+    ),
+    (
         'Cetirizine 10 mg',
         'Cetirizine HCl',
         'tablet',
@@ -303,72 +303,6 @@ VALUES (
         15.00,
         150,
         0,
-        1
-    ),
-    (
-        'Salbutamol inhaler',
-        'Salbutamol',
-        'inhaler',
-        'Cipla Respiratory',
-        'Protect from direct sunlight',
-        850.00,
-        25,
-        1,
-        0
-    ),
-    (
-        'Losartan 50 mg',
-        'Losartan K',
-        'tablet',
-        'Torrent Pharma',
-        'Below 25°C',
-        22.00,
-        200,
-        1,
-        1
-    ),
-    (
-        'Amox-Clav 625 mg',
-        'Co-amoxiclav',
-        'tablet',
-        'Augmentin GSK',
-        'Keep in moisture-proof container',
-        42.00,
-        80,
-        1,
-        1
-    ),
-    (
-        'Metformin 500 mg',
-        'Metformin HCl',
-        'tablet',
-        'Sun Pharma LK',
-        'Below 30°C',
-        12.00,
-        250,
-        1,
-        1
-    ),
-    (
-        'Omeprazole 20 mg',
-        'Omeprazole',
-        'capsule',
-        'AstraZeneca LK',
-        'Below 25°C · keep dry',
-        18.00,
-        100,
-        0,
-        1
-    ),
-    (
-        'Atorvastatin 20 mg',
-        'Atorvastatin',
-        'tablet',
-        'Pfizer Lanka',
-        'Below 25°C',
-        35.00,
-        120,
-        1,
         1
     ) ON DUPLICATE KEY
 UPDATE generic_name =
@@ -426,14 +360,6 @@ INSERT INTO medicine_batch (
         registered_by
     )
 VALUES (
-        'BT-2214',
-        (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Amoxicillin 500 mg'
-            LIMIT 1
-        ), @sup_medlanka, 'ML-2026-1102', 100, 14, 1500.00, '2026-08-02', 'active', @pharmacist_id
-    ), (
         'BT-2190', (
             SELECT medicine_id
             FROM medicine
@@ -448,61 +374,19 @@ VALUES (
             LIMIT 1
         ), @sup_ceyoka, 'CY-2026-3890', 600, 600, 3600.00, '2027-06-08', 'active', @pharmacist_id
     ), (
+        'BT-2214', (
+            SELECT medicine_id
+            FROM medicine
+            WHERE commercial_name = 'Amoxicillin 500 mg'
+            LIMIT 1
+        ), @sup_medlanka, 'ML-2026-1102', 500, 350, 7700.00, '2027-08-15', 'active', @pharmacist_id
+    ), (
         'BT-2201', (
             SELECT medicine_id
             FROM medicine
             WHERE commercial_name = 'Cetirizine 10 mg'
             LIMIT 1
-        ), @sup_medlanka, 'ML-2026-2210', 300, 120, 1200.00, '2026-10-15', 'active', @pharmacist_id
-    ), (
-        'BT-2229', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Cetirizine 10 mg'
-            LIMIT 1
-        ), @sup_medlanka, 'ML-2026-2845', 250, 200, 2000.00, '2027-04-14', 'active', @pharmacist_id
-    ), (
-        'BT-2168', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Salbutamol inhaler'
-            LIMIT 1
-        ), @sup_global, 'GP-2026-0914', 50, 0, 30000.00, '2027-01-15', 'damaged', @pharmacist_id
-    ), (
-        'BT-2222', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Losartan 50 mg'
-            LIMIT 1
-        ), @sup_ceyoka, 'CY-2026-4412', 1000, 860, 12900.00, '2027-02-22', 'active', @pharmacist_id
-    ), (
-        'BT-2216', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Amox-Clav 625 mg'
-            LIMIT 1
-        ), @sup_medlanka, 'ML-2026-3108', 150, 96, 3072.00, '2026-09-30', 'active', @pharmacist_id
-    ), (
-        'BT-2230', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Metformin 500 mg'
-            LIMIT 1
-        ), @sup_spc, 'SPC-2026-0041', 600, 500, 4500.00, '2027-11-20', 'active', @pharmacist_id
-    ), (
-        'BT-2225', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Omeprazole 20 mg'
-            LIMIT 1
-        ), @sup_ceyoka, 'CY-2026-4019', 200, 75, 900.00, '2027-08-10', 'active', @pharmacist_id
-    ), (
-        'BT-2233', (
-            SELECT medicine_id
-            FROM medicine
-            WHERE commercial_name = 'Atorvastatin 20 mg'
-            LIMIT 1
-        ), @sup_global, 'GP-2026-1188', 400, 310, 8060.00, '2027-05-18', 'active', @pharmacist_id
+        ), @sup_medlanka, 'ML-2026-2210', 400, 280, 4200.00, '2027-10-20', 'active', @pharmacist_id
     ) ON DUPLICATE KEY
 UPDATE quantity_on_hand =
 VALUES(quantity_on_hand),
@@ -518,27 +402,12 @@ INSERT INTO stock_adjustment (
         adjusted_by
     )
 VALUES (
-        1,
-        (
-            SELECT batch_id
-            FROM medicine_batch
-            WHERE batch_code = 'BT-2214'
-            LIMIT 1
-        ), -6, 'damaged', 'Reason: Damaged items', @pharmacist_id
-    ), (
-        2, (
+        1, (
             SELECT batch_id
             FROM medicine_batch
             WHERE batch_code = 'BT-2190'
             LIMIT 1
         ), 640, 'baseline_intake', 'Reason: Baseline intake', @pharmacist_id
-    ), (
-        3, (
-            SELECT batch_id
-            FROM medicine_batch
-            WHERE batch_code = 'BT-2168'
-            LIMIT 1
-        ), -50, 'audit_correction', 'Reason: Audit correction', @pharmacist_id
     ) ON DUPLICATE KEY
 UPDATE quantity_delta =
 VALUES(quantity_delta),
