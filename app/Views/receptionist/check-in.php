@@ -214,7 +214,7 @@ require __DIR__ . '/header.php';
               </div>
             </div>
             <div class="emergency-pane" data-emg-pane="id" hidden>
-              <label class="field"><span class="field__label">NIC or Patient ID</span><input class="field__input" id="ci-emg-id" placeholder="e.g. 786512340V or PT-0967"></label>
+              <label class="field"><span class="field__label">NIC or Patient ID</span><input class="field__input" id="ci-emg-id"></label>
             </div>
             <div class="emergency-pane" data-emg-pane="guest" hidden>
               <label class="field"><span class="field__label">Patient name</span><input class="field__input" id="ci-emg-name" placeholder="Full name as given"></label>

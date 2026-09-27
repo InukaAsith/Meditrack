@@ -28,11 +28,11 @@ require __DIR__ . '/header.php';
       <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
       <label class="field">
         <span class="field__label">Supplier name </span>
-        <input class="field__input" name="name" placeholder="Hemas Pharmaceuticals Pvt Ltd" required>
+        <input class="field__input" name="name" required>
       </label>
       <label class="field">
         <span class="field__label">Phone </span>
-        <input class="field__input" type="tel" name="contact" placeholder="0114766666" pattern="0[0-9]{9}" maxlength="10" title="Phone number must start with 0 and contain exactly 10 digits" required>
+        <input class="field__input" type="tel" name="contact" pattern="0[0-9]{9}" maxlength="10" title="Phone number must start with 0 and contain exactly 10 digits" required>
       </label>
       <button class="btn btn--primary" type="submit"><?= icon('plus', 14) ?>Add supplier</button>
     </form>

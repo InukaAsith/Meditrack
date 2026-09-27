@@ -86,7 +86,7 @@ require __DIR__ . '/header.php';
       <div class="staff-eyebrow mt-8">Details</div>
       <div class="form-2col">
         <label class="field"><span class="field__label">Appointment ID <span class="field__lock">(optional)</span></span><input class="field__input" id="new-invoice-appt" placeholder="APT-… (leave empty if there is none)"></label>
-        <label class="field"><span class="field__label">Amount paid (cash) *</span><input class="field__input" id="new-invoice-amount" inputmode="decimal" placeholder="0.00" value="2500.00"></label>
+        <label class="field"><span class="field__label">Amount paid (cash) *</span><input class="field__input" id="new-invoice-amount" inputmode="decimal" value="2500.00"></label>
       </div>
       <div class="new-invoice-cashnote"><?= icon('billing', 14) ?>Cash only</div>
     </div>

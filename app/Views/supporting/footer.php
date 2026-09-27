@@ -13,7 +13,7 @@
       <form id="emergency-form" class="form-grid mt-4">
         <div class="form-group">
           <label class="form-label" for="em-patient-name">Patient Name</label>
-          <input type="text" id="em-patient-name" class="form-control" placeholder="e.g. K. Ashan Charuka" required>
+          <input type="text" id="em-patient-name" class="form-control" required>
         </div>
         <div class="form-group">
           <label class="form-label" for="em-doctor-select">Assign Doctor</label>
@@ -25,7 +25,7 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="em-triage-notes">Triage / Urgency Notes</label>
-          <textarea id="em-triage-notes" class="form-control" rows="2" placeholder="Chest pain, acute respiratory distress, severe trauma..."></textarea>
+          <textarea id="em-triage-notes" class="form-control" rows="2"></textarea>
         </div>
         <div class="form-actions mt-4 flex gap-3 justify-end">
           <button type="button" class="btn btn--secondary" id="emergency-cancel-btn">Cancel</button>

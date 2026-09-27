@@ -127,7 +127,7 @@ require __DIR__ . '/header.php';
           <div class="form-grid">
             <label class="field<?= isset($errors['slmc_number']) ? ' field--error' : '' ?>">
               <span class="field__label">SLMC number *</span>
-              <input class="field__input mono" name="slmc_number" value="<?= e($values['slmc_number']) ?>" maxlength="20" placeholder="e.g. 45231">
+              <input class="field__input mono" name="slmc_number" value="<?= e($values['slmc_number']) ?>" maxlength="20">
               <?php if (isset($errors['slmc_number'])): ?><span class="field__desc"><?= e($errors['slmc_number']) ?></span><?php endif; ?>
             </label>
 
@@ -144,13 +144,13 @@ require __DIR__ . '/header.php';
 
             <label class="field<?= isset($errors['consultation_fee']) ? ' field--error' : '' ?>">
               <span class="field__label">Consultation fee (Rs.) *</span>
-              <input class="field__input" name="consultation_fee" value="<?= e($values['consultation_fee']) ?>" inputmode="decimal" placeholder="e.g. 2500">
+              <input class="field__input" name="consultation_fee" value="<?= e($values['consultation_fee']) ?>" inputmode="decimal">
               <?php if (isset($errors['consultation_fee'])): ?><span class="field__desc"><?= e($errors['consultation_fee']) ?></span><?php endif; ?>
             </label>
 
             <label class="field<?= isset($errors['followup_fee']) ? ' field--error' : '' ?>">
               <span class="field__label">Follow-up fee (Rs.)</span>
-              <input class="field__input" name="followup_fee" value="<?= e($values['followup_fee']) ?>" inputmode="decimal" placeholder="e.g. 1500">
+              <input class="field__input" name="followup_fee" value="<?= e($values['followup_fee']) ?>" inputmode="decimal">
               <?php if (isset($errors['followup_fee'])): ?>
                 <span class="field__desc"><?= e($errors['followup_fee']) ?></span>
               <?php else: ?>

@@ -132,7 +132,7 @@ require __DIR__ . '/header.php';
       </div>
       <form class="allergy-add-form mt-6" method="post" action="/staff/receptionist/patient-allergy-add/<?= e($id) ?>">
         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
-        <input class="field__input" name="allergen_name" placeholder="e.g. Penicillin" maxlength="100" required aria-label="Allergy to add">
+        <input class="field__input" name="allergen_name" maxlength="100" required aria-label="Allergy to add">
         <button class="btn btn--secondary btn--sm" type="submit"><?= icon('plus', 13) ?> Add allergy</button>
       </form>
     </div>

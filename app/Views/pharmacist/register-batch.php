@@ -31,7 +31,7 @@ require __DIR__ . '/header.php';
       <div class="form-2col">
         <label class="field">
           <span class="field__label">Brand name </span>
-          <input class="field__input" name="commercial_name" value="<?= e($old['commercial_name'] ?? '') ?>" placeholder="Amoxil 500" list="medicine-options" autocomplete="off">
+          <input class="field__input" name="commercial_name" value="<?= e($old['commercial_name'] ?? '') ?>" list="medicine-options" autocomplete="off">
           <datalist id="medicine-options">
             <?php foreach ($medicines as $med): ?>
               <option value="<?= e($med['commercial_name']) ?>"><?= e($med['generic_name']) ?></option>
@@ -40,7 +40,7 @@ require __DIR__ . '/header.php';
         </label>
         <label class="field">
           <span class="field__label">Generic name </span>
-          <input class="field__input" name="generic" value="<?= e($old['generic'] ?? '') ?>" placeholder="Amoxicillin">
+          <input class="field__input" name="generic" value="<?= e($old['generic'] ?? '') ?>">
         </label>
         <label class="field">
           <span class="field__label">Form</span>
@@ -56,20 +56,20 @@ require __DIR__ . '/header.php';
         </label>
         <label class="field">
           <span class="field__label">Manufacturer</span>
-          <input class="field__input" name="manufacturer" value="<?= e($old['manufacturer'] ?? '') ?>" placeholder="GSK Lanka">
+          <input class="field__input" name="manufacturer" value="<?= e($old['manufacturer'] ?? '') ?>">
         </label>
         <label class="field">
           <span class="field__label">Unit selling price (Rs.)</span>
-          <input class="field__input" type="number" step="0.01" min="0.01" name="unit_price" value="<?= e($old['unit_price'] ?? '') ?>" placeholder="e.g. 35.00">
+          <input class="field__input" type="number" step="0.01" min="0.01" name="unit_price" value="<?= e($old['unit_price'] ?? '') ?>">
         </label>
         <label class="field">
           <span class="field__label">Reorder threshold</span>
-          <input class="field__input" type="number" min="0" max="10000" name="reorder_threshold" value="<?= e($old['reorder_threshold'] ?? '') ?>" placeholder="e.g. 40">
+          <input class="field__input" type="number" min="0" max="10000" name="reorder_threshold" value="<?= e($old['reorder_threshold'] ?? '') ?>">
         </label>
       </div>
       <label class="field mt-6">
         <span class="field__label">Storage</span>
-        <input class="field__input" name="storage_limits" value="<?= e($old['storage_limits'] ?? '') ?>" placeholder="Below 25 C, keep dry">
+        <input class="field__input" name="storage_limits" value="<?= e($old['storage_limits'] ?? '') ?>">
       </label>
 
       <div class="staff-eyebrow mt-8">Delivery</div>
@@ -87,11 +87,11 @@ require __DIR__ . '/header.php';
         </label>
         <label class="field">
           <span class="field__label">Supplier invoice number </span>
-          <input class="field__input" name="invoice_ref" value="<?= e($old['invoice_ref'] ?? '') ?>" placeholder="ML-88213">
+          <input class="field__input" name="invoice_ref" value="<?= e($old['invoice_ref'] ?? '') ?>">
         </label>
         <label class="field">
           <span class="field__label">Batch number </span>
-          <input class="field__input" name="batch_id" value="<?= e($old['batch_id'] ?? '') ?>" placeholder="BT-2231">
+          <input class="field__input" name="batch_id" value="<?= e($old['batch_id'] ?? '') ?>">
         </label>
         <label class="field">
           <span class="field__label">Expiry date </span>
@@ -99,11 +99,11 @@ require __DIR__ . '/header.php';
         </label>
         <label class="field">
           <span class="field__label">Quantity received </span>
-          <input class="field__input" type="number" name="qty_received" value="<?= e($old['qty_received'] ?? '') ?>" min="1" placeholder="120">
+          <input class="field__input" type="number" name="qty_received" value="<?= e($old['qty_received'] ?? '') ?>" min="1">
         </label>
         <label class="field">
           <span class="field__label">Total cost (Rs.)</span>
-          <input class="field__input" type="number" name="total_cost" value="<?= e($old['total_cost'] ?? '') ?>" min="0" step="0.01" placeholder="4500.00">
+          <input class="field__input" type="number" name="total_cost" value="<?= e($old['total_cost'] ?? '') ?>" min="0" step="0.01">
         </label>
       </div>
 

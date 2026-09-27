@@ -334,7 +334,7 @@ require __DIR__ . '/header.php';
                       <span class="consultation-avail__time-sep">to</span>
                       <input type="time" name="new_break_to" id="new_break_to" aria-label="Break end">
                     </div>
-                    <input class="consultation-avail__text mt-2" type="text" name="new_break_label" id="new_break_label" maxlength="60" placeholder="Name, e.g. Lunch">
+                    <input class="consultation-avail__text mt-2" type="text" name="new_break_label" id="new_break_label" maxlength="60" placeholder="Name">
                   </div>
                 </div>
               <?php endif; ?>

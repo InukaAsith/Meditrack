@@ -60,7 +60,7 @@ require __DIR__ . '/header.php';
         <div class="form-grid">
           <div class="field form-grid__full">
             <label class="field__label" for="pw-current">Current password</label>
-            <input class="field__input" id="pw-current" type="password" placeholder="••••••••">
+            <input class="field__input" id="pw-current" type="password">
           </div>
           <div class="field">
             <label class="field__label" for="pw-new">New password</label>

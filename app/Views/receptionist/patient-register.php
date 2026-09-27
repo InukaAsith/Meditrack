@@ -34,7 +34,7 @@ require __DIR__ . '/header.php';
       <div class="form-2col mt-6">
         <label class="field<?= isset($errors['nic']) ? ' field--error' : '' ?>">
           <span class="field__label">NIC * <span class="field__lock">(can't be changed after saving)</span></span>
-          <input class="field__input" name="nic" value="<?= e($values['nic']) ?>" placeholder="786512340V or 198812340567" maxlength="12" required>
+          <input class="field__input" name="nic" value="<?= e($values['nic']) ?>" maxlength="12" required>
           <?php if (isset($errors['nic'])): ?><span class="field__desc"><?= e($errors['nic']) ?></span><?php endif; ?>
         </label>
         <label class="field<?= isset($errors['date_of_birth']) ? ' field--error' : '' ?>">
@@ -53,12 +53,12 @@ require __DIR__ . '/header.php';
         </label>
         <label class="field<?= isset($errors['mobile']) ? ' field--error' : '' ?>">
           <span class="field__label">Mobile *</span>
-          <input class="field__input" name="mobile" value="<?= e($values['mobile']) ?>" placeholder="0774521180" required>
+          <input class="field__input" name="mobile" value="<?= e($values['mobile']) ?>" required>
           <?php if (isset($errors['mobile'])): ?><span class="field__desc"><?= e($errors['mobile']) ?></span><?php endif; ?>
         </label>
         <label class="field<?= isset($errors['email']) ? ' field--error' : '' ?>">
           <span class="field__label">Email</span>
-          <input class="field__input" type="email" name="email" value="<?= e($values['email']) ?>" placeholder="name@example.com">
+          <input class="field__input" type="email" name="email" value="<?= e($values['email']) ?>">
           <?php if (isset($errors['email'])): ?><span class="field__desc"><?= e($errors['email']) ?></span><?php endif; ?>
         </label>
         <label class="field<?= isset($errors['blood_type']) ? ' field--error' : '' ?>">
