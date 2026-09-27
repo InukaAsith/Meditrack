@@ -104,7 +104,7 @@ class StaffAuthController extends Controller
         }
 
         if (StaffTrustedDevice::isTrusted((int) $row['staff_id'], trusted_device_token())) {
-            $this->finishSignIn((int) $row['staff_id']);
+            $this->finishSignIn((int) $row['staff_id'], false);
         }
         $this->redirect('/staff/otp');
     }
@@ -156,10 +156,10 @@ class StaffAuthController extends Controller
             $this->setTrustedDeviceCookie($token, time() + StaffTrustedDevice::DAYS * 24 * 60 * 60);
         }
 
-        $this->finishSignIn($staffId);
+        $this->finishSignIn($staffId, true);
     }
 
-    private function finishSignIn(int $staffId): never
+    private function finishSignIn(int $staffId, bool $usedOtp): never
     {
         $role = (string) $_SESSION['pending_staff_role'];
 
@@ -168,18 +168,7 @@ class StaffAuthController extends Controller
         $_SESSION['staff_id'] = $staffId;
         $_SESSION['staff_role'] = $role;
 
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        $browser = 'Chrome on Windows';
-        if (str_contains($ua, 'Firefox')) {
-            $browser = 'Firefox on Windows';
-        } elseif (str_contains($ua, 'Edg')) {
-            $browser = 'Edge on Windows';
-        } elseif (str_contains($ua, 'Macintosh') || str_contains($ua, 'Mac OS')) {
-            $browser = 'Chrome on macOS';
-        }
-
-        AuditLog::record('staff', $staffId, 'login', null, null, $ip . ' | ' . $browser);
+        AuditLog::recordLogin('staff', $staffId, $usedOtp);
 
         $this->redirect('/staff/' . $role . '/dashboard');
     }

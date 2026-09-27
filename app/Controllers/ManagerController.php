@@ -128,6 +128,11 @@ class ManagerController extends Controller
             throw $e;
         }
         AuditLog::record('staff', current_staff_id(), $approved ? 'approve' : 'reject', 'approval_request', (string) $request['approval_request_id'], 'status');
+        if ($approved && $request['request_type'] === 'fee_revision') {
+            AuditLog::record('staff', current_staff_id(), 'update', 'doctor', (string) $doctorId, 'consultation_fee, followup_fee');
+        } elseif ($approved) {
+            AuditLog::record('staff', current_staff_id(), 'update', 'doctor_regular_schedule', (string) $doctorId, 'day_of_week, start_time, end_time, capacity');
+        }
 
         flash_success($approved ? 'Approved. The change is live.' : 'Rejected.');
         $this->redirect('/staff/manager/approvals');

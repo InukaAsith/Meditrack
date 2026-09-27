@@ -55,6 +55,9 @@ class AuthController extends Controller
 
     public function logout(): void
     {
+        if (!empty($_SESSION['patient_id'])) {
+            AuditLog::record('patient', (int) $_SESSION['patient_id'], 'logout');
+        }
         $_SESSION = [];
         session_destroy();
         $this->redirect('/login');
@@ -108,7 +111,7 @@ class AuthController extends Controller
         }
 
         $_SESSION['patient_id'] = $patientId;
-        AuditLog::record('patient', $patientId, 'login');
+        AuditLog::recordLogin('patient', $patientId, false);
 
         if (isset($_POST['remember'])) {
             setcookie(session_name(), session_id(), [
@@ -145,7 +148,7 @@ class AuthController extends Controller
         $_SESSION = [];
         session_regenerate_id(true);
         $_SESSION['patient_id'] = $patientId;
-        AuditLog::record('patient', $patientId, 'login');
+        AuditLog::recordLogin('patient', $patientId, false);
 
         $this->redirect('/app');
     }
@@ -158,7 +161,7 @@ class AuthController extends Controller
         }
 
         $fullName = trim((string) ($_POST['full_name'] ?? ''));
-        $nic = trim((string) ($_POST['nic'] ?? ''));
+        $nic = strtoupper(trim((string) ($_POST['nic'] ?? '')));
         $mobile = trim((string) ($_POST['mobile'] ?? ''));
         $email = trim((string) ($_POST['email'] ?? ''));
         $dateOfBirth = trim((string) ($_POST['date_of_birth'] ?? ''));
@@ -168,15 +171,28 @@ class AuthController extends Controller
         $confirm = (string) ($_POST['password_confirm'] ?? '');
         $consent = isset($_POST['pdpa_consent']);
 
-        if ($fullName === '' || $nic === '' || $mobile === '' || $email === '' || $dateOfBirth === '') {
-            flash_error('Please fill in every field.');
+        if ($fullName === '' || $nic === '' || $mobile === '' || $dateOfBirth === '') {
+            flash_error('Please fill in your name, NIC, mobile and date of birth.');
+            $this->redirect('/register');
+        }
+        if (mb_strlen($fullName) > 120) {
+            flash_error('Keep your full name under 120 characters.');
+            $this->redirect('/register');
+        }
+        if (!preg_match('/^([0-9]{9}[VX]|[0-9]{12})$/', $nic)) {
+            flash_error('Enter a valid NIC - 9 digits then V or X, or 12 digits.');
             $this->redirect('/register');
         }
         if (!preg_match('/^0[0-9]{9}$/', $mobile)) {
             flash_error('Enter a 10-digit mobile number starting with 0, e.g. 0771234567.');
             $this->redirect('/register');
         }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if ($email === '') {
+            $email = null;
+        } elseif (mb_strlen($email) > 150) {
+            flash_error('Keep your email under 150 characters.');
+            $this->redirect('/register');
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             flash_error('That email address does not look right.');
             $this->redirect('/register');
         }
@@ -246,11 +262,12 @@ class AuthController extends Controller
 
         $patientId = Patient::create($draft);
         Patient::setPatientCode($patientId, sprintf('PT-%04d', $patientId));
-        AuditLog::record('patient', $patientId, 'register');
+        AuditLog::record('patient', $patientId, 'register', 'patient', (string) $patientId);
 
         $_SESSION = [];
         session_regenerate_id(true);
         $_SESSION['patient_id'] = $patientId;
+        AuditLog::recordLogin('patient', $patientId, true);
 
         $this->redirect('/app');
     }
