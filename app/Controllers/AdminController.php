@@ -78,7 +78,7 @@ class AdminController extends Controller
 
             $values['full_name'] = trim((string) ($_POST['full_name'] ?? ''));
             $values['work_email'] = trim((string) ($_POST['work_email'] ?? ''));
-            $values['phone'] = trim((string) ($_POST['phone'] ?? ''));
+            $values['phone'] = $this->localPhone((string) ($_POST['phone'] ?? ''));
             $values['role_name'] = trim((string) ($_POST['role_name'] ?? 'Receptionist'));
             $values['temp_password'] = (string) ($_POST['temp_password'] ?? 'Passw0rd!');
             $values = $this->readDoctorFields($values);
@@ -130,6 +130,9 @@ class AdminController extends Controller
                 db()->commit();
 
                 AuditLog::record('staff', current_staff_id() ?? $newId, 'create', 'staff', (string) $newId);
+                if ($values['role_name'] === 'Doctor') {
+                    AuditLog::record('staff', current_staff_id() ?? $newId, 'create', 'doctor', (string) $newId);
+                }
                 flash_success("{$values['full_name']} ({$nextCode}) added. Temporary password: {$values['temp_password']}");
                 $this->redirect('/staff/admin/staff-accounts');
             }
@@ -168,7 +171,7 @@ class AdminController extends Controller
 
             $values['full_name'] = trim((string) ($_POST['full_name'] ?? ''));
             $values['work_email'] = trim((string) ($_POST['work_email'] ?? ''));
-            $values['phone'] = trim((string) ($_POST['phone'] ?? ''));
+            $values['phone'] = $this->localPhone((string) ($_POST['phone'] ?? ''));
             $values = $this->readDoctorFields($values);
 
             $errors = $this->validateStaff($values, false);
@@ -272,7 +275,25 @@ class AdminController extends Controller
         Staff::setStatus($staffId, 'deactivated');
         AuditLog::record('staff', current_staff_id() ?? $staffId, 'deactivate', 'staff', (string) $staffId);
 
-        flash_success('Account turned off.');
+        $cancelled = 0;
+        $refunds = 0;
+        if (Doctor::findByStaffId($staffId) !== null) {
+            foreach (Appointment::upcomingForDoctor($staffId) as $appointment) {
+                $refund = $appointment['payment_timing'] === 'online';
+                Appointment::cancelByDoctor((int) $appointment['appointment_id'], $refund);
+                AuditLog::record('staff', current_staff_id() ?? $staffId, 'update', 'appointment', (string) $appointment['appointment_id'], 'status, refund_status');
+                $cancelled++;
+                if ($refund) {
+                    $refunds++;
+                }
+            }
+        }
+
+        flash_success('Account turned off.'
+            . ($cancelled > 0
+                ? ' ' . $cancelled . ($cancelled === 1 ? ' booking was' : ' bookings were') . ' cancelled'
+                  . ($refunds > 0 ? ' and ' . $refunds . ($refunds === 1 ? ' refund' : ' refunds') . ' queued' : '') . '.'
+                : ''));
         $this->redirect('/staff/admin/staff-edit/' . $staffId);
     }
 
@@ -348,8 +369,10 @@ class AdminController extends Controller
             $errors['work_email'] = 'That email is too long.';
         }
 
-        if (!empty($values['phone']) && strlen($values['phone']) > 20) {
-            $errors['phone'] = 'That phone number is too long.';
+        if ($values['phone'] === '') {
+            $errors['phone'] = 'Enter their phone number.';
+        } elseif (!preg_match('/^0[0-9]{9}$/', $values['phone'])) {
+            $errors['phone'] = 'Enter a 10-digit number starting with 0, e.g. 0771234567.';
         }
 
         if ($isNew && (empty($values['temp_password']) || strlen($values['temp_password']) < 8)) {
@@ -357,6 +380,18 @@ class AdminController extends Controller
         }
 
         return $errors;
+    }
+
+    private function localPhone(string $phone): string
+    {
+        $phone = preg_replace('/[\s\-]/', '', trim($phone));
+        if (str_starts_with($phone, '+94')) {
+            $phone = '0' . substr($phone, 3);
+        } elseif (str_starts_with($phone, '94') && strlen($phone) === 11) {
+            $phone = '0' . substr($phone, 2);
+        }
+
+        return $phone;
     }
 
     private function readDoctorFields(array $values): array
@@ -388,10 +423,10 @@ class AdminController extends Controller
         }
 
         if (!$this->isFee($values['consultation_fee'])) {
-            $errors['consultation_fee'] = 'Enter the fee in rupees, e.g. 2500.';
+            $errors['consultation_fee'] = 'Enter a fee between Rs. 1 and Rs. 100,000, e.g. 2500.';
         }
         if ($values['followup_fee'] !== '' && !$this->isFee($values['followup_fee'])) {
-            $errors['followup_fee'] = 'Enter the fee in rupees, or leave it blank.';
+            $errors['followup_fee'] = 'Enter a fee between Rs. 1 and Rs. 100,000, or leave it blank.';
         }
 
         return $errors;
@@ -399,7 +434,9 @@ class AdminController extends Controller
 
     private function isFee(string $amount): bool
     {
-        return preg_match('/^[0-9]{1,8}(\.[0-9]{1,2})?$/', $amount) === 1;
+        return preg_match('/^[0-9]{1,6}(\.[0-9]{1,2})?$/', $amount) === 1
+            && (float) $amount >= 1
+            && (float) $amount <= 100000;
     }
 
     private function doctorData(array $values): array
@@ -496,34 +533,20 @@ class AdminController extends Controller
         $users = array_values(array_unique($users));
         sort($users);
 
-        $roleRows = Staff::allRoles();
         $roles = [];
-        foreach ($roleRows as $r) {
+        foreach (Staff::allRoles() as $r) {
             $roles[] = (string) $r['role_name'];
         }
+        $roles[] = 'Patient';
 
-        $records = [
-            'Staff',
-            'Clinic settings',
-            'Medicine',
-            'Invoice',
-            'Consultation',
-            'Message template',
-            'Doctor leave',
-            'Patient',
-        ];
+        $records = [];
+        foreach ($changes as $c) {
+            $records[] = (string) $c['entity'];
+        }
+        $records = array_values(array_unique($records));
+        sort($records);
 
-        $queueEvents = [
-            ['time' => 'Today 09:38:02', 'date' => date('Y-m-d'), 'event' => 'Wait time changed', 'tone' => 'info',    'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1421', 'detail' => 'Wait time 8 min longer', 'by' => 'system'],
-            ['time' => 'Today 09:32:18', 'date' => date('Y-m-d'), 'event' => 'Completed',         'tone' => 'success', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1411', 'detail' => 'Consultation completed', 'by' => 'Dr. Sample Doctor 1'],
-            ['time' => 'Today 09:15:44', 'date' => date('Y-m-d'), 'event' => 'Emergency',         'tone' => 'danger',  'doctor' => 'Dr. Sample Doctor 2', 'entry' => 'QE-1409', 'detail' => 'Emergency added to the front', 'by' => 'G. G. Mithun Majika'],
-            ['time' => 'Today 09:04:30', 'date' => date('Y-m-d'), 'event' => 'No-show',           'tone' => 'warning', 'doctor' => 'Dr. Sample Doctor 3', 'entry' => 'QE-1402', 'detail' => 'No-show, refund queued', 'by' => 'system'],
-            ['time' => 'Today 08:55:12', 'date' => date('Y-m-d'), 'event' => 'Checked in',        'tone' => 'success', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1398', 'detail' => 'Checked in', 'by' => 'Sandanu D.'],
-            ['time' => 'Today 08:50:07', 'date' => date('Y-m-d'), 'event' => 'Doctor late',       'tone' => 'warning', 'doctor' => 'Dr. Sample Doctor 2', 'entry' => '-',       'detail' => 'Doctor running 12 min late', 'by' => 'Dr. Sample Doctor 2'],
-            ['time' => 'Today 08:41:55', 'date' => date('Y-m-d'), 'event' => 'Confirmed',         'tone' => 'info',    'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1390', 'detail' => 'Patient confirmed attendance', 'by' => 'patient'],
-            ['time' => 'Today 08:33:20', 'date' => date('Y-m-d'), 'event' => 'Skipped',           'tone' => 'muted',   'doctor' => 'Dr. Sample Doctor 3', 'entry' => 'QE-1385', 'detail' => 'Skipped', 'by' => 'G. G. Mithun Majika'],
-            ['time' => 'Today 08:30:02', 'date' => date('Y-m-d'), 'event' => 'Called',            'tone' => 'primary', 'doctor' => 'Dr. Sample Doctor 1', 'entry' => 'QE-1380', 'detail' => 'Called to room 2', 'by' => 'Dr. Sample Doctor 1'],
-        ];
+        $queueEvents = [];
 
         $this->view('admin/audit-trail', [
             'changes' => $changes,

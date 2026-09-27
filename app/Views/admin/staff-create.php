@@ -66,8 +66,8 @@ require __DIR__ . '/header.php';
           </label>
 
           <label class="field<?= isset($errors['phone']) ? ' field--error' : '' ?>">
-            <span class="field__label">Phone</span>
-            <input class="field__input" name="phone" value="<?= e($values['phone']) ?>" placeholder="+94 7X XXX XXXX">
+            <span class="field__label">Phone *</span>
+            <input class="field__input" name="phone" value="<?= e($values['phone']) ?>" placeholder="07XXXXXXXX" maxlength="15" required>
             <?php if (isset($errors['phone'])): ?><span class="field__desc"><?= e($errors['phone']) ?></span><?php endif; ?>
           </label>
 

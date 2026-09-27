@@ -7,6 +7,14 @@ $active = 'staff';
 
 $staffList = $staffList ?? [];
 $roleFilters = ['All', 'Doctor', 'Receptionist', 'Supporting Staff', 'Pharmacist', 'Manager', 'Admin'];
+$roleBadge = [
+  'Admin' => 'danger',
+  'Manager' => 'purple',
+  'Doctor' => 'primary',
+  'Receptionist' => 'info',
+  'Supporting Staff' => 'warning',
+  'Pharmacist' => 'success',
+];
 $statusBadge = ['active' => ['success', 'Active'], 'deactivated' => ['muted', 'Deactivated']];
 
 require __DIR__ . '/header.php';
@@ -76,7 +84,7 @@ require __DIR__ . '/header.php';
                   </div>
                 </div>
               </td>
-              <td><span class="badge badge--info"><?= e($s['role']) ?></span></td>
+              <td><span class="badge badge--<?= e($roleBadge[$s['role']] ?? 'muted') ?>"><?= e($s['role']) ?></span></td>
               <td><span class="badge badge--<?= e($badgeTone) ?>"><?= e($badgeLabel) ?></span></td>
               <td class="text-muted"><?= e($s['created']) ?></td>
               <td class="data-table__actions">

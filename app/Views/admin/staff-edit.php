@@ -106,8 +106,8 @@ require __DIR__ . '/header.php';
           </label>
 
           <label class="field<?= isset($errors['phone']) ? ' field--error' : '' ?>">
-            <span class="field__label">Phone</span>
-            <input class="field__input" name="phone" value="<?= e($values['phone']) ?>">
+            <span class="field__label">Phone *</span>
+            <input class="field__input" name="phone" value="<?= e($values['phone']) ?>" placeholder="07XXXXXXXX" maxlength="15" required>
             <?php if (isset($errors['phone'])): ?><span class="field__desc"><?= e($errors['phone']) ?></span><?php endif; ?>
           </label>
 
@@ -184,7 +184,7 @@ require __DIR__ . '/header.php';
       <summary class="danger-zone__summary" data-modal-confirm="staff-deactivate-form"><?= icon('lock', 14) ?> Turn off account</summary>
       <div class="danger-zone__body">
         <p>Stop <b><?= e($staff['full_name']) ?></b> from signing in? Their history is kept and you can turn the account back on later.</p>
-        <form id="staff-deactivate-form" method="post" action="/staff/admin/staff-deactivate/<?= e($id) ?>" data-confirm="Stop &lt;b&gt;<?= e($staff['full_name']) ?>&lt;/b&gt; from signing in? Their history is kept and you can turn the account back on later." data-confirm-title="Turn Off Account" data-confirm-ok="Yes, turn off account" data-confirm-danger="true">
+        <form id="staff-deactivate-form" method="post" action="/staff/admin/staff-deactivate/<?= e($id) ?>" data-confirm="Stop &lt;b&gt;<?= e($staff['full_name']) ?>&lt;/b&gt; from signing in? Their history is kept and you can turn the account back on later.<?= $staff['role_name'] === 'Doctor' ? ' Their upcoming bookings are cancelled, and online payments are refunded.' : '' ?>" data-confirm-title="Turn Off Account" data-confirm-ok="Yes, turn off account" data-confirm-danger="true">
           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
           <button class="btn btn--danger" type="submit">Yes, turn off account</button>
         </form>
