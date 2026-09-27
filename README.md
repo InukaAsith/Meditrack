@@ -2,8 +2,6 @@
 
 ## Environment Configuration
 
-Copy `.env.example` to `.env` and configure your database credentials:
-
 ```bash
 cp .env.example .env
 ```
