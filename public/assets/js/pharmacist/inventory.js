@@ -1,3 +1,5 @@
+
+
 let inventoryFilter = "all";
 let inventorySortKey = "";
 let inventorySortDirection = 1;
@@ -158,14 +160,40 @@ function setUpSettingsRows() {
 async function saveSettings(button) {
   const settingsRow = button.closest("[data-settings-row]");
   const row = medicineRowFor(settingsRow);
-  const threshold = parseInt(settingsRow.querySelector('[data-setting="threshold"]').value, 10) || 0;
+
+  const thresholdRaw = settingsRow.querySelector('[data-setting="threshold"]').value.trim();
+  const threshold = parseInt(thresholdRaw, 10);
+  if (isNaN(threshold) || threshold < 0) {
+    showSettingsError(settingsRow, "Reorder threshold cannot be negative.");
+    window.showAlertDialog({ title: "Invalid Threshold", message: "Reorder threshold cannot be negative." });
+    return;
+  }
+  if (threshold > 10000) {
+    showSettingsError(settingsRow, "Reorder threshold cannot exceed 10,000 units.");
+    window.showAlertDialog({ title: "Invalid Threshold", message: "Reorder threshold cannot exceed 10,000 units." });
+    return;
+  }
+
+  const priceRaw = settingsRow.querySelector('[data-setting="price"]').value.trim();
+  const price = parseFloat(priceRaw);
+  if (isNaN(price) || price <= 0) {
+    showSettingsError(settingsRow, "Unit price must be greater than Rs. 0.00.");
+    window.showAlertDialog({ title: "Invalid Price", message: "Unit price must be greater than Rs. 0.00." });
+    return;
+  }
+  if (price > 1000000) {
+    showSettingsError(settingsRow, "Unit price cannot exceed Rs. 1,000,000.00.");
+    window.showAlertDialog({ title: "Invalid Price", message: "Unit price cannot exceed Rs. 1,000,000.00." });
+    return;
+  }
+
   const markedOut = settingsRow.querySelector('[data-setting="out-of-stock"]').checked;
 
   button.disabled = true;
   const result = await postInventory("/staff/pharmacist/inventory-config", {
     medicine_id: parseInt(button.getAttribute("data-settings-save"), 10),
     threshold: threshold,
-    price: parseFloat(settingsRow.querySelector('[data-setting="price"]').value) || 0,
+    price: price,
     requires_rx: settingsRow.querySelector('[data-setting="requires-rx"]').checked,
     damaged_override: markedOut,
   });
@@ -197,10 +225,16 @@ async function applyAdjustment(button) {
   const reasonSelect = settingsRow.querySelector('[data-adjust="reason"]');
   const batchInput = settingsRow.querySelector('[data-adjust="batch"]');
 
-  const quantity = parseInt(quantityInput.value, 10);
-  if (!quantity) {
-    showSettingsError(settingsRow, "Enter how many units to add or remove.");
-    window.showAlertDialog({ title: "Invalid Quantity", message: "Enter how many units to add or remove." });
+  const qtyRaw = quantityInput.value.trim();
+  if (!/^-?\d+$/.test(qtyRaw)) {
+    showSettingsError(settingsRow, "Enter a valid numeric quantity (whole numbers only).");
+    window.showAlertDialog({ title: "Invalid Quantity", message: "Enter a valid numeric quantity (whole numbers only)." });
+    return;
+  }
+  const quantity = parseInt(qtyRaw, 10);
+  if (quantity === 0) {
+    showSettingsError(settingsRow, "Enter how many units to add or remove (cannot be 0).");
+    window.showAlertDialog({ title: "Invalid Quantity", message: "Enter how many units to add or remove (cannot be 0)." });
     return;
   }
 
@@ -219,7 +253,7 @@ async function applyAdjustment(button) {
 
   if (!result.ok) {
     showSettingsError(settingsRow, result.error);
-    window.showAlertDialog({ title: "Save Settings Error", message: result.error });
+    window.showAlertDialog({ title: "Stock Adjustment Error", message: result.error });
     return;
   }
   showSettingsError(settingsRow, "");

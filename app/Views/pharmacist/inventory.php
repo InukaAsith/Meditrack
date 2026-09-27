@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 $title = 'Inventory';
 $active = 'inventory';
-$search = $search ?? '';
-$statusFilter = $statusFilter ?? 'all';
-$counts = $counts ?? ['all' => 0, 'low' => 0, 'expiring' => 0, 'out' => 0];
-$items = $items ?? [];
 
 require __DIR__ . '/header.php';
 ?>
+
 <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
 
 <div class="staff-head">
@@ -62,8 +59,9 @@ require __DIR__ . '/header.php';
           <tbody id="inventory-body">
             <?php foreach ($items as $item): ?>
               <?php $settings = $item['config']; ?>
+              
               <tr class="data-table__row" data-medicine-row="<?= e((string) $item['medicine_id']) ?>"
-                data-search="<?= e(strtolower($item['medicine'] . ' ' . $item['generic'] . ' ' . $item['batch'] . ' ' . $item['supplier'])) ?>"
+                data-search="<?= e(strtolower($item['medicine'] . ' ' . $item['generic'] . ' ' . $item['batch'] . ' ' . $item['supplier'] . ' ' . implode(' ', array_column($settings['batches'], 'supplier')))) ?>"
                 data-stock="<?= e((string) $item['stock']) ?>"
                 data-expiry="<?= e($item['expiry']) ?>">
                 <td>
@@ -81,6 +79,7 @@ require __DIR__ . '/header.php';
                 </td>
               </tr>
 
+              
               <tr data-settings-row="<?= e((string) $item['medicine_id']) ?>" hidden>
                 <td class="inventory-settings" colspan="9">
                   <div class="inventory-settings__grid">
@@ -88,11 +87,11 @@ require __DIR__ . '/header.php';
                       <div class="form-2col">
                         <label class="field">
                           <span class="field__label">Low stock alert at</span>
-                          <input class="field__input" type="number" min="0" value="<?= e((string) $settings['threshold']) ?>" data-setting="threshold">
+                          <input class="field__input" type="number" min="0" max="10000" step="1" value="<?= e((string) $settings['threshold']) ?>" data-setting="threshold">
                         </label>
                         <label class="field">
                           <span class="field__label">Unit price (Rs.)</span>
-                          <input class="field__input" type="number" min="0" step="0.5" value="<?= e((string) $settings['price']) ?>" data-setting="price">
+                          <input class="field__input" type="number" min="0.01" max="1000000" step="0.01" value="<?= e((string) $settings['price']) ?>" data-setting="price">
                         </label>
                       </div>
 
@@ -115,7 +114,7 @@ require __DIR__ . '/header.php';
                         <?php if (count($settings['batches']) > 1): ?>
                           <select class="field__input" aria-label="Batch" data-adjust="batch">
                             <?php foreach ($settings['batches'] as $batch): ?>
-                              <option value="<?= e((string) $batch['id']) ?>"><?= e($batch['code']) ?> (<?= e((string) $batch['units']) ?>)</option>
+                              <option value="<?= e((string) $batch['id']) ?>"><?= e($batch['code']) ?> (<?= e((string) $batch['units']) ?> &middot; <?= e($batch['supplier'] ?? '-') ?>)</option>
                             <?php endforeach; ?>
                           </select>
                         <?php elseif ($settings['batches']): ?>
@@ -129,6 +128,7 @@ require __DIR__ . '/header.php';
                         <button class="btn btn--secondary btn--sm" type="button" data-adjust-apply="<?= e((string) $item['medicine_id']) ?>">Apply</button>
                       </div>
 
+                      
                       <p class="form-error" data-settings-error hidden></p>
 
                       <div class="form-actions">
@@ -149,9 +149,13 @@ require __DIR__ . '/header.php';
                           <?php $removed = $batch['status'] === 'damaged'; ?>
                           <div class="morning-row" data-batch="<?= e((string) $batch['id']) ?>">
                             <div>
-                              <div class="morning-row__name mono"><?= e($batch['code']) ?></div>
+                              <div class="morning-row__name mono">
+                                <?= e($batch['code']) ?>
+                                <span class="badge badge--muted"><?= e($batch['supplier'] ?? '-') ?></span>
+                              </div>
                               <div class="morning-row__sub"><span data-batch-units><?= e((string) $batch['units']) ?></span> units, expires <?= e($batch['exp']) ?></div>
                             </div>
+                            
                             <div data-batch-removed<?= $removed ? '' : ' hidden' ?>>
                               <span class="badge badge--muted">Removed</span>
                             </div>

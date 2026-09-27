@@ -4,31 +4,37 @@ declare(strict_types=1);
 
 class PharmacistController extends Controller
 {
+    
     public function __construct()
     {
         require_staff_login('pharmacist');
     }
 
+    
     public function index(): void
     {
         $this->dashboard();
     }
 
+    
     public function dashboard(): void
     {
         $this->view('pharmacist/dashboard');
     }
 
+    
     public function dispense(): void
     {
         $this->view('pharmacist/dispense');
     }
 
+    
     public function prepareQueue(): void
     {
         $this->view('pharmacist/prepare-queue');
     }
 
+    
     public function inventory(): void
     {
         $search = isset($_GET['q']) ? trim((string)$_GET['q']) : null;
@@ -47,6 +53,7 @@ class PharmacistController extends Controller
         ]);
     }
 
+    
     public function inventoryConfig(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -61,29 +68,74 @@ class PharmacistController extends Controller
         $input = $this->readRequestData();
 
         $medicineId = (int)($input['medicine_id'] ?? 0);
-        $threshold = max(0, (int)($input['threshold'] ?? 0));
-        $price = max(0.0, (float)($input['price'] ?? 0.0));
+
+        if (!isset($input['threshold']) || !is_numeric($input['threshold'])) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Please enter a valid reorder threshold.'], 400);
+            return;
+        }
+        $threshold = (int)$input['threshold'];
+        if ($threshold < 0) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Reorder threshold cannot be negative.'], 400);
+            return;
+        }
+        if ($threshold > 10000) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Reorder threshold cannot exceed 10,000 units.'], 400);
+            return;
+        }
+
+        if (!isset($input['price']) || !is_numeric($input['price'])) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Please enter a valid unit price.'], 400);
+            return;
+        }
+        $price = (float)$input['price'];
+        if ($price <= 0.0) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Unit price must be greater than Rs. 0.00.'], 400);
+            return;
+        }
+        if ($price > 1000000.0) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Unit price cannot exceed Rs. 1,000,000.00.'], 400);
+            return;
+        }
+
         $requiresRx = !empty($input['requires_rx']) && ($input['requires_rx'] === true || $input['requires_rx'] === '1' || $input['requires_rx'] === 'on');
         $damagedOverride = !empty($input['damaged_override']) && ($input['damaged_override'] === true || $input['damaged_override'] === '1' || $input['damaged_override'] === 'on');
         $isAvailable = !$damagedOverride;
 
-        if ($medicineId <= 0) {
+        $currentMed = Medicine::findById($medicineId);
+        if (!$currentMed) {
             $this->jsonResponse(['ok' => false, 'error' => 'That medicine was not found.'], 400);
             return;
+        }
+
+        
+        $changed = [];
+        if ((int)$currentMed['reorder_threshold'] !== $threshold) {
+            $changed[] = 'reorder_threshold';
+        }
+        if (abs((float)$currentMed['unit_price'] - $price) > 0.001) {
+            $changed[] = 'unit_price';
+        }
+        if ((bool)$currentMed['requires_prescription'] !== $requiresRx) {
+            $changed[] = 'requires_prescription';
+        }
+        if ((bool)$currentMed['is_available'] !== $isAvailable) {
+            $changed[] = 'is_available';
         }
 
         $success = Medicine::updateConfig($medicineId, $threshold, $price, $requiresRx, $isAvailable);
 
         if ($success) {
-            $staffId = current_staff_id() ?? 0;
-            AuditLog::record(
-                'staff',
-                $staffId,
-                'update_config',
-                'medicine',
-                (string)$medicineId,
-                'reorder_threshold, unit_price, requires_prescription, is_available'
-            );
+            if (!empty($changed)) {
+                $staffId = current_staff_id() ?? 0;
+                AuditLog::record(
+                    'staff',
+                    $staffId,
+                    'update_config',
+                    'medicine',
+                    (string)$medicineId,
+                    implode(', ', $changed)
+                );
+            }
 
             $this->jsonResponse([
                 'ok' => true,
@@ -101,6 +153,7 @@ class PharmacistController extends Controller
         }
     }
 
+    
     public function inventoryAdjust(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -116,10 +169,21 @@ class PharmacistController extends Controller
 
         $medicineId = (int)($input['medicine_id'] ?? 0);
         $batchId = isset($input['batch_id']) && (int)$input['batch_id'] > 0 ? (int)$input['batch_id'] : null;
-        $delta = (int)($input['quantity'] ?? 0);
 
+        $qtyInput = $input['quantity'] ?? null;
+        if ($qtyInput === null || !is_numeric($qtyInput)) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Please enter a valid numeric quantity to add or remove.'], 400);
+            return;
+        }
+        $delta = (int)$qtyInput;
+
+        
         $rawReason = (string)($input['reason'] ?? '');
-        $reason = $this->normalizeReason($rawReason);
+        $reason = $this->validateAdjustmentReason($rawReason);
+        if ($reason === null) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Invalid adjustment reason. Allowed reasons are: damaged, baseline_intake, audit_correction.'], 400);
+            return;
+        }
         $note = trim((string)($input['note'] ?? $rawReason));
 
         if ($medicineId <= 0) {
@@ -142,19 +206,21 @@ class PharmacistController extends Controller
                 'stock_adjustment',
                 'medicine_batch',
                 (string)($result['batch_id'] ?? $batchId),
-                "delta: {$delta}, reason: {$reason}"
+                'quantity_on_hand'
             );
 
+            $actualDelta = $result['actual_delta'] ?? $delta;
             $this->jsonResponse([
                 'ok' => true,
-                'message' => "Stock changed by {$delta}.",
+                'message' => "Stock changed by {$actualDelta}.",
                 'data' => $result,
             ]);
         } else {
-            $this->jsonResponse(['ok' => false, 'error' => $result['message'] ?? 'The stock could not be changed. Try again.'], 500);
+            $this->jsonResponse(['ok' => false, 'error' => $result['message'] ?? 'The stock could not be changed. Try again.'], 400);
         }
     }
 
+    
     public function inventoryBatchRemove(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -184,7 +250,7 @@ class PharmacistController extends Controller
                 'remove_batch',
                 'medicine_batch',
                 (string)$batchId,
-                'status: damaged, quantity: 0'
+                'status, quantity_on_hand'
             );
 
             $this->jsonResponse([
@@ -197,6 +263,7 @@ class PharmacistController extends Controller
         }
     }
 
+    
     public function registerBatch(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -207,74 +274,173 @@ class PharmacistController extends Controller
 
             $commercialName = trim((string)($_POST['commercial_name'] ?? ''));
             $generic = trim((string)($_POST['generic'] ?? ''));
-            $unitForm = strtolower(trim((string)($_POST['unit_form'] ?? 'tablet')));
+            $unitForm = strtolower(trim((string)($_POST['unit_form'] ?? '')));
             $manufacturer = trim((string)($_POST['manufacturer'] ?? ''));
             $storageLimits = trim((string)($_POST['storage_limits'] ?? ''));
             $supplierName = trim((string)($_POST['supplier'] ?? ''));
             $invoiceRef = trim((string)($_POST['invoice_ref'] ?? ''));
             $batchCode = strtoupper(trim((string)($_POST['batch_id'] ?? '')));
 
-            $qtyRaw = (string)($_POST['qty_received'] ?? '');
-            preg_match('/\d+/', str_replace(',', '', $qtyRaw), $qtyMatches);
-            $qty = isset($qtyMatches[0]) ? (int)$qtyMatches[0] : 0;
+            
+            $qtyRaw = trim((string)($_POST['qty_received'] ?? ''));
+            if ($qtyRaw === '' || !preg_match('/^\d+$/', $qtyRaw) || (int)$qtyRaw <= 0) {
+                flash_error('Please enter a valid positive quantity received (whole numbers only, e.g. 120).');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+            $qty = (int)$qtyRaw;
 
-            $costRaw = (string)($_POST['total_cost'] ?? '');
-            preg_match('/[\d\.]+/', str_replace(',', '', $costRaw), $costMatches);
-            $totalCost = isset($costMatches[0]) ? (float)$costMatches[0] : 0.0;
-
-            $expiryRaw = trim((string)($_POST['expiry_date'] ?? ''));
-            $expiryDate = null;
-            if (preg_match('/(\d{1,2})\s*[\/\-]\s*(\d{1,2})\s*[\/\-]\s*(\d{4})/', $expiryRaw, $m)) {
-                $expiryDate = sprintf('%04d-%02d-%02d', (int)$m[3], (int)$m[2], (int)$m[1]);
-            } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiryRaw)) {
-                $expiryDate = $expiryRaw;
-            } else {
-                $expiryDate = date('Y-m-d', strtotime('+1 year'));
+            $costRaw = trim((string)($_POST['total_cost'] ?? ''));
+            $totalCost = 0.0;
+            if ($costRaw !== '') {
+                if (!preg_match('/^\d+(\.\d{1,2})?$/', $costRaw) || (float)$costRaw < 0) {
+                    flash_error('Please enter a valid total cost in rupees (e.g. 4500.00). Non-numeric text is not allowed.');
+                    $_SESSION['old_batch_input'] = $_POST;
+                    $this->redirect('/staff/pharmacist/register-batch');
+                    return;
+                }
+                $totalCost = (float)$costRaw;
             }
 
-            if ($commercialName !== '' && $batchCode !== '' && $qty > 0) {
-                $pdo = db();
-                $staffId = current_staff_id() ?? 1;
+            
+            $expiryRaw = trim((string)($_POST['expiry_date'] ?? ''));
+            if ($expiryRaw === '') {
+                flash_error('Please enter the batch expiry date.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
 
-                $supplierId = Supplier::findOrCreate($supplierName);
+            $year = null;
+            $month = null;
+            $day = null;
 
-                $mStmt = $pdo->prepare('SELECT medicine_id FROM medicine WHERE commercial_name = ? LIMIT 1');
-                $mStmt->execute([$commercialName]);
-                $medicineId = $mStmt->fetchColumn();
+            if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $expiryRaw, $m)) {
+                $year = (int)$m[1];
+                $month = (int)$m[2];
+                $day = (int)$m[3];
+            } elseif (preg_match('/^(\d{1,2})\s*[\/\-]\s*(\d{1,2})\s*[\/\-]\s*(\d{4})$/', $expiryRaw, $m)) {
+                $day = (int)$m[1];
+                $month = (int)$m[2];
+                $year = (int)$m[3];
+            }
 
-                if (!$medicineId) {
-                    $insMed = $pdo->prepare(
-                        'INSERT INTO medicine (commercial_name, generic_name, unit_form, manufacturer, storage_limits, unit_price, reorder_threshold)
-                         VALUES (?, ?, ?, ?, ?, ?, ?)'
-                    );
-                    $insMed->execute([
-                        $commercialName,
-                        $generic !== '' ? $generic : $commercialName,
-                        $unitForm,
-                        $manufacturer,
-                        $storageLimits,
-                        25.00,
-                        40,
-                    ]);
-                    $medicineId = $pdo->lastInsertId();
+            if ($year === null || $month === null || $day === null || !checkdate($month, $day, $year)) {
+                flash_error('Please enter a valid calendar expiry date.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            $expiryDate = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $today = date('Y-m-d');
+            if ($expiryDate <= $today) {
+                flash_error('Expiry date must be in the future.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            
+            if (!in_array($unitForm, Medicine::ALLOWED_FORMS, true)) {
+                flash_error('Please select a valid unit form (' . implode(', ', Medicine::ALLOWED_FORMS) . ').');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            
+            $unitPriceRaw = trim((string)($_POST['unit_price'] ?? ''));
+            $unitPrice = null;
+            if ($unitPriceRaw !== '') {
+                if (!preg_match('/^\d+(\.\d{1,2})?$/', $unitPriceRaw) || (float)$unitPriceRaw <= 0.0) {
+                    flash_error('Unit selling price must be greater than Rs. 0.00.');
+                    $_SESSION['old_batch_input'] = $_POST;
+                    $this->redirect('/staff/pharmacist/register-batch');
+                    return;
                 }
+                $unitPrice = (float)$unitPriceRaw;
+            }
 
-                $insBatch = $pdo->prepare(
-                    'INSERT INTO medicine_batch (batch_code, medicine_id, supplier_id, supplier_invoice_ref, quantity_received, quantity_on_hand, cost_price_total, expiry_date, registered_by)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                     ON DUPLICATE KEY UPDATE quantity_on_hand = quantity_on_hand + VALUES(quantity_on_hand)'
-                );
-                $insBatch->execute([
-                    $batchCode,
-                    $medicineId,
+            $reorderRaw = trim((string)($_POST['reorder_threshold'] ?? ''));
+            $reorderThreshold = null;
+            if ($reorderRaw !== '') {
+                if (!preg_match('/^\d+$/', $reorderRaw) || (int)$reorderRaw < 0 || (int)$reorderRaw > 10000) {
+                    flash_error('Reorder threshold must be between 0 and 10,000 units.');
+                    $_SESSION['old_batch_input'] = $_POST;
+                    $this->redirect('/staff/pharmacist/register-batch');
+                    return;
+                }
+                $reorderThreshold = (int)$reorderRaw;
+            }
+
+            
+            if ($commercialName === '') {
+                flash_error('Please enter the medicine brand name.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            if ($supplierName === '') {
+                flash_error('Please select a supplier.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            if ($batchCode === '') {
+                flash_error('Please enter the batch number.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            $pdo = db();
+            $staffId = current_staff_id() ?? 1;
+
+            
+            $sStmt = $pdo->prepare('SELECT supplier_id FROM supplier WHERE name = ? OR supplier_id = ? LIMIT 1');
+            $sStmt->execute([$supplierName, is_numeric($supplierName) ? (int)$supplierName : 0]);
+            $supplierId = $sStmt->fetchColumn();
+
+            if (!$supplierId) {
+                flash_error('Please select an existing supplier from the database.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            
+            $bCheck = $pdo->prepare('SELECT b.batch_code, m.commercial_name FROM medicine_batch b JOIN medicine m ON b.medicine_id = m.medicine_id WHERE b.batch_code = ? LIMIT 1');
+            $bCheck->execute([$batchCode]);
+            $existingBatch = $bCheck->fetch(PDO::FETCH_ASSOC);
+            if ($existingBatch) {
+                flash_error("Batch code '{$batchCode}' is already registered for '{$existingBatch['commercial_name']}'. Reusing a batch code is not allowed.");
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            
+            try {
+                $registered = Medicine::registerBatch(
+                    $commercialName,
+                    $generic,
+                    $unitForm,
+                    $manufacturer,
+                    $storageLimits,
                     $supplierId,
                     $invoiceRef,
-                    $qty,
+                    $batchCode,
                     $qty,
                     $totalCost,
                     $expiryDate,
                     $staffId,
-                ]);
+                    $unitPrice,
+                    $reorderThreshold
+                );
 
                 AuditLog::record(
                     'staff',
@@ -285,17 +451,37 @@ class PharmacistController extends Controller
                     "qty: {$qty}, supplier: {$supplierName}"
                 );
 
+                unset($_SESSION['old_batch_input']);
                 flash_success("Batch {$batchCode} added to the inventory.");
                 $this->redirect('/staff/pharmacist/inventory');
+                return;
+            } catch (Throwable $e) {
+                flash_error('Could not register batch: ' . $e->getMessage());
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
             }
         }
 
+        $oldInput = $_SESSION['old_batch_input'] ?? [];
+        unset($_SESSION['old_batch_input']);
+
         $suppliers = Supplier::all();
+        $medStmt = db()->query('SELECT medicine_id, commercial_name, generic_name, unit_form, manufacturer, storage_limits, unit_price, reorder_threshold FROM medicine ORDER BY commercial_name ASC');
+        $medicines = $medStmt->fetchAll(PDO::FETCH_ASSOC);
+        $existingBatches = db()->query('SELECT batch_code FROM medicine_batch')->fetchAll(PDO::FETCH_COLUMN);
+
         $this->view('pharmacist/register-batch', [
             'suppliers' => $suppliers,
+            'medicines' => $medicines,
+            'existingBatches' => $existingBatches,
+            'old' => $oldInput,
+            'flashError' => get_flash_error(),
+            'flashSuccess' => get_flash_success(),
         ]);
     }
 
+    
     public function suppliers(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -336,8 +522,7 @@ class PharmacistController extends Controller
                 $staffId,
                 'create',
                 'supplier',
-                (string)$supplierId,
-                "name: {$name}, contact: {$phone}"
+                (string)$supplierId
             );
 
             flash_success("{$name} added to suppliers.");
@@ -353,35 +538,43 @@ class PharmacistController extends Controller
         ]);
     }
 
+    
     public function registerSupplier(): void
     {
         $this->suppliers();
     }
 
+    
     public function billingHistory(): void
     {
         $this->view('pharmacist/billing-history');
     }
 
+    
     public function pharmacyAlerts(): void
     {
         $this->view('pharmacist/pharmacy-alerts');
     }
 
+    
     public function stockAlerts(): void
     {
         $this->view('pharmacist/pharmacy-alerts');
     }
 
+    
     public function notifications(): void
     {
         $this->view('pharmacist/notifications');
     }
 
+    
     public function profile(): void
     {
         $this->view('pharmacist/profile', ['deviceTrusted' => current_device_is_trusted()]);
     }
+
+    
 
     private function readRequestData(): array
     {
@@ -398,23 +591,23 @@ class PharmacistController extends Controller
         return $input;
     }
 
-    private function normalizeReason(string $raw): string
+    private function validateAdjustmentReason(string $raw): ?string
     {
-        $lower = strtolower($raw);
-        if (str_contains($lower, 'damage')) {
-            return 'damaged';
-        }
-        if (str_contains($lower, 'baseline') || str_contains($lower, 'intake')) {
-            return 'baseline_intake';
-        }
-        if (str_contains($lower, 'return')) {
-            return 'order_return';
-        }
-        return 'audit_correction';
+        $clean = strtolower(trim($raw));
+        $validReasons = [
+            'damaged' => 'damaged',
+            'baseline_intake' => 'baseline_intake',
+            'opening stock' => 'baseline_intake',
+            'audit_correction' => 'audit_correction',
+            'stock count fix' => 'audit_correction',
+        ];
+
+        return $validReasons[$clean] ?? null;
     }
 
     private function jsonResponse(array $payload, int $status = 200): void
     {
+        
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) || str_contains($accept, 'application/json');
 
