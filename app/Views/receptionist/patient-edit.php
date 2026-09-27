@@ -62,17 +62,17 @@ require __DIR__ . '/header.php';
             <input class="field__input" value="<?= e($patient['nic']) ?>" readonly>
           </label>
           <label class="field<?= isset($errors['full_name']) ? ' field--error' : '' ?>">
-            <span class="field__label">Full name *</span>
+            <span class="field__label">Full name <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" name="full_name" value="<?= e($values['full_name']) ?>" maxlength="120" required>
             <?php if (isset($errors['full_name'])): ?><span class="field__desc"><?= e($errors['full_name']) ?></span><?php endif; ?>
           </label>
           <label class="field<?= isset($errors['date_of_birth']) ? ' field--error' : '' ?>">
-            <span class="field__label">Date of birth *</span>
+            <span class="field__label">Date of birth <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="date" name="date_of_birth" value="<?= e($values['date_of_birth']) ?>" required>
             <?php if (isset($errors['date_of_birth'])): ?><span class="field__desc"><?= e($errors['date_of_birth']) ?></span><?php endif; ?>
           </label>
           <label class="field<?= isset($errors['gender']) ? ' field--error' : '' ?>">
-            <span class="field__label">Gender *</span>
+            <span class="field__label">Gender <span class="field__req" aria-hidden="true">*</span></span>
             <select class="field__input" name="gender" required>
               <option value="">Pick one</option>
               <option value="female" <?= $values['gender'] === 'female' ? ' selected' : '' ?>>Female</option>
@@ -81,7 +81,7 @@ require __DIR__ . '/header.php';
             <?php if (isset($errors['gender'])): ?><span class="field__desc"><?= e($errors['gender']) ?></span><?php endif; ?>
           </label>
           <label class="field<?= isset($errors['mobile']) ? ' field--error' : '' ?>">
-            <span class="field__label">Mobile *</span>
+            <span class="field__label">Mobile <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" name="mobile" value="<?= e($values['mobile']) ?>" required>
             <?php if (isset($errors['mobile'])): ?><span class="field__desc"><?= e($errors['mobile']) ?></span><?php endif; ?>
           </label>

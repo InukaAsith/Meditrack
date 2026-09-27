@@ -68,14 +68,14 @@ require __DIR__ . '/header.php';
       </label>
       <div class="new-invoice-guest" id="new-invoice-guest" hidden>
         <div class="form-2col">
-          <label class="field"><span class="field__label">Patient name *</span><input class="field__input" id="new-invoice-guest-name" placeholder="Full name as given"></label>
-          <label class="field"><span class="field__label">Phone *</span><input class="field__input" id="new-invoice-guest-phone" placeholder="+94 7X XXX XXXX" inputmode="tel"></label>
+          <label class="field"><span class="field__label">Patient name <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" id="new-invoice-guest-name" placeholder="Full name as given"></label>
+          <label class="field"><span class="field__label">Phone <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" id="new-invoice-guest-phone" placeholder="+94 7X XXX XXXX" inputmode="tel"></label>
         </div>
         <div class="emergency-note">We save a temporary guest record for this invoice. Register them fully later.</div>
       </div>
 
       <div class="staff-eyebrow mt-8">Doctor</div>
-      <label class="field"><span class="field__label">Consulting doctor</span>
+      <label class="field"><span class="field__label">Consulting doctor <span class="field__req" aria-hidden="true">*</span></span>
         <select class="field__input" id="new-invoice-doc">
           <option value="Dr. Sample Doctor 1" data-fee="2500">Dr. Sample Doctor 1 (General, Rs. 2,500)</option>
           <option value="Dr. Sample Doctor 3" data-fee="3000">Dr. Sample Doctor 3 (Pediatrics, Rs. 3,000)</option>
@@ -86,7 +86,7 @@ require __DIR__ . '/header.php';
       <div class="staff-eyebrow mt-8">Details</div>
       <div class="form-2col">
         <label class="field"><span class="field__label">Appointment ID <span class="field__lock">(optional)</span></span><input class="field__input" id="new-invoice-appt" placeholder="APT-… (leave empty if there is none)"></label>
-        <label class="field"><span class="field__label">Amount paid (cash) *</span><input class="field__input" id="new-invoice-amount" inputmode="decimal" value="2500.00"></label>
+        <label class="field"><span class="field__label">Amount paid (cash) <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" id="new-invoice-amount" inputmode="decimal" value="2500.00"></label>
       </div>
       <div class="new-invoice-cashnote"><?= icon('billing', 14) ?>Cash only</div>
     </div>

@@ -48,7 +48,7 @@ require __DIR__ . '/header.php';
 
         <div class="form-grid mt-6">
           <label class="field<?= isset($errors['full_name']) ? ' field--error' : '' ?>">
-            <span class="field__label">Full name *</span>
+            <span class="field__label">Full name <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" name="full_name" value="<?= e($values['full_name']) ?>" maxlength="120" required>
             <?php if (isset($errors['full_name'])): ?><span class="field__desc"><?= e($errors['full_name']) ?></span><?php endif; ?>
           </label>
@@ -60,19 +60,19 @@ require __DIR__ . '/header.php';
           </label>
 
           <label class="field<?= isset($errors['work_email']) ? ' field--error' : '' ?>">
-            <span class="field__label">Work email *</span>
+            <span class="field__label">Work email <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="email" name="work_email" value="<?= e($values['work_email']) ?>" required>
             <?php if (isset($errors['work_email'])): ?><span class="field__desc"><?= e($errors['work_email']) ?></span><?php endif; ?>
           </label>
 
           <label class="field<?= isset($errors['phone']) ? ' field--error' : '' ?>">
-            <span class="field__label">Phone *</span>
+            <span class="field__label">Phone <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" name="phone" value="<?= e($values['phone']) ?>" placeholder="07XXXXXXXX" maxlength="15" required>
             <?php if (isset($errors['phone'])): ?><span class="field__desc"><?= e($errors['phone']) ?></span><?php endif; ?>
           </label>
 
           <label class="field<?= isset($errors['temp_password']) ? ' field--error' : '' ?>">
-            <span class="field__label">Temporary password *</span>
+            <span class="field__label">Temporary password <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input mono" name="temp_password" value="<?= e($values['temp_password']) ?>" required>
             <?php if (isset($errors['temp_password'])): ?>
               <span class="field__desc"><?= e($errors['temp_password']) ?></span>
@@ -82,7 +82,7 @@ require __DIR__ . '/header.php';
           </label>
 
           <label class="field<?= isset($errors['role_name']) ? ' field--error' : '' ?>">
-            <span class="field__label">Role *</span>
+            <span class="field__label">Role <span class="field__req" aria-hidden="true">*</span></span>
             <select class="field__input" name="role_name" data-role-select>
               <?php foreach ($roles as $role): ?>
                 <option value="<?= e($role['role_name']) ?>" <?= $role['role_name'] === $values['role_name'] ? ' selected' : '' ?>><?= e($role['role_name']) ?></option>
@@ -100,13 +100,13 @@ require __DIR__ . '/header.php';
           <div class="staff-eyebrow">Doctor details</div>
           <div class="form-grid">
             <label class="field<?= isset($errors['slmc_number']) ? ' field--error' : '' ?>">
-              <span class="field__label">SLMC number *</span>
+              <span class="field__label">SLMC number <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input mono" name="slmc_number" value="<?= e($values['slmc_number']) ?>" maxlength="20">
               <?php if (isset($errors['slmc_number'])): ?><span class="field__desc"><?= e($errors['slmc_number']) ?></span><?php endif; ?>
             </label>
 
             <label class="field<?= isset($errors['specialty_id']) ? ' field--error' : '' ?>">
-              <span class="field__label">Specialty *</span>
+              <span class="field__label">Specialty <span class="field__req" aria-hidden="true">*</span></span>
               <select class="field__input" name="specialty_id">
                 <option value="">Pick a specialty</option>
                 <?php foreach ($specialties as $specialty): ?>
@@ -117,7 +117,7 @@ require __DIR__ . '/header.php';
             </label>
 
             <label class="field<?= isset($errors['consultation_fee']) ? ' field--error' : '' ?>">
-              <span class="field__label">Consultation fee (Rs.) *</span>
+              <span class="field__label">Consultation fee (Rs.) <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input" name="consultation_fee" value="<?= e($values['consultation_fee']) ?>" inputmode="decimal">
               <?php if (isset($errors['consultation_fee'])): ?><span class="field__desc"><?= e($errors['consultation_fee']) ?></span><?php endif; ?>
             </label>

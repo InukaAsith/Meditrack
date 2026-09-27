@@ -396,6 +396,37 @@ class PharmacistController extends Controller
                 return;
             }
 
+            if ($generic === '') {
+                flash_error('Please enter the generic name.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            if ($invoiceRef === '') {
+                flash_error('Please enter the supplier invoice number.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+
+            $tooLong = [
+                'Brand name' => [$commercialName, 120],
+                'Generic name' => [$generic, 120],
+                'Manufacturer' => [$manufacturer, 120],
+                'Storage' => [$storageLimits, 120],
+                'Supplier invoice number' => [$invoiceRef, 60],
+                'Batch number' => [$batchCode, 30],
+            ];
+            foreach ($tooLong as $label => [$value, $max]) {
+                if (mb_strlen($value) > $max) {
+                    flash_error("{$label} can be at most {$max} characters.");
+                    $_SESSION['old_batch_input'] = $_POST;
+                    $this->redirect('/staff/pharmacist/register-batch');
+                    return;
+                }
+            }
+
             $pdo = db();
             $staffId = current_staff_id() ?? 1;
 

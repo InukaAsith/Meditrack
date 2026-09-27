@@ -42,7 +42,7 @@ declare(strict_types=1);
         <?php endif; ?>
         <form class="auth-card__form" action="/otp" method="post" autocomplete="off">
           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
-          <label class="field"><span class="field__label">6-digit code</span><input class="field__input" type="text" name="otp" inputmode="numeric" maxlength="6" required autofocus></label>
+          <label class="field"><span class="field__label">6-digit code <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="text" name="otp" inputmode="numeric" maxlength="6" required autofocus></label>
           <button class="btn btn--primary btn--block" type="submit">Verify &amp; create account</button>
         </form>
         <p class="auth-card__foot"><a class="link-btn" href="/register">← Back</a></p>

@@ -54,9 +54,9 @@ $titles = ['signin' => 'Sign in', 'register' => 'Create account', 'forgot' => 'R
           <form class="auth-card__form" action="/login" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="form" value="signin">
-            <label class="field"><span class="field__label">Email or mobile</span><input class="field__input" type="text" name="identifier" required></label>
+            <label class="field"><span class="field__label">Email or mobile <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="text" name="identifier" required></label>
             <div class="field auth-pass">
-              <span class="field__label">Password</span>
+              <span class="field__label">Password <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input" type="password" id="pw" name="password" required>
               <button class="auth-pass__toggle" type="button" data-pw-toggle="pw">Show</button>
             </div>
@@ -82,13 +82,13 @@ $titles = ['signin' => 'Sign in', 'register' => 'Create account', 'forgot' => 'R
           <form class="auth-card__form" action="/register" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="form" value="register">
-            <label class="field"><span class="field__label">Full name (as on NIC)</span><input class="field__input" type="text" name="full_name" maxlength="120" required></label>
-            <label class="field"><span class="field__label">NIC number</span><input class="field__input" type="text" name="nic" maxlength="12" required></label>
-            <label class="field"><span class="field__label">Mobile - queue SMS goes here</span><input class="field__input" type="text" name="mobile" placeholder="07XXXXXXXX" required></label>
+            <label class="field"><span class="field__label">Full name (as on NIC) <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="text" name="full_name" maxlength="120" required></label>
+            <label class="field"><span class="field__label">NIC number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="text" name="nic" maxlength="12" required></label>
+            <label class="field"><span class="field__label">Mobile - queue SMS goes here <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="text" name="mobile" placeholder="07XXXXXXXX" required></label>
             <label class="field"><span class="field__label">Email</span><input class="field__input" type="email" name="email" maxlength="150"></label>
-            <label class="field"><span class="field__label">Date of birth</span><input class="field__input" type="date" name="date_of_birth" max="<?= e(date('Y-m-d')) ?>" required></label>
+            <label class="field"><span class="field__label">Date of birth <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="date" name="date_of_birth" max="<?= e(date('Y-m-d')) ?>" required></label>
             <label class="field">
-              <span class="field__label">Gender</span>
+              <span class="field__label">Gender <span class="field__req" aria-hidden="true">*</span></span>
               <select class="field__input" name="gender" required>
                 <option value="">Choose…</option>
                 <option value="female">Female</option>
@@ -105,12 +105,12 @@ $titles = ['signin' => 'Sign in', 'register' => 'Create account', 'forgot' => 'R
               </select>
             </label>
             <div class="field auth-pass">
-              <span class="field__label">Password</span>
+              <span class="field__label">Password <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input" type="password" id="pw" name="password" placeholder="8+ characters, upper & lower case, a number" required>
               <button class="auth-pass__toggle" type="button" data-pw-toggle="pw">Show</button>
             </div>
             <div class="field auth-pass">
-              <span class="field__label">Confirm password</span>
+              <span class="field__label">Confirm password <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input" type="password" id="pw-confirm" name="password_confirm" required>
               <button class="auth-pass__toggle" type="button" data-pw-toggle="pw-confirm">Show</button>
             </div>
@@ -123,7 +123,7 @@ $titles = ['signin' => 'Sign in', 'register' => 'Create account', 'forgot' => 'R
           <h2 class="auth-card__title">Reset your password</h2>
           <p class="auth-card__subtitle">We'll send a reset link to your email or mobile.</p>
           <form class="auth-card__form" action="/login" method="get" autocomplete="off">
-            <label class="field"><span class="field__label">Email or mobile</span><input class="field__input" type="text"></label>
+            <label class="field"><span class="field__label">Email or mobile <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="text"></label>
             <button class="btn btn--primary btn--block" type="submit">Send reset link</button>
           </form>
           <p class="auth-card__foot"><a class="link-btn" href="/login">← Back to sign in</a></p>

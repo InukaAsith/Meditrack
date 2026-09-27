@@ -281,7 +281,7 @@ require __DIR__ . '/header.php';
                 $sEnd = $session ? substr($session['end_time'], 0, 5) : '';
               ?>
                 <div class="consultation-avail__group mt-3">
-                  <div class="consultation-avail__label"><?= $number === 1 ? 'First session' : 'Second session (optional)' ?></div>
+                  <div class="consultation-avail__label"><?= $number === 1 ? 'First session <span class="field__req" aria-hidden="true">*</span>' : 'Second session (optional)' ?></div>
                   <div class="consultation-avail__time-inputs">
                     <input type="time" name="start_<?= $number ?>" value="<?= e($sStart) ?>" aria-label="Start time"<?= $number === 1 ? ' required' : '' ?>>
                     <span class="consultation-avail__time-sep">to</span>
@@ -401,7 +401,7 @@ require __DIR__ . '/header.php';
                     : ($sMaxSlots > 0 ? $sMaxSlots : '');
               ?>
                 <div class="consultation-avail__group mt-4">
-                  <div class="consultation-avail__label"><?= $number === 1 ? 'First session' : 'Second session (optional)' ?></div>
+                  <div class="consultation-avail__label"><?= $number === 1 ? 'First session <span class="field__req" aria-hidden="true">*</span>' : 'Second session (optional)' ?></div>
                   <div class="consultation-avail__time-inputs">
                     <input type="time" name="start_<?= $number ?>" value="<?= e($sStart) ?>" aria-label="Start time"<?= $number === 1 ? ' required' : '' ?>>
                     <span class="consultation-avail__time-sep">to</span>

@@ -107,7 +107,7 @@ require __DIR__ . '/header.php';
         <input class="field__input" data-price-current readonly>
       </div>
       <div class="field">
-        <label class="field__label" for="price-new">New unit price</label>
+        <label class="field__label" for="price-new">New unit price <span class="field__req" aria-hidden="true">*</span></label>
         <div class="money-input">
           <span class="money-input__prefix">Rs.&nbsp;</span>
           <input class="field__input" id="price-new" type="number" min="0" step="0.5" data-price-new>

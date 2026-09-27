@@ -32,11 +32,11 @@ require __DIR__ . '/header.php';
 
       <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: var(--sp-4); margin-bottom: var(--sp-5);">
         <div class="field">
-          <label class="field__label" for="leave-start">Start date *</label>
+          <label class="field__label" for="leave-start">Start date <span class="field__req" aria-hidden="true">*</span></label>
           <input class="field__input" type="date" id="leave-start" name="start_date" value="<?= e($leave['start_date']) ?>" required>
         </div>
         <div class="field">
-          <label class="field__label" for="leave-end">End date *</label>
+          <label class="field__label" for="leave-end">End date <span class="field__req" aria-hidden="true">*</span></label>
           <input class="field__input" type="date" id="leave-end" name="end_date" value="<?= e($leave['end_date']) ?>" required>
         </div>
       </div>

@@ -12,11 +12,11 @@
       <p class="text-sm text-muted">Insert a high-priority emergency patient directly to the front of a doctor's live queue.</p>
       <form id="emergency-form" class="form-grid mt-4">
         <div class="form-group">
-          <label class="form-label" for="em-patient-name">Patient Name</label>
+          <label class="form-label" for="em-patient-name">Patient Name <span class="field__req" aria-hidden="true">*</span></label>
           <input type="text" id="em-patient-name" class="form-control" required>
         </div>
         <div class="form-group">
-          <label class="form-label" for="em-doctor-select">Assign Doctor</label>
+          <label class="form-label" for="em-doctor-select">Assign Doctor <span class="field__req" aria-hidden="true">*</span></label>
           <select id="em-doctor-select" class="form-control" required>
             <option value="dr-silva">Dr. Sample Doctor 1 (Current ACD: 12 min)</option>
             <option value="dr-fernando">Dr. Sample Doctor 3 (Current ACD: 15 min)</option>

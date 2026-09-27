@@ -12,6 +12,13 @@ $defaultSupplier = trim((string) ($_GET['supplier'] ?? ''));
 $old = $old ?? [];
 $selectedSupplier = trim((string) ($old['supplier'] ?? $defaultSupplier));
 $selectedForm = strtolower((string) ($old['unit_form'] ?? 'capsule'));
+$distinctValues = static function (string $column) use ($medicines): array {
+    $values = array_unique(array_filter(array_map(static fn($m) => trim((string) ($m[$column] ?? '')), $medicines), 'strlen'));
+    natcasesort($values);
+    return $values;
+};
+$genericNames = $distinctValues('generic_name');
+$manufacturers = $distinctValues('manufacturer');
 
 require __DIR__ . '/header.php';
 ?>
@@ -30,8 +37,8 @@ require __DIR__ . '/header.php';
       <div class="staff-eyebrow">Medicine</div>
       <div class="form-2col">
         <label class="field">
-          <span class="field__label">Brand name </span>
-          <input class="field__input" name="commercial_name" value="<?= e($old['commercial_name'] ?? '') ?>" list="medicine-options" autocomplete="off">
+          <span class="field__label">Brand name <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" name="commercial_name" value="<?= e($old['commercial_name'] ?? '') ?>" list="medicine-options" autocomplete="off" maxlength="120" required>
           <datalist id="medicine-options">
             <?php foreach ($medicines as $med): ?>
               <option value="<?= e($med['commercial_name']) ?>"><?= e($med['generic_name']) ?></option>
@@ -39,12 +46,17 @@ require __DIR__ . '/header.php';
           </datalist>
         </label>
         <label class="field">
-          <span class="field__label">Generic name </span>
-          <input class="field__input" name="generic" value="<?= e($old['generic'] ?? '') ?>">
+          <span class="field__label">Generic name <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" name="generic" value="<?= e($old['generic'] ?? '') ?>" list="generic-options" autocomplete="off" maxlength="120" required>
+          <datalist id="generic-options">
+            <?php foreach ($genericNames as $genericName): ?>
+              <option value="<?= e($genericName) ?>"></option>
+            <?php endforeach; ?>
+          </datalist>
         </label>
         <label class="field">
-          <span class="field__label">Form</span>
-          <select class="field__input" name="unit_form">
+          <span class="field__label">Form <span class="field__req" aria-hidden="true">*</span></span>
+          <select class="field__input" name="unit_form" required>
             <option value="capsule" <?= $selectedForm === 'capsule' ? 'selected' : '' ?>>Capsule</option>
             <option value="tablet" <?= $selectedForm === 'tablet' ? 'selected' : '' ?>>Tablet</option>
             <option value="syrup" <?= $selectedForm === 'syrup' ? 'selected' : '' ?>>Syrup</option>
@@ -56,7 +68,12 @@ require __DIR__ . '/header.php';
         </label>
         <label class="field">
           <span class="field__label">Manufacturer</span>
-          <input class="field__input" name="manufacturer" value="<?= e($old['manufacturer'] ?? '') ?>">
+          <input class="field__input" name="manufacturer" value="<?= e($old['manufacturer'] ?? '') ?>" list="manufacturer-options" autocomplete="off" maxlength="120">
+          <datalist id="manufacturer-options">
+            <?php foreach ($manufacturers as $manufacturerName): ?>
+              <option value="<?= e($manufacturerName) ?>"></option>
+            <?php endforeach; ?>
+          </datalist>
         </label>
         <label class="field">
           <span class="field__label">Unit selling price (Rs.)</span>
@@ -69,13 +86,13 @@ require __DIR__ . '/header.php';
       </div>
       <label class="field mt-6">
         <span class="field__label">Storage</span>
-        <input class="field__input" name="storage_limits" value="<?= e($old['storage_limits'] ?? '') ?>">
+        <input class="field__input" name="storage_limits" value="<?= e($old['storage_limits'] ?? '') ?>" maxlength="120">
       </label>
 
       <div class="staff-eyebrow mt-8">Delivery</div>
       <div class="form-2col">
         <label class="field">
-          <span class="field__label">Supplier </span>
+          <span class="field__label">Supplier <span class="field__req" aria-hidden="true">*</span></span>
           <select class="field__input" name="supplier" required>
             <option value="" disabled <?= $selectedSupplier === '' ? 'selected' : '' ?>>Select a supplier</option>
             <?php foreach ($suppliers as $supplier): ?>
@@ -86,20 +103,20 @@ require __DIR__ . '/header.php';
           </select>
         </label>
         <label class="field">
-          <span class="field__label">Supplier invoice number </span>
-          <input class="field__input" name="invoice_ref" value="<?= e($old['invoice_ref'] ?? '') ?>">
+          <span class="field__label">Supplier invoice number <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" name="invoice_ref" value="<?= e($old['invoice_ref'] ?? '') ?>" maxlength="60" required>
         </label>
         <label class="field">
-          <span class="field__label">Batch number </span>
-          <input class="field__input" name="batch_id" value="<?= e($old['batch_id'] ?? '') ?>">
+          <span class="field__label">Batch number <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" name="batch_id" value="<?= e($old['batch_id'] ?? '') ?>" maxlength="30" required>
         </label>
         <label class="field">
-          <span class="field__label">Expiry date </span>
-          <input class="field__input" type="date" name="expiry_date" value="<?= e($old['expiry_date'] ?? '') ?>" min="<?= e(date('Y-m-d', strtotime('+1 day'))) ?>">
+          <span class="field__label">Expiry date <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" type="date" name="expiry_date" value="<?= e($old['expiry_date'] ?? '') ?>" min="<?= e(date('Y-m-d', strtotime('+1 day'))) ?>" required>
         </label>
         <label class="field">
-          <span class="field__label">Quantity received </span>
-          <input class="field__input" type="number" name="qty_received" value="<?= e($old['qty_received'] ?? '') ?>" min="1">
+          <span class="field__label">Quantity received <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" type="number" name="qty_received" value="<?= e($old['qty_received'] ?? '') ?>" min="1" step="1" required>
         </label>
         <label class="field">
           <span class="field__label">Total cost (Rs.)</span>
@@ -107,7 +124,7 @@ require __DIR__ . '/header.php';
         </label>
       </div>
 
-      <p class="form-error" id="batch-form-error" hidden>Please fill in: <span id="batch-form-missing"></span></p>
+      <p class="form-error" id="batch-form-error" hidden></p>
 
       <div class="form-actions">
         <button class="btn btn--primary" type="submit">Save batch</button>

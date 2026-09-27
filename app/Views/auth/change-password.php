@@ -40,8 +40,8 @@ declare(strict_types=1);
         <?php endif; ?>
         <form class="auth-card__form" action="/change-password" method="post" autocomplete="off">
           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
-          <label class="field"><span class="field__label">New password</span><input class="field__input" type="password" name="password" required autofocus></label>
-          <label class="field"><span class="field__label">Confirm new password</span><input class="field__input" type="password" name="password_confirm" required></label>
+          <label class="field"><span class="field__label">New password <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="password" name="password" required autofocus></label>
+          <label class="field"><span class="field__label">Confirm new password <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" type="password" name="password_confirm" required></label>
           <p class="field__desc">At least 8 characters, with an uppercase letter, a lowercase letter and a number.</p>
           <button class="btn btn--primary btn--block" type="submit">Save and continue</button>
         </form>

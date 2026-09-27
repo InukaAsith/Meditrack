@@ -185,7 +185,7 @@ require __DIR__ . '/header.php';
     </div>
     <div class="modal__body">
       <div class="field">
-        <label class="field__label" for="template-body">Message</label>
+        <label class="field__label" for="template-body">Message <span class="field__req" aria-hidden="true">*</span></label>
         <textarea class="field__input" id="template-body" rows="4" data-tpl-body></textarea>
         <span class="field__desc">Words in {{double brackets}} are filled in for each patient.</span>
       </div>

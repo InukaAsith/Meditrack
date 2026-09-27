@@ -324,10 +324,10 @@ foreach ($sessions as $key => $byDoctor) {
             <div class="card__body">
               <div class="who-title">Your details</div>
               <div class="form-2col">
-                <label class="field"><span class="field__label">Full name</span><input class="field__input" placeholder="As on NIC"></label>
-                <label class="field"><span class="field__label">NIC number</span><input class="field__input" placeholder="NIC"></label>
-                <label class="field"><span class="field__label">Date of birth</span><input class="field__input" placeholder="DD / MM / YYYY"></label>
-                <label class="field"><span class="field__label">Mobile number</span><input class="field__input" placeholder="+94 ..."></label>
+                <label class="field"><span class="field__label">Full name <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="As on NIC"></label>
+                <label class="field"><span class="field__label">NIC number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="NIC"></label>
+                <label class="field"><span class="field__label">Date of birth <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="DD / MM / YYYY"></label>
+                <label class="field"><span class="field__label">Mobile number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="+94 ..."></label>
                 <label class="field"><span class="field__label">Email (optional)</span><input class="field__input" type="email"></label>
                 <label class="field"><span class="field__label">Gender (optional)</span>
                   <select class="field__input">

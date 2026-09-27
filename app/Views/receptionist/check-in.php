@@ -130,13 +130,13 @@ require __DIR__ . '/header.php';
               </div>
             </div>
 
-            <label class="field"><span class="field__label">Patient name *</span>
+            <label class="field"><span class="field__label">Patient name <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input" id="ci-wk-name" placeholder="Full name as given" autocomplete="off">
             </label>
-            <label class="field mt-6"><span class="field__label">Phone number *</span>
+            <label class="field mt-6"><span class="field__label">Phone number <span class="field__req" aria-hidden="true">*</span></span>
               <input class="field__input" id="ci-wk-phone" placeholder="+94 7X XXX XXXX" inputmode="tel" autocomplete="off">
             </label>
-            <label class="field mt-6"><span class="field__label">See doctor</span>
+            <label class="field mt-6"><span class="field__label">See doctor <span class="field__req" aria-hidden="true">*</span></span>
               <select class="field__input" id="ci-wk-doc" data-walkin-doc>
                 <option value="AS" data-fee="2500">Dr. Sample Doctor 1 (General, Rs. 2,500)</option>
                 <option value="RF" data-fee="3000">Dr. Sample Doctor 3 (Pediatrics, Rs. 3,000)</option>
@@ -214,13 +214,13 @@ require __DIR__ . '/header.php';
               </div>
             </div>
             <div class="emergency-pane" data-emg-pane="id" hidden>
-              <label class="field"><span class="field__label">NIC or Patient ID</span><input class="field__input" id="ci-emg-id"></label>
+              <label class="field"><span class="field__label">NIC or Patient ID <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" id="ci-emg-id"></label>
             </div>
             <div class="emergency-pane" data-emg-pane="guest" hidden>
-              <label class="field"><span class="field__label">Patient name</span><input class="field__input" id="ci-emg-name" placeholder="Full name as given"></label>
+              <label class="field"><span class="field__label">Patient name <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" id="ci-emg-name" placeholder="Full name as given"></label>
             </div>
 
-            <label class="field emergency-doc"><span class="field__label">Send in to</span>
+            <label class="field emergency-doc"><span class="field__label">Send in to <span class="field__req" aria-hidden="true">*</span></span>
               <select class="field__input" id="ci-emg-doc">
                 <option value="Dr. Sample Doctor 1">Dr. Sample Doctor 1 (General)</option>
                 <option value="Dr. Sample Doctor 3">Dr. Sample Doctor 3 (Pediatrics)</option>

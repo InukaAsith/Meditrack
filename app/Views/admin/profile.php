@@ -59,15 +59,15 @@ require __DIR__ . '/header.php';
         <div class="staff-eyebrow">Change password</div>
         <div class="form-grid">
           <div class="field form-grid__full">
-            <label class="field__label" for="pw-current">Current password</label>
+            <label class="field__label" for="pw-current">Current password <span class="field__req" aria-hidden="true">*</span></label>
             <input class="field__input" id="pw-current" type="password">
           </div>
           <div class="field">
-            <label class="field__label" for="pw-new">New password</label>
+            <label class="field__label" for="pw-new">New password <span class="field__req" aria-hidden="true">*</span></label>
             <input class="field__input" id="pw-new" type="password" placeholder="At least 10 characters">
           </div>
           <div class="field">
-            <label class="field__label" for="pw-confirm">Confirm new password</label>
+            <label class="field__label" for="pw-confirm">Confirm new password <span class="field__req" aria-hidden="true">*</span></label>
             <input class="field__input" id="pw-confirm" type="password" placeholder="Re-enter new password">
           </div>
         </div>

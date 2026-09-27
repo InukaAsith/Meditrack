@@ -196,8 +196,8 @@ require __DIR__ . '/header.php';
 
         <div class="mt-6" data-who-form="new" hidden>
           <div class="form-2col">
-            <label class="field"><span class="field__label">Full name of patient</span><input class="field__input" placeholder="As given"></label>
-            <label class="field"><span class="field__label">Mobile (for queue SMS)</span><input class="field__input" placeholder="+94 ..."></label>
+            <label class="field"><span class="field__label">Full name of patient <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="As given"></label>
+            <label class="field"><span class="field__label">Mobile (for queue SMS) <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="+94 ..."></label>
           </div>
         </div>
       </div>

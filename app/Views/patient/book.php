@@ -312,10 +312,10 @@ require __DIR__ . '/header.php';
         <div class="mt-6" data-who-form="self">
           <div class="autofill-note"><img class="icon" src="/assets/img/icons/check.svg" alt="" width="14" height="14">Filled in from your profile</div>
           <div class="form-2col">
-            <label class="field"><span class="field__label">Full name</span><input class="field__input" value="K.A. Inuka Asith"></label>
-            <label class="field"><span class="field__label">NIC number</span><input class="field__input" value="200034501234"></label>
-            <label class="field"><span class="field__label">Date of birth</span><input class="field__input" value="12 / 08 / 2000"></label>
-            <label class="field"><span class="field__label">Mobile number</span><input class="field__input" value="+94 77 123 4567"></label>
+            <label class="field"><span class="field__label">Full name <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" value="K.A. Inuka Asith"></label>
+            <label class="field"><span class="field__label">NIC number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" value="200034501234"></label>
+            <label class="field"><span class="field__label">Date of birth <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" value="12 / 08 / 2000"></label>
+            <label class="field"><span class="field__label">Mobile number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" value="+94 77 123 4567"></label>
             <label class="field"><span class="field__label">Email</span><input class="field__input" value="inuka.a@gmail.com"></label>
           </div>
         </div>
@@ -323,10 +323,10 @@ require __DIR__ . '/header.php';
         <div class="mt-6" data-who-form="else" hidden>
           <div class="register-note"><img class="icon" src="/assets/img/icons/alert.svg" alt="" width="15" height="15">write the alert (im thinking yet).</div>
           <div class="form-2col">
-            <label class="field"><span class="field__label">Full name of patient</span><input class="field__input" placeholder="As on NIC"></label>
-            <label class="field"><span class="field__label">NIC number</span><input class="field__input" placeholder="NIC"></label>
-            <label class="field"><span class="field__label">Date of birth</span><input class="field__input" placeholder="DD / MM / YYYY"></label>
-            <label class="field"><span class="field__label">Relationship to you</span>
+            <label class="field"><span class="field__label">Full name of patient <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="As on NIC"></label>
+            <label class="field"><span class="field__label">NIC number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="NIC"></label>
+            <label class="field"><span class="field__label">Date of birth <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="DD / MM / YYYY"></label>
+            <label class="field"><span class="field__label">Relationship to you <span class="field__req" aria-hidden="true">*</span></span>
               <select class="field__input">
                 <option>Father</option>
                 <option>Mother</option>
@@ -335,7 +335,7 @@ require __DIR__ . '/header.php';
                 <option>Other</option>
               </select>
             </label>
-            <label class="field"><span class="field__label">Mobile number</span><input class="field__input" placeholder="+94 ..."></label>
+            <label class="field"><span class="field__label">Mobile number <span class="field__req" aria-hidden="true">*</span></span><input class="field__input" placeholder="+94 ..."></label>
           </div>
         </div>
       </div>

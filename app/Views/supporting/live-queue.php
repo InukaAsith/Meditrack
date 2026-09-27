@@ -752,23 +752,23 @@ $selDoctors = [
           <input type="hidden" id="v-patient-id" value="PT-1121">
           <div class="supporting-vitals-form__grid">
             <div class="supporting-form-group">
-              <label for="v-bp" class="supporting-form-label">BP</label>
+              <label for="v-bp" class="supporting-form-label">BP <span class="field__req" aria-hidden="true">*</span></label>
               <input type="text" id="v-bp" class="supporting-form-input" value="128 / 84" required>
             </div>
             <div class="supporting-form-group">
-              <label for="v-temp" class="supporting-form-label">Temp °C</label>
+              <label for="v-temp" class="supporting-form-label">Temp °C <span class="field__req" aria-hidden="true">*</span></label>
               <input type="number" step="0.1" id="v-temp" class="supporting-form-input" value="36.8" required>
             </div>
             <div class="supporting-form-group">
-              <label for="v-pulse" class="supporting-form-label">Pulse</label>
+              <label for="v-pulse" class="supporting-form-label">Pulse <span class="field__req" aria-hidden="true">*</span></label>
               <input type="number" id="v-pulse" class="supporting-form-input" value="76" required>
             </div>
             <div class="supporting-form-group">
-              <label for="v-spo2" class="supporting-form-label">SpO₂ %</label>
+              <label for="v-spo2" class="supporting-form-label">SpO₂ % <span class="field__req" aria-hidden="true">*</span></label>
               <input type="number" id="v-spo2" class="supporting-form-input" value="98" required>
             </div>
             <div class="supporting-form-group">
-              <label for="v-weight" class="supporting-form-label">Weight kg</label>
+              <label for="v-weight" class="supporting-form-label">Weight kg <span class="field__req" aria-hidden="true">*</span></label>
               <input type="number" step="0.1" id="v-weight" class="supporting-form-input" value="71.2" required>
             </div>
             <input type="hidden" id="v-height" value="168">

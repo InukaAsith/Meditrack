@@ -1314,6 +1314,11 @@ img.brand__mark {
   color: var(--text);
 }
 
+.field__req {
+  color: var(--danger);
+  font-weight: 700;
+}
+
 .field__input {
   padding: var(--sp-5) var(--sp-6);
   border: 1px solid var(--border);

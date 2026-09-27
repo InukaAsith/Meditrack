@@ -43,11 +43,11 @@ declare(strict_types=1);
         <div class="staff-login__form">
           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
           <div class="field staff-login__pass">
-            <span class="field__label">New password</span>
+            <span class="field__label">New password <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="password" name="password" required>
           </div>
           <div class="field staff-login__pass">
-            <span class="field__label">Confirm new password</span>
+            <span class="field__label">Confirm new password <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="password" name="password_confirm" required>
           </div>
           <button class="btn btn--primary btn--block" type="submit">Save &amp; continue</button>

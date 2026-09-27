@@ -44,12 +44,12 @@ declare(strict_types=1);
 
         <div class="staff-login__form">
           <label class="field">
-            <span class="field__label">Staff ID or email</span>
+            <span class="field__label">Staff ID or email <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="text" name="staff_id" required>
           </label>
 
           <div class="field staff-login__pass">
-            <span class="field__label">Password</span>
+            <span class="field__label">Password <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="password" id="staff-pass" name="password" required>
             <button class="staff-login__pass-toggle" type="button" id="staff-pass-toggle">Show</button>
           </div>

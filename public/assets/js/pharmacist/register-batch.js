@@ -15,13 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", (event) => checkBatchForm(event, form));
 
   const commercialInput = form.querySelector('[name="commercial_name"]');
-  const medicinesDataEl = document.getElementById("medicines-data");
-  let medicinesData = [];
-  if (medicinesDataEl) {
-    try {
-      medicinesData = JSON.parse(medicinesDataEl.textContent);
-    } catch (_) {}
-  }
+  const medicinesData = batchMedicines();
 
   if (commercialInput && medicinesData.length > 0) {
     commercialInput.addEventListener("input", () => {
@@ -69,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function checkBatchForm(event, form) {
   const missing = [];
+  const invalid = [];
   let firstEmptyField = null;
 
   for (const required of requiredBatchFields) {
@@ -83,7 +78,7 @@ function checkBatchForm(event, form) {
   if (qtyInput && qtyInput.value.trim() !== "") {
     const qtyRaw = qtyInput.value.trim();
     if (!/^\d+$/.test(qtyRaw) || parseInt(qtyRaw, 10) <= 0) {
-      missing.push("Quantity received (positive whole number, digits only)");
+      invalid.push("quantity received (a whole number above 0)");
       if (firstEmptyField === null) firstEmptyField = qtyInput;
     }
   }
@@ -92,7 +87,7 @@ function checkBatchForm(event, form) {
   if (costInput && costInput.value.trim() !== "") {
     const costRaw = costInput.value.trim();
     if (!/^\d+(\.\d{1,2})?$/.test(costRaw) || parseFloat(costRaw) < 0) {
-      missing.push("Total cost (valid rupees amount, e.g. 4500.00)");
+      invalid.push("total cost (rupees, up to 2 decimals)");
       if (firstEmptyField === null) firstEmptyField = costInput;
     }
   }
@@ -101,7 +96,7 @@ function checkBatchForm(event, form) {
   if (unitPriceInput && unitPriceInput.value.trim() !== "") {
     const pRaw = unitPriceInput.value.trim();
     if (!/^\d+(\.\d{1,2})?$/.test(pRaw) || parseFloat(pRaw) <= 0) {
-      missing.push("Unit selling price (must be greater than Rs. 0.00)");
+      invalid.push("unit selling price (more than Rs. 0.00)");
       if (firstEmptyField === null) firstEmptyField = unitPriceInput;
     }
   }
@@ -110,7 +105,7 @@ function checkBatchForm(event, form) {
   if (threshInput && threshInput.value.trim() !== "") {
     const tRaw = threshInput.value.trim();
     if (!/^\d+$/.test(tRaw) || parseInt(tRaw, 10) < 0 || parseInt(tRaw, 10) > 10000) {
-      missing.push("Reorder threshold (number between 0 and 10,000)");
+      invalid.push("reorder threshold (0 to 10,000)");
       if (firstEmptyField === null) firstEmptyField = threshInput;
     }
   }
@@ -132,29 +127,42 @@ function checkBatchForm(event, form) {
     }
 
     if (!y || !m || !d) {
-      missing.push("Valid expiry date");
+      invalid.push("expiry date");
       if (firstEmptyField === null) firstEmptyField = expiryInput;
     } else {
       const dt = new Date(y, m - 1, d);
       const isRealDate = dt.getFullYear() === y && (dt.getMonth() + 1) === m && dt.getDate() === d;
       if (!isRealDate) {
-        missing.push("Valid calendar date for expiry");
+        invalid.push("expiry date");
         if (firstEmptyField === null) firstEmptyField = expiryInput;
       } else {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (dt <= today) {
-          missing.push("Future expiry date (cannot be in the past or today)");
+          invalid.push("expiry date (must be after today)");
           if (firstEmptyField === null) firstEmptyField = expiryInput;
         }
       }
     }
   }
 
-  if (missing.length > 0) {
+  const brand = form.querySelector('[name="commercial_name"]').value.trim().toLowerCase();
+  const unitForm = form.querySelector('[name="unit_form"]').value.toLowerCase();
+  const isKnownMedicine = batchMedicines().some(
+    (m) => (m.commercial_name || "").toLowerCase() === brand && (m.unit_form || "").toLowerCase() === unitForm
+  );
+  const hasCost = costInput && parseFloat(costInput.value) > 0;
+  if (brand !== "" && !isKnownMedicine && unitPriceInput.value.trim() === "" && !hasCost) {
+    invalid.push("unit selling price for this new medicine (or a total cost to work it out from)");
+    if (firstEmptyField === null) firstEmptyField = unitPriceInput;
+  }
+
+  if (missing.length > 0 || invalid.length > 0) {
     event.preventDefault();
-    document.getElementById("batch-form-missing").textContent = missing.join(", ");
-    document.getElementById("batch-form-error").hidden = false;
+    const messages = [];
+    if (missing.length > 0) messages.push("Please fill in: " + missing.join(", ") + ".");
+    if (invalid.length > 0) messages.push("Please enter a valid " + invalid.join(", ") + ".");
+    showBatchError(messages.join(" "));
     firstEmptyField.focus();
     return;
   }
@@ -171,12 +179,26 @@ function checkBatchForm(event, form) {
 
   if (batchCode && existingBatches.includes(batchCode)) {
     event.preventDefault();
-    const errorEl = document.getElementById("batch-form-error");
-    errorEl.innerHTML = 'Batch number <strong>' + batchCode + '</strong> already exists. Batch numbers must be unique.';
-    errorEl.hidden = false;
+    showBatchError("Batch number " + batchCode + " already exists. Batch numbers must be unique.");
     batchInput.focus();
     return;
   }
 
   document.getElementById("batch-form-error").hidden = true;
+}
+
+function batchMedicines() {
+  const el = document.getElementById("medicines-data");
+  if (!el) return [];
+  try {
+    return JSON.parse(el.textContent);
+  } catch (_) {
+    return [];
+  }
+}
+
+function showBatchError(message) {
+  const errorEl = document.getElementById("batch-form-error");
+  errorEl.textContent = message;
+  errorEl.hidden = false;
 }

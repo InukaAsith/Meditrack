@@ -27,11 +27,11 @@ require __DIR__ . '/header.php';
     <form class="supplier-form" method="post" action="/staff/pharmacist/suppliers">
       <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
       <label class="field">
-        <span class="field__label">Supplier name </span>
+        <span class="field__label">Supplier name <span class="field__req" aria-hidden="true">*</span></span>
         <input class="field__input" name="name" required>
       </label>
       <label class="field">
-        <span class="field__label">Phone </span>
+        <span class="field__label">Phone <span class="field__req" aria-hidden="true">*</span></span>
         <input class="field__input" type="tel" name="contact" pattern="0[0-9]{9}" maxlength="10" title="Phone number must start with 0 and contain exactly 10 digits" required>
       </label>
       <button class="btn btn--primary" type="submit"><?= icon('plus', 14) ?>Add supplier</button>

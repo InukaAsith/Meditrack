@@ -45,7 +45,7 @@ declare(strict_types=1);
         <div class="staff-login__form">
           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
           <label class="field">
-            <span class="field__label">6-digit code</span>
+            <span class="field__label">6-digit code <span class="field__req" aria-hidden="true">*</span></span>
             <input class="field__input" type="text" name="otp" inputmode="numeric" maxlength="6" required autofocus>
           </label>
           <label class="toggle">
