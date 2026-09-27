@@ -203,47 +203,6 @@ VALUES (@changedDay, '09:00', '13:00', 16);
 INSERT INTO schedule_break (availability_id, from_time, to_time, label)
 VALUES (@changedDay, '11:00', '11:15', 'Tea break'),
     (@changedDay, '12:00', '12:30', 'Lunch');
-SET @ashan = (SELECT patient_id FROM patient WHERE patient_code = 'PT-0001');
-SET @mithun = (SELECT patient_id FROM patient WHERE patient_code = 'PT-0002');
-INSERT INTO appointment (
-        appointment_code,
-        doctor_id,
-        booking_for,
-        patient_id,
-        booking_patient_id,
-        subject_full_name,
-        subject_mobile,
-        appointment_date,
-        slot_time,
-        visit_type,
-        booking_channel,
-        status,
-        fee_amount,
-        payment_timing
-    )
-VALUES ('APT-1001', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-22', '09:00', 'follow_up', 'patient_web', 'completed', 2500.00, 'online'),
-    ('APT-1002', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-22', '09:15', 'new', 'patient_web', 'completed', 2500.00, 'at_counter'),
-    ('APT-1003', @omindu, 'guest', NULL, NULL, 'Nimali Perera', '+94771234501', '2026-09-22', '09:30', 'new', 'guest_web', 'no_show', 2500.00, 'online'),
-    ('APT-1004', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-24', '09:00', 'new', 'patient_web', 'completed', 2500.00, 'at_counter'),
-    ('APT-1005', @omindu, 'guest', NULL, NULL, 'Ruwan Silva', '+94771234502', '2026-09-24', '10:00', 'new', 'reception', 'completed', 2500.00, 'at_counter'),
-    ('APT-1006', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-25', '09:00', 'follow_up', 'patient_web', 'completed', 2500.00, 'online'),
-    ('APT-1007', @omindu, 'someone_else', NULL, @ashan, 'Dilini Fernando', '+94771234503', '2026-09-25', '09:15', 'new', 'patient_web', 'completed', 2500.00, 'online'),
-    ('APT-1008', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-25', '09:30', 'follow_up', 'patient_web', 'completed', 2500.00, 'at_counter'),
-    ('APT-1009', @omindu, 'guest', NULL, NULL, 'Chamath Dissanayake', '+94771234509', '2026-09-25', '10:30', 'new', 'reception', 'completed', 2500.00, 'at_counter'),
-    ('APT-1010', @omindu, 'guest', NULL, NULL, 'Kasun Jayawardena', '+94771234504', '2026-09-25', '12:30', 'new', 'reception', 'completed', 2500.00, 'at_counter'),
-    ('APT-1011', @omindu, 'guest', NULL, NULL, 'Amaya Senanayake', '+94771234505', '2026-09-25', '11:30', 'new', 'guest_web', 'cancelled', 2500.00, 'online'),
-    ('APT-1012', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-26', '09:00', 'follow_up', 'patient_web', 'completed', 2500.00, 'online'),
-    ('APT-1013', @omindu, 'guest', NULL, NULL, 'Sachini Wijesinghe', '+94771234506', '2026-09-26', '09:30', 'new', 'guest_web', 'no_show', 2500.00, 'online'),
-    ('APT-1014', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-29', '09:15', 'new', 'patient_web', 'confirmed', 2500.00, 'at_counter'),
-    ('APT-1015', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-09-29', '11:00', 'follow_up', 'patient_web', 'confirmed', 2500.00, 'online'),
-    ('APT-1016', @omindu, 'self', @mithun, @mithun, NULL, NULL, '2026-09-30', '17:00', 'new', 'patient_web', 'confirmed', 2500.00, 'at_counter'),
-    ('APT-1017', @omindu, 'guest', NULL, NULL, 'Tharindu Bandara', '+94771234507', '2026-09-30', '17:30', 'new', 'reception', 'confirmed', 2500.00, 'at_counter'),
-    ('APT-1018', @omindu, 'self', @ashan, @ashan, NULL, NULL, '2026-10-02', '09:00', 'new', 'patient_web', 'confirmed', 2500.00, 'online'),
-    ('APT-1019', @omindu, 'guest', NULL, NULL, 'Hasini Rathnayake', '+94771234508', '2026-10-06', '10:15', 'new', 'guest_web', 'confirmed', 2500.00, 'online');
-UPDATE appointment
-SET cancel_reason = 'Cancelled by the patient',
-    refund_status = 'queued'
-WHERE appointment_code = 'APT-1011';
 
 INSERT INTO supplier (name, contact)
 VALUES (
