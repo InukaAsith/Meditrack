@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>MediTrack - No access</title>
+  <link rel="icon" href="/assets/img/MediTrackLogo.png">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/common.css">
 </head>

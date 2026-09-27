@@ -13,6 +13,7 @@ $titles = ['signin' => 'Sign in', 'register' => 'Create account', 'forgot' => 'R
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MediTrack - <?= e($titles[$tab]) ?></title>
+  <link rel="icon" href="/assets/img/MediTrackLogo.png">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/common.css">
   <link rel="stylesheet" href="/assets/css/auth.css">
