@@ -291,3 +291,36 @@ document.addEventListener("submit", function(e) {
     }
   });
 });
+
+document.addEventListener("click", function(e) {
+  const trigger = e.target.closest("[data-modal-confirm]");
+  if (!trigger) return;
+
+  e.preventDefault();
+  const formId = trigger.getAttribute("data-modal-confirm");
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  const confirmMsg = trigger.getAttribute("data-confirm") || form.getAttribute("data-confirm");
+  if (!confirmMsg) {
+    form.requestSubmit ? form.requestSubmit() : form.submit();
+    return;
+  }
+
+  const title = trigger.getAttribute("data-confirm-title") || form.getAttribute("data-confirm-title") || "Confirm Action";
+  const okText = trigger.getAttribute("data-confirm-ok") || form.getAttribute("data-confirm-ok") || "Confirm";
+  const cancelText = trigger.getAttribute("data-confirm-cancel") || form.getAttribute("data-confirm-cancel") || "Cancel";
+  const isDanger = (trigger.getAttribute("data-confirm-danger") || form.getAttribute("data-confirm-danger")) !== "false";
+
+  window.showConfirmDialog({
+    title: title,
+    message: confirmMsg,
+    confirmText: okText,
+    cancelText: cancelText,
+    danger: isDanger,
+    onConfirm: () => {
+      form.__systemConfirmed = true;
+      form.requestSubmit ? form.requestSubmit() : form.submit();
+    }
+  });
+});

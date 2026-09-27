@@ -169,10 +169,10 @@ require __DIR__ . '/header.php';
   </form>
 
   <details class="danger-zone mt-7">
-    <summary class="danger-zone__summary"><?= icon('key', 14) ?> Reset password</summary>
+    <summary class="danger-zone__summary" data-modal-confirm="staff-reset-password-form"><?= icon('key', 14) ?> Reset password</summary>
     <div class="danger-zone__body">
       <p>Set <b><?= e($staff['full_name']) ?></b>'s password back to <span class="mono">Passw0rd!</span>? They must change it when they next sign in.</p>
-      <form method="post" action="/staff/admin/staff-reset-password/<?= e($id) ?>">
+      <form id="staff-reset-password-form" method="post" action="/staff/admin/staff-reset-password/<?= e($id) ?>" data-confirm="Set &lt;b&gt;<?= e($staff['full_name']) ?>&lt;/b&gt;'s password back to &lt;span class='mono'&gt;Passw0rd!&lt;/span&gt;? They must change it when they next sign in." data-confirm-title="Reset Password" data-confirm-ok="Yes, reset password" data-confirm-danger="true">
         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
         <button class="btn btn--danger" type="submit">Yes, reset password</button>
       </form>
@@ -181,10 +181,10 @@ require __DIR__ . '/header.php';
 
   <?php if ($staff['status'] === 'active'): ?>
     <details class="danger-zone">
-      <summary class="danger-zone__summary"><?= icon('lock', 14) ?> Turn off account</summary>
+      <summary class="danger-zone__summary" data-modal-confirm="staff-deactivate-form"><?= icon('lock', 14) ?> Turn off account</summary>
       <div class="danger-zone__body">
         <p>Stop <b><?= e($staff['full_name']) ?></b> from signing in? Their history is kept and you can turn the account back on later.</p>
-        <form method="post" action="/staff/admin/staff-deactivate/<?= e($id) ?>">
+        <form id="staff-deactivate-form" method="post" action="/staff/admin/staff-deactivate/<?= e($id) ?>" data-confirm="Stop &lt;b&gt;<?= e($staff['full_name']) ?>&lt;/b&gt; from signing in? Their history is kept and you can turn the account back on later." data-confirm-title="Turn Off Account" data-confirm-ok="Yes, turn off account" data-confirm-danger="true">
           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
           <button class="btn btn--danger" type="submit">Yes, turn off account</button>
         </form>

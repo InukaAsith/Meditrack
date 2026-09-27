@@ -122,7 +122,7 @@ require __DIR__ . '/header.php';
       <div class="allergy-tags mt-4">
         <?php if (!$allergies): ?><span class="field__desc">None recorded.</span><?php endif; ?>
         <?php foreach ($allergies as $allergy): ?>
-          <form class="allergy-chip" method="post" action="/staff/receptionist/patient-allergy-remove/<?= e($id) ?>">
+          <form class="allergy-chip" method="post" action="/staff/receptionist/patient-allergy-remove/<?= e($id) ?>" data-confirm="Remove allergy &lt;b&gt;<?= e($allergy['allergen_name']) ?>&lt;/b&gt;?" data-confirm-title="Remove Allergy" data-confirm-ok="Remove" data-confirm-danger="true">
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="allergen_name" value="<?= e($allergy['allergen_name']) ?>">
             <?= e($allergy['allergen_name']) ?>
@@ -139,10 +139,10 @@ require __DIR__ . '/header.php';
   </div>
 
   <details class="danger-zone mt-7">
-    <summary class="danger-zone__summary"><?= icon('trash', 14) ?> Delete patient</summary>
+    <summary class="danger-zone__summary" data-modal-confirm="patient-delete-form"><?= icon('trash', 14) ?> Delete patient</summary>
     <div class="danger-zone__body">
       <p>Delete <b><?= e($patient['full_name']) ?></b>? This can't be undone.</p>
-      <form method="post" action="/staff/receptionist/patient-delete/<?= e($id) ?>">
+      <form id="patient-delete-form" method="post" action="/staff/receptionist/patient-delete/<?= e($id) ?>" data-confirm="Delete &lt;b&gt;<?= e($patient['full_name']) ?>&lt;/b&gt;? This can't be undone." data-confirm-title="Delete Patient" data-confirm-ok="Yes, delete patient" data-confirm-danger="true">
         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
         <button class="btn btn--danger" type="submit">Yes, delete patient</button>
       </form>
