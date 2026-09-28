@@ -101,7 +101,7 @@ require __DIR__ . '/header.php';
     <div class="consultation-config-card__head consultation-config-card__head--row">
       <div class="consultation-config-card__title">Regular weekly schedule</div>
       <?php if ($usesWeekly): ?>
-        <button class="consultation-toggle is-on" type="submit" form="regular-schedule-switch" name="enabled" value="0" aria-pressed="true" aria-label="Turn weekly schedule off"></button>
+        <button class="consultation-toggle is-on" type="submit" form="regular-schedule-off" aria-pressed="true" aria-label="Turn weekly schedule off"></button>
       <?php else: ?>
         <button class="consultation-toggle" type="submit" form="regular-schedule-switch" name="enabled" value="1" aria-pressed="false" aria-label="Turn weekly schedule on"></button>
       <?php endif; ?>
@@ -228,6 +228,11 @@ require __DIR__ . '/header.php';
 
 <form id="regular-schedule-switch" method="post" action="/staff/doctor/configure-regular-schedule">
   <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+</form>
+
+<form id="regular-schedule-off" method="post" action="/staff/doctor/configure-regular-schedule" data-confirm="Are you sure you want to turn off your weekly schedule? All upcoming booked appointments will be cancelled." data-confirm-title="Turn Off Weekly Schedule" data-confirm-ok="Turn off">
+  <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+  <input type="hidden" name="enabled" value="0">
 </form>
 
 <script>
