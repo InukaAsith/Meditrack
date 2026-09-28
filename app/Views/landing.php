@@ -34,8 +34,8 @@ declare(strict_types=1);
         <a class="landing-nav__link" href="#contact">Contact</a>
       </nav>
       <div class="landing-header__actions">
-        <?php if (!empty($patientSignedIn)): ?>
-          <a class="landing-button landing-button--outline" href="/app">Go to dashboard</a>
+        <?php if (!empty($dashboardUrl)): ?>
+          <a class="landing-button landing-button--outline" href="<?= e($dashboardUrl) ?>">Go to dashboard</a>
         <?php else: ?>
           <a class="landing-button landing-button--outline" href="/login">Log in</a>
         <?php endif; ?>
@@ -87,8 +87,8 @@ declare(strict_types=1);
       <div class="landing-container landing-services__inner">
         <div class="landing-section-head">
           <h2 class="landing-section-title">Our services</h2>
-          <?php if (!empty($patientSignedIn)): ?>
-            <a class="landing-text-link" href="/app">Go to your dashboard <?= icon('arrowRight', 16) ?></a>
+          <?php if (!empty($dashboardUrl)): ?>
+            <a class="landing-text-link" href="<?= e($dashboardUrl) ?>">Go to your dashboard <?= icon('arrowRight', 16) ?></a>
           <?php else: ?>
             <a class="landing-text-link" href="/login">Log in to your patient account <?= icon('arrowRight', 16) ?></a>
           <?php endif; ?>
