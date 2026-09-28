@@ -121,11 +121,42 @@ function current_device_is_trusted(): bool
     return $staffId !== null && StaffTrustedDevice::isTrusted($staffId, trusted_device_token());
 }
 
+function end_session(): void
+{
+    $_SESSION = [];
+    session_regenerate_id(true);
+}
+
+function signed_in_patient_id(): ?int
+{
+    $patientId = current_patient_id();
+    if ($patientId !== null && Patient::find($patientId) === false) {
+        end_session();
+
+        return null;
+    }
+
+    return $patientId;
+}
+
+function signed_in_staff_role(): ?string
+{
+    $staffId = current_staff_id();
+    if ($staffId === null) {
+        return null;
+    }
+    if (!Staff::isActive($staffId)) {
+        end_session();
+
+        return null;
+    }
+
+    return current_staff_role();
+}
+
 function require_patient_login(): void
 {
-    if (current_patient_id() !== null && Patient::find(current_patient_id()) === false) {
-        $_SESSION = [];
-        session_regenerate_id(true);
+    if (current_patient_id() !== null && signed_in_patient_id() === null) {
         header('Location: /login');
         exit;
     }

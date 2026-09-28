@@ -8,11 +8,13 @@ class StaffAuthController extends Controller
 
     public function index(): void
     {
+        $this->redirectSignedInStaff();
         $this->redirect('/staff/login');
     }
 
     public function login(): void
     {
+        $this->redirectSignedInStaff();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->checkPassword();
         }
@@ -181,6 +183,14 @@ class StaffAuthController extends Controller
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+    }
+
+    private function redirectSignedInStaff(): void
+    {
+        $role = signed_in_staff_role();
+        if ($role !== null && $role !== '') {
+            $this->redirect('/staff/' . $role . '/dashboard');
+        }
     }
 
     private function requireVerifiedPasswordStep(): int

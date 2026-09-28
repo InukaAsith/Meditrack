@@ -5,6 +5,6 @@ class HomeController extends Controller
 {
     public function index(): void
     {
-        $this->view('landing');
+        $this->view('landing', ['patientSignedIn' => signed_in_patient_id() !== null]);
     }
 }

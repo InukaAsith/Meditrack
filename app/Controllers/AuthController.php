@@ -9,6 +9,9 @@ class AuthController extends Controller
 
     public function login(): void
     {
+        if (signed_in_patient_id() !== null) {
+            $this->redirect('/app');
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->signIn();
         }
