@@ -45,7 +45,7 @@ VALUES (
     ),
     (
         'EMP-004',
-        'Sandanu Dulmeth',
+        'Sandhanu Dulmeth',
         'sandhanu@meditrack.lk',
         (SELECT role_id FROM role WHERE role_name = 'Pharmacist'),
         '$2y$12$bQs8r3rnKXyl.weAJFjxbebfMA3uu9zvgDEyaShwjkzIWGxWykMFu',
@@ -220,6 +220,10 @@ VALUES (
     (
         'State Pharmaceuticals Corporation',
         '0112320356'
+    ),
+    (
+        'Nano Health',
+        '0775520702'
     ) ON DUPLICATE KEY
 UPDATE contact =
 VALUES(contact);

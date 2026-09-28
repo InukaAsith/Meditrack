@@ -7,7 +7,7 @@ $active = 'dashboard';
 
 $recentDispense = [
   ['invoice' => 'PH-INV-0311', 'time' => '09:52', 'patient' => 'K. Ashan Charuka', 'order' => 'RX-1039', 'doctor' => 'Dr. Sample Doctor 1', 'amount' => 'Rs. 1,240', 'status' => 'Paid', 'badge' => 'success'],
-  ['invoice' => 'PH-INV-0310', 'time' => '09:31', 'patient' => 'Sandanu Dulmeth', 'order' => 'RX-1041', 'doctor' => 'Dr. Sample Doctor 2', 'amount' => 'Rs. 640', 'status' => 'Balance due', 'badge' => 'warning'],
+  ['invoice' => 'PH-INV-0310', 'time' => '09:31', 'patient' => 'Sandhanu Dulmeth', 'order' => 'RX-1041', 'doctor' => 'Dr. Sample Doctor 2', 'amount' => 'Rs. 640', 'status' => 'Balance due', 'badge' => 'warning'],
   ['invoice' => 'PH-INV-0309', 'time' => '09:12', 'patient' => 'Walk-in', 'order' => 'Manual', 'doctor' => 'Outside doctor', 'amount' => 'Rs. 380', 'status' => 'Paid', 'badge' => 'success'],
   ['invoice' => 'PH-INV-0308', 'time' => '08:58', 'patient' => 'Nimsith Wickrama', 'order' => 'RX-1040', 'doctor' => 'Dr. Sample Doctor 3', 'amount' => 'Rs. 815', 'status' => 'Paid', 'badge' => 'success'],
 ];
