@@ -365,6 +365,43 @@ require __DIR__ . '/header.php';
   });
 
   const schedForm = document.querySelector('form[action="/staff/doctor/configure-schedule"]');
+  const timeFields = ['start_1', 'end_1', 'start_2', 'end_2'];
+
+  function rowState(row) {
+    const active = row.querySelector('input[name*="[active]"]');
+    return {
+      active: !!(active && active.checked),
+      times: timeFields.map(name => (row.querySelector(`input[name*="[${name}]"]`)?.value || '').trim()).join('|'),
+    };
+  }
+
+  const savedRows = new Map();
+  document.querySelectorAll('.consultation-sched-table tbody tr').forEach(row => savedRows.set(row, rowState(row)));
+
+  function cancellationWarning() {
+    const turnedOff = [];
+    const hoursChanged = [];
+    savedRows.forEach((saved, row) => {
+      if (!saved.active) return;
+      const now = rowState(row);
+      const dayName = row.querySelector('td')?.textContent?.trim() || 'Day';
+      if (!now.active) {
+        turnedOff.push(dayName);
+      } else if (now.times !== saved.times) {
+        hoursChanged.push(dayName);
+      }
+    });
+
+    const parts = [];
+    if (turnedOff.length > 0) {
+      parts.push(`You are turning off ${turnedOff.join(', ')}. All upcoming booked appointments on ${turnedOff.length === 1 ? 'this day' : 'these days'} will be cancelled.`);
+    }
+    if (hoursChanged.length > 0) {
+      parts.push(`You changed the hours on ${hoursChanged.join(', ')}. Upcoming booked appointments outside the new hours will be cancelled.`);
+    }
+    return parts.length > 0 ? 'Are you sure you want to save this schedule? ' + parts.join(' ') : '';
+  }
+
   if (schedForm) {
     schedForm.addEventListener('submit', function(e) {
       let hasError = false;
@@ -412,6 +449,17 @@ require __DIR__ . '/header.php';
 
       if (hasError) {
         e.preventDefault();
+        schedForm.removeAttribute('data-confirm');
+        return;
+      }
+
+      const warning = cancellationWarning();
+      if (warning) {
+        schedForm.setAttribute('data-confirm', warning);
+        schedForm.setAttribute('data-confirm-title', 'Save Weekly Schedule');
+        schedForm.setAttribute('data-confirm-ok', 'Save schedule');
+      } else {
+        schedForm.removeAttribute('data-confirm');
       }
     });
   }
