@@ -279,6 +279,18 @@ async function applyAdjustment(button) {
     return;
   }
 
+  let directionError = "";
+  if (reasonSelect.value === "damaged" && quantity > 0) {
+    directionError = "Damaged stock can only be removed. Enter a negative number, e.g. -5.";
+  } else if (reasonSelect.value === "baseline_intake" && quantity < 0) {
+    directionError = "Opening stock can only be added. Enter a positive number.";
+  }
+  if (directionError) {
+    showSettingsError(settingsRow, directionError);
+    window.showAlertDialog({ title: "Invalid Quantity", message: directionError });
+    return;
+  }
+
   let batchId = null;
   if (batchInput) batchId = parseInt(batchInput.value, 10);
 

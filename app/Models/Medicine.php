@@ -390,6 +390,20 @@ final class Medicine
         }
     }
 
+    public static function nextBatchCode(): string
+    {
+        $codes = db()->query("SELECT batch_code FROM medicine_batch WHERE batch_code LIKE 'BT-%'")->fetchAll(PDO::FETCH_COLUMN);
+
+        $maxNum = 0;
+        foreach ($codes as $code) {
+            if (preg_match('/^BT-([0-9]+)$/', (string) $code, $m)) {
+                $maxNum = max($maxNum, (int) $m[1]);
+            }
+        }
+
+        return sprintf('BT-%04d', $maxNum + 1);
+    }
+
     public static function registerBatch(
         string $commercialName,
         string $generic,

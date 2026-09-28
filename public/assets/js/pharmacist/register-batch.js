@@ -3,9 +3,9 @@ const requiredBatchFields = [
   { name: "generic", label: "Generic name" },
   { name: "supplier", label: "Supplier" },
   { name: "invoice_ref", label: "Supplier invoice number" },
-  { name: "batch_id", label: "Batch number" },
   { name: "expiry_date", label: "Expiry date" },
   { name: "qty_received", label: "Quantity received" },
+  { name: "total_cost", label: "Total cost" },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -71,6 +71,20 @@ function checkBatchForm(event, form) {
     if (field.value.trim() === "") {
       missing.push(required.label);
       if (firstEmptyField === null) firstEmptyField = field;
+    }
+  }
+
+  const supplierInput = form.querySelector('[name="supplier"]');
+  const supplierTyped = supplierInput.value.trim().toLowerCase();
+  if (supplierTyped !== "") {
+    const match = Array.from(document.querySelectorAll("#supplier-options option")).find(
+      (option) => option.value.toLowerCase() === supplierTyped
+    );
+    if (match) {
+      supplierInput.value = match.value;
+    } else {
+      invalid.push("supplier (pick one from the list)");
+      if (firstEmptyField === null) firstEmptyField = supplierInput;
     }
   }
 
@@ -164,23 +178,6 @@ function checkBatchForm(event, form) {
     if (invalid.length > 0) messages.push("Please enter a valid " + invalid.join(", ") + ".");
     showBatchError(messages.join(" "));
     firstEmptyField.focus();
-    return;
-  }
-
-  const batchInput = form.querySelector('[name="batch_id"]');
-  const batchCode = batchInput ? batchInput.value.trim().toUpperCase() : "";
-  const batchesDataEl = document.getElementById("batches-data");
-  let existingBatches = [];
-  if (batchesDataEl) {
-    try {
-      existingBatches = JSON.parse(batchesDataEl.textContent);
-    } catch (_) {}
-  }
-
-  if (batchCode && existingBatches.includes(batchCode)) {
-    event.preventDefault();
-    showBatchError("Batch number " + batchCode + " already exists. Batch numbers must be unique.");
-    batchInput.focus();
     return;
   }
 

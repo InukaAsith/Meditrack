@@ -7,7 +7,7 @@ $active = 'register-batch';
 
 $suppliers = $suppliers ?? Supplier::all();
 $medicines = $medicines ?? db()->query('SELECT medicine_id, commercial_name, generic_name, unit_form, manufacturer, storage_limits, unit_price, reorder_threshold FROM medicine ORDER BY commercial_name ASC')->fetchAll(PDO::FETCH_ASSOC);
-$existingBatches = $existingBatches ?? db()->query('SELECT batch_code FROM medicine_batch')->fetchAll(PDO::FETCH_COLUMN);
+$nextBatchCode = $nextBatchCode ?? Medicine::nextBatchCode();
 $defaultSupplier = trim((string) ($_GET['supplier'] ?? ''));
 $old = $old ?? [];
 $selectedSupplier = trim((string) ($old['supplier'] ?? $defaultSupplier));
@@ -93,22 +93,21 @@ require __DIR__ . '/header.php';
       <div class="form-2col">
         <label class="field">
           <span class="field__label">Supplier <span class="field__req" aria-hidden="true">*</span></span>
-          <select class="field__input" name="supplier" required>
-            <option value="" disabled <?= $selectedSupplier === '' ? 'selected' : '' ?>>Select a supplier</option>
+          <input class="field__input" name="supplier" value="<?= e($selectedSupplier) ?>" list="supplier-options" autocomplete="off" placeholder="Type to search suppliers" required>
+          <datalist id="supplier-options">
             <?php foreach ($suppliers as $supplier): ?>
-              <option value="<?= e($supplier['name']) ?>" <?= strcasecmp($selectedSupplier, (string)$supplier['name']) === 0 ? 'selected' : '' ?>>
-                <?= e($supplier['name']) ?>
-              </option>
+              <option value="<?= e($supplier['name']) ?>"></option>
             <?php endforeach; ?>
-          </select>
+          </datalist>
         </label>
         <label class="field">
           <span class="field__label">Supplier invoice number <span class="field__req" aria-hidden="true">*</span></span>
           <input class="field__input" name="invoice_ref" value="<?= e($old['invoice_ref'] ?? '') ?>" maxlength="60" required>
         </label>
         <label class="field">
-          <span class="field__label">Batch number <span class="field__req" aria-hidden="true">*</span></span>
-          <input class="field__input" name="batch_id" value="<?= e($old['batch_id'] ?? '') ?>" maxlength="30" required>
+          <span class="field__label">Batch number</span>
+          <input class="field__input mono" value="<?= e($nextBatchCode) ?>" readonly aria-describedby="batch-code-note">
+          <span class="field__desc" id="batch-code-note">Given automatically when the batch is saved.</span>
         </label>
         <label class="field">
           <span class="field__label">Expiry date <span class="field__req" aria-hidden="true">*</span></span>
@@ -119,8 +118,8 @@ require __DIR__ . '/header.php';
           <input class="field__input" type="number" name="qty_received" value="<?= e($old['qty_received'] ?? '') ?>" min="1" step="1" required>
         </label>
         <label class="field">
-          <span class="field__label">Total cost (Rs.)</span>
-          <input class="field__input" type="number" name="total_cost" value="<?= e($old['total_cost'] ?? '') ?>" min="0" step="0.01">
+          <span class="field__label">Total cost (Rs.) <span class="field__req" aria-hidden="true">*</span></span>
+          <input class="field__input" type="number" name="total_cost" value="<?= e($old['total_cost'] ?? '') ?>" min="0" step="0.01" required>
         </label>
       </div>
 
@@ -135,6 +134,5 @@ require __DIR__ . '/header.php';
 </div>
 
 <script id="medicines-data" type="application/json"><?= json_encode($medicines, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?></script>
-<script id="batches-data" type="application/json"><?= json_encode(array_map('strtoupper', $existingBatches), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?></script>
 <script src="/assets/js/pharmacist/register-batch.js" defer></script>
 <?php require __DIR__ . '/footer.php'; ?>

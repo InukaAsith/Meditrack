@@ -199,6 +199,14 @@ class PharmacistController extends Controller
             $this->jsonResponse(['ok' => false, 'error' => 'Enter how many units to add or remove.'], 400);
             return;
         }
+        if ($reason === 'damaged' && $delta > 0) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Damaged stock can only be removed. Enter a negative number, e.g. -5.'], 400);
+            return;
+        }
+        if ($reason === 'baseline_intake' && $delta < 0) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Opening stock can only be added. Enter a positive number.'], 400);
+            return;
+        }
 
         $staffId = current_staff_id() ?? 0;
         $result = Medicine::adjustStock($medicineId, $batchId, $delta, $reason, $note, $staffId);
@@ -283,7 +291,6 @@ class PharmacistController extends Controller
             $storageLimits = trim((string)($_POST['storage_limits'] ?? ''));
             $supplierName = trim((string)($_POST['supplier'] ?? ''));
             $invoiceRef = trim((string)($_POST['invoice_ref'] ?? ''));
-            $batchCode = strtoupper(trim((string)($_POST['batch_id'] ?? '')));
 
             $qtyRaw = trim((string)($_POST['qty_received'] ?? ''));
             if ($qtyRaw === '' || !preg_match('/^\d+$/', $qtyRaw) || (int)$qtyRaw <= 0) {
@@ -295,16 +302,19 @@ class PharmacistController extends Controller
             $qty = (int)$qtyRaw;
 
             $costRaw = trim((string)($_POST['total_cost'] ?? ''));
-            $totalCost = 0.0;
-            if ($costRaw !== '') {
-                if (!preg_match('/^\d+(\.\d{1,2})?$/', $costRaw) || (float)$costRaw < 0) {
-                    flash_error('Please enter a valid total cost in rupees (e.g. 4500.00). Non-numeric text is not allowed.');
-                    $_SESSION['old_batch_input'] = $_POST;
-                    $this->redirect('/staff/pharmacist/register-batch');
-                    return;
-                }
-                $totalCost = (float)$costRaw;
+            if ($costRaw === '') {
+                flash_error('Please enter the total cost of this delivery.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
             }
+            if (!preg_match('/^\d+(\.\d{1,2})?$/', $costRaw)) {
+                flash_error('Please enter a valid total cost in rupees, with up to 2 decimals.');
+                $_SESSION['old_batch_input'] = $_POST;
+                $this->redirect('/staff/pharmacist/register-batch');
+                return;
+            }
+            $totalCost = (float)$costRaw;
 
             $expiryRaw = trim((string)($_POST['expiry_date'] ?? ''));
             if ($expiryRaw === '') {
@@ -389,13 +399,6 @@ class PharmacistController extends Controller
                 return;
             }
 
-            if ($batchCode === '') {
-                flash_error('Please enter the batch number.');
-                $_SESSION['old_batch_input'] = $_POST;
-                $this->redirect('/staff/pharmacist/register-batch');
-                return;
-            }
-
             if ($generic === '') {
                 flash_error('Please enter the generic name.');
                 $_SESSION['old_batch_input'] = $_POST;
@@ -416,7 +419,6 @@ class PharmacistController extends Controller
                 'Manufacturer' => [$manufacturer, 120],
                 'Storage' => [$storageLimits, 120],
                 'Supplier invoice number' => [$invoiceRef, 60],
-                'Batch number' => [$batchCode, 30],
             ];
             foreach ($tooLong as $label => [$value, $max]) {
                 if (mb_strlen($value) > $max) {
@@ -430,28 +432,19 @@ class PharmacistController extends Controller
             $pdo = db();
             $staffId = current_staff_id() ?? 1;
 
-            $sStmt = $pdo->prepare('SELECT supplier_id FROM supplier WHERE name = ? OR supplier_id = ? LIMIT 1');
-            $sStmt->execute([$supplierName, is_numeric($supplierName) ? (int)$supplierName : 0]);
+            $sStmt = $pdo->prepare('SELECT supplier_id FROM supplier WHERE name = ? LIMIT 1');
+            $sStmt->execute([$supplierName]);
             $supplierId = $sStmt->fetchColumn();
 
             if (!$supplierId) {
-                flash_error('Please select an existing supplier from the database.');
-                $_SESSION['old_batch_input'] = $_POST;
-                $this->redirect('/staff/pharmacist/register-batch');
-                return;
-            }
-
-            $bCheck = $pdo->prepare('SELECT b.batch_code, m.commercial_name FROM medicine_batch b JOIN medicine m ON b.medicine_id = m.medicine_id WHERE b.batch_code = ? LIMIT 1');
-            $bCheck->execute([$batchCode]);
-            $existingBatch = $bCheck->fetch(PDO::FETCH_ASSOC);
-            if ($existingBatch) {
-                flash_error("Batch code '{$batchCode}' is already registered for '{$existingBatch['commercial_name']}'. Reusing a batch code is not allowed.");
+                flash_error('Please pick a supplier from the list.');
                 $_SESSION['old_batch_input'] = $_POST;
                 $this->redirect('/staff/pharmacist/register-batch');
                 return;
             }
 
             try {
+                $batchCode = Medicine::nextBatchCode();
                 $registered = Medicine::registerBatch(
                     $commercialName,
                     $generic,
@@ -496,12 +489,11 @@ class PharmacistController extends Controller
         $suppliers = Supplier::all();
         $medStmt = db()->query('SELECT medicine_id, commercial_name, generic_name, unit_form, manufacturer, storage_limits, unit_price, reorder_threshold FROM medicine ORDER BY commercial_name ASC');
         $medicines = $medStmt->fetchAll(PDO::FETCH_ASSOC);
-        $existingBatches = db()->query('SELECT batch_code FROM medicine_batch')->fetchAll(PDO::FETCH_COLUMN);
 
         $this->view('pharmacist/register-batch', [
             'suppliers' => $suppliers,
             'medicines' => $medicines,
-            'existingBatches' => $existingBatches,
+            'nextBatchCode' => Medicine::nextBatchCode(),
             'old' => $oldInput,
             'flashError' => get_flash_error(),
             'flashSuccess' => get_flash_success(),
