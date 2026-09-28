@@ -122,6 +122,10 @@ require __DIR__ . '/header.php';
       <div class="allergy-tags mt-4">
         <?php if (!$allergies): ?><span class="field__desc">None recorded.</span><?php endif; ?>
         <?php foreach ($allergies as $allergy): ?>
+          <?php if ($allergy['added_by_role'] === 'doctor'): ?>
+            <span class="allergy-chip" title="Added by a doctor"><?= e($allergy['allergen_name']) ?> <span class="field__req" aria-hidden="true">*</span></span>
+            <?php continue; ?>
+          <?php endif; ?>
           <form class="allergy-chip" method="post" action="/staff/receptionist/patient-allergy-remove/<?= e($id) ?>" data-confirm="Remove allergy &lt;b&gt;<?= e($allergy['allergen_name']) ?>&lt;/b&gt;?" data-confirm-title="Remove Allergy" data-confirm-ok="Remove" data-confirm-danger="true">
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="allergen_name" value="<?= e($allergy['allergen_name']) ?>">
@@ -130,6 +134,7 @@ require __DIR__ . '/header.php';
           </form>
         <?php endforeach; ?>
       </div>
+      <p class="allergy-note mt-4"><span aria-hidden="true">*</span> Allergies added by a doctor cannot be removed.</p>
       <form class="allergy-add-form mt-6" method="post" action="/staff/receptionist/patient-allergy-add/<?= e($id) ?>">
         <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
         <input class="field__input" name="allergen_name" maxlength="100" required aria-label="Allergy to add">

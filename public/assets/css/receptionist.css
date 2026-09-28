@@ -400,6 +400,11 @@ form.allergy-chip {
   cursor: pointer;
 }
 
+.allergy-note {
+  font-size: var(--fs-xs);
+  color: var(--danger);
+}
+
 .allergy-add-form {
   display: flex;
   gap: var(--sp-4);

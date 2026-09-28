@@ -26,9 +26,13 @@ final class PatientAllergy
         return $stmt->rowCount() === 1;
     }
 
-    public static function remove(int $patientId, string $allergenName): void
+    public static function remove(int $patientId, string $allergenName): bool
     {
-        db()->prepare('DELETE FROM patient_allergy WHERE patient_id = ? AND allergen_name = ?')
-            ->execute([$patientId, $allergenName]);
+        $stmt = db()->prepare(
+            "DELETE FROM patient_allergy WHERE patient_id = ? AND allergen_name = ? AND added_by_role <> 'doctor'",
+        );
+        $stmt->execute([$patientId, $allergenName]);
+
+        return $stmt->rowCount() === 1;
     }
 }

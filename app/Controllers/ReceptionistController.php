@@ -216,7 +216,10 @@ class ReceptionistController extends Controller
         $patientId = (int) $patient['patient_id'];
 
         $allergen = (string) ($_POST['allergen_name'] ?? '');
-        PatientAllergy::remove($patientId, $allergen);
+        if (!PatientAllergy::remove($patientId, $allergen)) {
+            flash_error('Allergies added by a doctor cannot be removed.');
+            $this->redirect('/staff/receptionist/patient-edit/' . $patientId);
+        }
         AuditLog::record('staff', current_staff_id(), 'delete', 'patient_allergy', (string) $patientId);
 
         flash_success($allergen . ' removed from allergies.');
