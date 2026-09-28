@@ -28,7 +28,7 @@ require __DIR__ . '/header.php';
       <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
       <label class="field">
         <span class="field__label">Supplier name <span class="field__req" aria-hidden="true">*</span></span>
-        <input class="field__input" name="name" required>
+        <input class="field__input" name="name" maxlength="160" required>
       </label>
       <label class="field">
         <span class="field__label">Phone <span class="field__req" aria-hidden="true">*</span></span>

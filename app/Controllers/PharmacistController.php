@@ -176,8 +176,8 @@ class PharmacistController extends Controller
         $batchId = isset($input['batch_id']) && (int)$input['batch_id'] > 0 ? (int)$input['batch_id'] : null;
 
         $qtyInput = $input['quantity'] ?? null;
-        if ($qtyInput === null || !is_numeric($qtyInput)) {
-            $this->jsonResponse(['ok' => false, 'error' => 'Please enter a valid numeric quantity to add or remove.'], 400);
+        if ($qtyInput === null || !preg_match('/^-?\d+$/', trim((string)$qtyInput))) {
+            $this->jsonResponse(['ok' => false, 'error' => 'Enter a whole number of units to add or remove.'], 400);
             return;
         }
         $delta = (int)$qtyInput;
@@ -514,6 +514,11 @@ class PharmacistController extends Controller
 
             if ($name === '') {
                 flash_error('Enter the supplier name.');
+                $this->redirect('/staff/pharmacist/suppliers');
+            }
+
+            if (mb_strlen($name) > 160) {
+                flash_error('Keep the supplier name under 160 characters.');
                 $this->redirect('/staff/pharmacist/suppliers');
             }
 
