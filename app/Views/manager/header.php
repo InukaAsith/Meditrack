@@ -38,6 +38,7 @@ $hasUnread = true;
       ['key' => 'financial-reports', 'label' => 'Financial reports', 'href' => '/staff/manager/financial-reports', 'icon' => 'billing'],
       ['key' => 'approvals', 'label' => 'Approvals', 'href' => '/staff/manager/approvals', 'icon' => 'check'],
       ['key' => 'drug-pricing', 'label' => 'Drug pricing', 'href' => '/staff/manager/drug-pricing', 'icon' => 'pill'],
+      ['key' => 'clinic-configuration', 'label' => 'Clinic configuration', 'href' => '/staff/manager/clinic-configuration', 'icon' => 'settings'],
       ['key' => 'pharmacy-alerts', 'label' => 'Pharmacy alerts', 'href' => '/staff/manager/pharmacy-alerts', 'icon' => 'alert'],
       ['key' => 'notifications', 'label' => 'Notifications', 'href' => '/staff/manager/notifications', 'icon' => 'bell'],
       ['key' => 'profile', 'label' => 'Profile', 'href' => '/staff/manager/profile', 'icon' => 'profile'],

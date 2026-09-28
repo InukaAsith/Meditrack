@@ -143,6 +143,11 @@ class ManagerController extends Controller
         $this->view('manager/drug-pricing');
     }
 
+    public function clinicConfiguration(): void
+    {
+        $this->view('manager/clinic-configuration');
+    }
+
     public function pharmacyAlerts(): void
     {
         $this->view('manager/pharmacy-alerts');
